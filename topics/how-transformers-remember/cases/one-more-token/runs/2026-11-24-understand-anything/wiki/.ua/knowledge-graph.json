@@ -1,0 +1,935 @@
+{
+  "version": "1.0.0",
+  "kind": "knowledge",
+  "project": {
+    "name": "How Transformers Remember",
+    "languages": [
+      "markdown"
+    ],
+    "frameworks": [
+      "karpathy-wiki"
+    ],
+    "description": "Knowledge graph for How Transformers Remember",
+    "analyzedAt": "2026-11-24T08:13:59.406211+00:00",
+    "gitCommitHash": "e6aece01d1fd24df010051c143edbe7dcf97adc8"
+  },
+  "nodes": [
+    {
+      "id": "article:attention-row",
+      "type": "article",
+      "name": "Read the same cache two ways",
+      "filePath": "attention-row.md",
+      "summary": "A new query changes the mixture of values, even when the cache stays fixed. In a two-position toy row, changing the query from 1 to 0 changes the attention output from 8 to 6.",
+      "tags": [
+        "reuse the prefix"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [
+          "causal-cache",
+          "shared-heads"
+        ],
+        "category": "Reuse the prefix",
+        "content": "# Read the same cache two ways\n\nA new query changes the mixture of values, even when the cache stays fixed. In a two-position toy row, changing the query from 1 to 0 changes the attention output from 8 to 6.\n\nThe scaled score is q\u00b7k\u1d62/\u221ad. Softmax turns these scores into weights that sum to one. Attention returns the sum of each weight times its value.\n\nTake d = 1, keys 0 and ln(3), and values 2 and 10. For q = 1, exponentiating the scores gives 1 and 3. The weights are \u00bc and \u00be, and the weighted sum is \u00bc \u00d7 2 + \u00be \u00d7 10 = 8. For q = 0, each exponent is 1 and the answer is (2 + 10)/2 = 6. A real decoder includes the current position among those it can attend to.\n\nThis is how different queries read the [[causal-cache]]. It also explains how [[shared-heads]] can share stored values while producing different answers. [Transformer, \u00a73.2](https://arxiv.org/abs/1706.03762)\n",
+        "backlinks": [
+          "article:causal-cache"
+        ]
+      }
+    },
+    {
+      "id": "article:causal-cache",
+      "type": "article",
+      "name": "What can the next token reuse?",
+      "filePath": "causal-cache.md",
+      "summary": "A causal decoder saves a key and a value for each past position at each attention layer. Appending a token cannot change what an earlier position could see, so its old projections remain valid.",
+      "tags": [
+        "reuse the prefix"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [
+          "attention-row",
+          "dense-budget"
+        ],
+        "category": "Reuse the prefix",
+        "content": "# What can the next token reuse?\n\nA causal decoder saves a key and a value for each past position at each attention layer. Appending a token cannot change what an earlier position could see, so its old projections remain valid.\n\nSuppose the prompt says \u201cThe spare key is in the blue drawer. Open the \u2026\u201d. Prefill processes the prompt and stores its projections. During decode the new position computes its own query, key, and value. It appends its key and value and uses its query to score the eligible keys. The key determines how relevant a position is to this query. The value supplies what it contributes. Each new query needs fresh scores.\n\nFollow [[attention-row]] to see the same cache return two different answers, then [[dense-budget]] to count what gets stored. [Transformer attention](https://arxiv.org/abs/1706.03762)\n",
+        "backlinks": [
+          "article:attention-row"
+        ]
+      }
+    },
+    {
+      "id": "article:compressed-history",
+      "type": "article",
+      "name": "Compress older positions",
+      "filePath": "compressed-history.md",
+      "summary": "DeepSeek\u2011V4\u2011Flash combines a detailed recent window with compressed global history. Forming summaries reduces the inventory of stored entries. Sparse selection reduces how many entries a query reads.",
+      "tags": [
+        "store fewer numbers"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [
+          "shared-layers",
+          "transfer-check"
+        ],
+        "category": "Store fewer numbers",
+        "content": "# Compress older positions\n\nDeepSeek\u2011V4\u2011Flash combines a detailed recent window with compressed global history. Forming summaries reduces the inventory of stored entries. Sparse selection reduces how many entries a query reads.\n\nCompressed Sparse Attention (CSA) produces finer summaries and selects relevant ones for each query. Heavily Compressed Attention (HCA) uses coarser summaries and can read all of them. A model can therefore store many entries yet consult only a few on a particular step. Grouping positions also changes the detail represented by each entry.\n\nV4.1\u2011Flash adds sharing across layers through [[shared-layers]]. Check the distinction between stored and selected entries in [[transfer-check]]. [DeepSeek\u2011V4\u2011Flash model card](https://huggingface.co/deepseek-ai/DeepSeek-V4-Flash)\n",
+        "backlinks": [
+          "article:latent-attention",
+          "article:shared-layers",
+          "article:transfer-check"
+        ]
+      }
+    },
+    {
+      "id": "article:dense-budget",
+      "type": "article",
+      "name": "Count a dense KV cache",
+      "filePath": "dense-budget.md",
+      "summary": "One token in the example MHA model adds 512 KiB. At 4,096 tokens the cache holds 2 GiB for one sequence. A dense decoding step still reads keys and values from the history.",
+      "tags": [
+        "reuse the prefix"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [
+          "shared-heads",
+          "global-budget"
+        ],
+        "category": "Reuse the prefix",
+        "content": "# Count a dense KV cache\n\nOne token in the example MHA model adds 512 KiB. At 4,096 tokens the cache holds 2 GiB for one sequence. A dense decoding step still reads keys and values from the history.\n\nMultiply batch \u00d7 tokens \u00d7 layers \u00d7 KV heads \u00d7 head dimension \u00d7 2 arrays \u00d7 bytes per number. Here one token costs 1 \u00d7 32 layers \u00d7 32 heads \u00d7 128 numbers \u00d7 2 arrays \u00d7 2 bytes = 524,288 bytes. At 8,192 tokens the total reaches 4 GiB. This counts the ideal KV tensors. Weights, temporary storage, and allocator overhead have separate budgets.\n\nTry [[shared-heads]] to change just one factor. Use [[global-budget]] for an architecture with a different storage layout. [Fast Transformer Decoding](https://arxiv.org/abs/1911.02150)\n",
+        "backlinks": [
+          "article:causal-cache",
+          "article:global-budget",
+          "article:shared-heads",
+          "article:transfer-check"
+        ]
+      }
+    },
+    {
+      "id": "article:entry-precision",
+      "type": "article",
+      "name": "Price one compressed entry",
+      "filePath": "entry-precision.md",
+      "summary": "A V4.1\u2011Flash global entry has a 288-byte main vector and a 68-byte index key. Count the scale bytes as well as the packed four-bit values.",
+      "tags": [
+        "reconstruct 890 bytes"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [
+          "shared-layers",
+          "global-budget"
+        ],
+        "category": "Reconstruct 890 bytes",
+        "content": "# Price one compressed entry\n\nA V4.1\u2011Flash global entry has a 288-byte main vector and a 68-byte index key. Count the scale bytes as well as the packed four-bit values.\n\nFor the 512-channel main vector, two four-bit values occupy one byte and each group of 16 channels shares one scale byte. The total is 512/2 + 512/16 = 288 bytes. For the 128-channel index key, groups of 32 share a scale byte, giving 128/2 + 128/32 = 68 bytes. The combined price is 356 bytes. The local sliding-window cache uses FP8.\n\nMultiply this price by the global writer rate from [[shared-layers]] to get the [[global-budget]]. [DeepSeek\u2011V4.1\u2011Flash precision](https://arxiv.org/html/2609.19969v1) \u00b7 [Reference implementation](https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash/blob/main/inference/model.py)\n",
+        "backlinks": [
+          "article:global-budget",
+          "article:shared-layers"
+        ]
+      }
+    },
+    {
+      "id": "article:global-budget",
+      "type": "article",
+      "name": "Reconstruct 890 bytes per token",
+      "filePath": "global-budget.md",
+      "summary": "DeepSeek reports 890 bytes of global KV per token for V4.1\u2011Flash. That is about one quarter of V4\u2011Flash\u2019s corresponding global footprint at equal context length.",
+      "tags": [
+        "reconstruct 890 bytes"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [
+          "entry-precision",
+          "shared-layers",
+          "dense-budget"
+        ],
+        "category": "Reconstruct 890 bytes",
+        "content": "# Reconstruct 890 bytes per token\n\nDeepSeek reports 890 bytes of global KV per token for V4.1\u2011Flash. That is about one quarter of V4\u2011Flash\u2019s corresponding global footprint at equal context length.\n\nThe two ingredients are [[entry-precision]] (288 + 68 = 356 bytes per global entry) and [[shared-layers]] (3 \u00d7 \u00bd + 1 = 2.5 entries per token). Multiply them: 356 \u00d7 2.5 = 890 bytes per token. At exactly one million tokens this term is 890,000,000 bytes, or 890 decimal MB (about 849 MiB). The local window, weights, allocator overhead, and temporary activations consume additional memory. The reported one-eighth figure concerns persistent storage in a different comparison.\n\nReturn to [[dense-budget]] to compare what each formula counts before using the numbers. [Technical report](https://arxiv.org/html/2609.19969v1) \u00b7 [Release announcement](https://api-docs.deepseek.com/news/news260910/)\n",
+        "backlinks": [
+          "article:dense-budget",
+          "article:entry-precision",
+          "article:shared-layers",
+          "article:transfer-check"
+        ]
+      }
+    },
+    {
+      "id": "article:latent-attention",
+      "type": "article",
+      "name": "Store a learned latent",
+      "filePath": "latent-attention.md",
+      "summary": "DeepSeek\u2011V2\u2019s multi-head latent attention stores a compact learned vector per position plus a positional key. Head-specific projections can use that shared vector.",
+      "tags": [
+        "store fewer numbers"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [
+          "shared-heads",
+          "compressed-history"
+        ],
+        "category": "Store fewer numbers",
+        "content": "# Store a learned latent\n\nDeepSeek\u2011V2\u2019s multi-head latent attention stores a compact learned vector per position plus a positional key. Head-specific projections can use that shared vector.\n\nLet c = W\u2193h compress the token\u2019s hidden state h. The content score q\u1d40(W\u2191c) equals (W\u2191\u1d40q)\u1d40c. Moving the projection onto the query allows scoring directly against the stored latent. The positional key preserves rotary position information. This reduces how many numbers each position needs while retaining head-specific transformations.\n\nCompare this representation with the explicit KV banks in [[shared-heads]]. Another dimension available for compression is the number of positions represented, explored in [[compressed-history]]. [DeepSeek\u2011V2, \u00a72.1](https://arxiv.org/html/2405.04434v5)\n",
+        "backlinks": [
+          "article:shared-heads"
+        ]
+      }
+    },
+    {
+      "id": "article:shared-heads",
+      "type": "article",
+      "name": "Share keys and values across heads",
+      "filePath": "shared-heads.md",
+      "summary": "Keep 32 query heads. With 8 KV heads, each group of four queries reads one KV bank. With one KV head, every query reads the same bank. Each query still computes its own attention weights.",
+      "tags": [
+        "store fewer numbers"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [
+          "dense-budget",
+          "latent-attention"
+        ],
+        "category": "Store fewer numbers",
+        "content": "# Share keys and values across heads\n\nKeep 32 query heads. With 8 KV heads, each group of four queries reads one KV bank. With one KV head, every query reads the same bank. Each query still computes its own attention weights.\n\nIn the [[dense-budget]] example, MHA (32 KV heads), GQA (8), and MQA (1) use 2 GiB, 512 MiB, and 64 MiB respectively at 4,096 tokens. At 8,192 tokens they use 4 GiB, 1 GiB, and 128 MiB. These are hypothetical architectures with equal layer count, head size, and precision. An existing MHA model would need training or adaptation to share heads this way.\n\nHistorically, MQA appeared in 2019 and GQA in 2023. A different way to share information across heads is [[latent-attention]]. [MQA paper](https://arxiv.org/abs/1911.02150) \u00b7 [GQA paper](https://arxiv.org/abs/2305.13245)\n",
+        "backlinks": [
+          "article:attention-row",
+          "article:dense-budget",
+          "article:latent-attention"
+        ]
+      }
+    },
+    {
+      "id": "article:shared-layers",
+      "type": "article",
+      "name": "Let several layers read one global store",
+      "filePath": "shared-layers.md",
+      "summary": "In DeepSeek\u2011V4.1\u2011Flash, a Full layer writes global KV and selects positions. A Reindex layer reads shared KV and chooses new positions. A Reuse layer also reuses a preceding selection.",
+      "tags": [
+        "reconstruct 890 bytes"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [
+          "entry-precision",
+          "global-budget",
+          "compressed-history"
+        ],
+        "category": "Reconstruct 890 bytes",
+        "content": "# Let several layers read one global store\n\nIn DeepSeek\u2011V4.1\u2011Flash, a Full layer writes global KV and selects positions. A Reindex layer reads shared KV and chooses new positions. A Reuse layer also reuses a preceding selection.\n\nEvery layer computes its own attention query and retains its own 128-token local attention window. Of the global writers, three encoder layers each write one entry per pair of tokens; one decoder layer writes one entry per token. Averaged over a long sequence that is 3 \u00d7 \u00bd + 1 = 2.5 entries per token across the network. A fractional average counts entries over many tokens.\n\nCombine that rate with [[entry-precision]] to reconstruct the [[global-budget]]. Earlier [[compressed-history]] addresses how far back positions are represented. [CSA2 and model configuration, \u00a7\u00a72.3 and 4.2.1](https://arxiv.org/html/2609.19969v1)\n",
+        "backlinks": [
+          "article:compressed-history",
+          "article:entry-precision",
+          "article:global-budget"
+        ]
+      }
+    },
+    {
+      "id": "article:transfer-check",
+      "type": "article",
+      "name": "Predict what changes",
+      "filePath": "transfer-check.md",
+      "summary": "Start with 4,096 tokens and 8 KV heads in the toy model. Double the sequence length and halve the number of KV heads. Predict the memory cost before opening the linked explanation.",
+      "tags": [
+        "test your prediction"
+      ],
+      "complexity": "simple",
+      "knowledgeMeta": {
+        "wikilinks": [
+          "dense-budget",
+          "compressed-history",
+          "global-budget"
+        ],
+        "category": "Test your prediction",
+        "content": "# Predict what changes\n\nStart with 4,096 tokens and 8 KV heads in the toy model. Double the sequence length and halve the number of KV heads. Predict the memory cost before opening the linked explanation.\n\nCheck: in [[dense-budget]], the factors of 2 and \u00bd cancel. The result stays at 512 MiB. All 32 query heads still have a KV group to read. Now compare two designs that each read 512 global entries per query. If one stores a same-sized entry per token and the other stores one per four tokens, which cache grows faster?\n\nCheck: the first stores about four times as many entries over a long prefix. A read limit is insufficient to determine storage. Revisit [[compressed-history]] for the mechanism, then try explaining [[global-budget]] without looking up its two factors.\n",
+        "backlinks": [
+          "article:compressed-history"
+        ]
+      }
+    },
+    {
+      "id": "topic:reuse-the-prefix",
+      "type": "topic",
+      "name": "Reuse the prefix",
+      "summary": "Category from index: Reuse the prefix (3 articles)",
+      "tags": [
+        "category"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "topic:store-fewer-numbers",
+      "type": "topic",
+      "name": "Store fewer numbers",
+      "summary": "Category from index: Store fewer numbers (3 articles)",
+      "tags": [
+        "category"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "topic:reconstruct-890-bytes",
+      "type": "topic",
+      "name": "Reconstruct 890 bytes",
+      "summary": "Category from index: Reconstruct 890 bytes (3 articles)",
+      "tags": [
+        "category"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "topic:test-your-prediction",
+      "type": "topic",
+      "name": "Test your prediction",
+      "summary": "Category from index: Test your prediction (1 articles)",
+      "tags": [
+        "category"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "entity:deepseek-v2",
+      "type": "entity",
+      "name": "DeepSeek\u2011V2",
+      "summary": "The model used to illustrate multi-head latent attention and its separate positional key.",
+      "tags": [
+        "entity",
+        "model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "entity:deepseek-v4-flash",
+      "type": "entity",
+      "name": "DeepSeek\u2011V4\u2011Flash",
+      "summary": "A model that combines a detailed recent window with compressed global history.",
+      "tags": [
+        "entity",
+        "model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "entity:deepseek-v4-1-flash",
+      "type": "entity",
+      "name": "DeepSeek\u2011V4.1\u2011Flash",
+      "summary": "A model whose global cache is shared across layers and whose local windows are layer-specific.",
+      "tags": [
+        "entity",
+        "model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "entity:fast-transformer-decoding",
+      "type": "entity",
+      "name": "Fast Transformer Decoding",
+      "summary": "The 2019 MQA paper linked in the dense-cache and shared-heads articles (arXiv 1911.02150).",
+      "tags": [
+        "entity",
+        "paper"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "entity:deepseek-v4-flash-model-card",
+      "type": "entity",
+      "name": "DeepSeek\u2011V4\u2011Flash model card",
+      "summary": "The model card linked in the article on compression and selection of older positions.",
+      "tags": [
+        "entity",
+        "source document"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "claim:causal-cache:prefix-remains-valid",
+      "type": "claim",
+      "name": "Earlier keys and values remain valid",
+      "summary": "In causal decoding, appending a token leaves the information available to earlier positions unchanged. Their keys and values can be reused while the new query computes fresh scores.",
+      "tags": [
+        "claim",
+        "reuse the prefix"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "claim:attention-row:query-changes-mixture",
+      "type": "claim",
+      "name": "A fixed cache can give different answers",
+      "summary": "The query determines the attention weights assigned to the stored values. Changing only the query can therefore change their weighted sum.",
+      "tags": [
+        "claim",
+        "reuse the prefix"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "claim:dense-budget:bytes-per-token",
+      "type": "claim",
+      "name": "Dense KV storage grows linearly with context length",
+      "summary": "For one sequence with 32 layers, 32 KV heads, head dimension 128 and two-byte elements, the key and value tensors require 524,288 bytes per token.",
+      "tags": [
+        "claim",
+        "reuse the prefix"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "claim:shared-heads:fewer-banks",
+      "type": "claim",
+      "name": "Query heads can share stored KV banks",
+      "summary": "Reducing the KV-head count reduces stored keys and values while retaining a separate attention computation for each query head.",
+      "tags": [
+        "claim",
+        "store fewer numbers"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "claim:latent-attention:query-side-projection",
+      "type": "claim",
+      "name": "Heads can score a shared latent directly",
+      "summary": "Moving the content-key projection onto the query preserves the dot product and allows heads to score a shared stored latent. A separate positional key preserves rotary position information.",
+      "tags": [
+        "claim",
+        "store fewer numbers"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "claim:compressed-history:storage-and-selection",
+      "type": "claim",
+      "name": "Compression and selection change different counts",
+      "summary": "Compressing positions changes how many global entries are stored. Selecting a subset changes how many entries a query reads.",
+      "tags": [
+        "claim",
+        "store fewer numbers"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "claim:shared-layers:global-writer-rate",
+      "type": "claim",
+      "name": "Four global writers average 2.5 entries per token",
+      "summary": "In V4.1\u2011Flash, three encoder layers each write one global entry per pair of tokens, and one decoder layer writes one per token. Their rates sum to 2.5 entries per token over a long sequence.",
+      "tags": [
+        "claim",
+        "reconstruct 890 bytes"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "claim:entry-precision:include-scales",
+      "type": "claim",
+      "name": "Packed values and scale bytes sum to 356 bytes",
+      "summary": "In the V4.1\u2011Flash global cache, the 512-channel main vector uses 256 packed-value bytes and 32 scale bytes. The 128-channel index key uses 64 packed-value bytes and four scale bytes.",
+      "tags": [
+        "claim",
+        "reconstruct 890 bytes"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "claim:global-budget:global-bytes-per-token",
+      "type": "claim",
+      "name": "Global KV grows by 890 bytes per token",
+      "summary": "Multiplying the V4.1\u2011Flash average of 2.5 global entries per token by 356 bytes per entry gives 890 bytes per token. The total memory budget also includes the local window, weights and other overhead.",
+      "tags": [
+        "claim",
+        "reconstruct 890 bytes"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "claim:transfer-check:offset-head-and-length",
+      "type": "claim",
+      "name": "Head count can offset a longer prefix",
+      "summary": "In the toy dense-cache budget, doubling context length while halving the KV-head count leaves the number of stored bytes unchanged when the other factors stay fixed.",
+      "tags": [
+        "claim",
+        "test your prediction"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "article:attention-row",
+      "target": "article:causal-cache",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:attention-row",
+      "target": "article:shared-heads",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:causal-cache",
+      "target": "article:attention-row",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:causal-cache",
+      "target": "article:dense-budget",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:compressed-history",
+      "target": "article:shared-layers",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:compressed-history",
+      "target": "article:transfer-check",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:dense-budget",
+      "target": "article:shared-heads",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:dense-budget",
+      "target": "article:global-budget",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:entry-precision",
+      "target": "article:shared-layers",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:entry-precision",
+      "target": "article:global-budget",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:global-budget",
+      "target": "article:entry-precision",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:global-budget",
+      "target": "article:shared-layers",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:global-budget",
+      "target": "article:dense-budget",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:latent-attention",
+      "target": "article:shared-heads",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:latent-attention",
+      "target": "article:compressed-history",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:shared-heads",
+      "target": "article:dense-budget",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:shared-heads",
+      "target": "article:latent-attention",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:shared-layers",
+      "target": "article:entry-precision",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:shared-layers",
+      "target": "article:global-budget",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:shared-layers",
+      "target": "article:compressed-history",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:transfer-check",
+      "target": "article:dense-budget",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:transfer-check",
+      "target": "article:compressed-history",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:transfer-check",
+      "target": "article:global-budget",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "article:causal-cache",
+      "target": "topic:reuse-the-prefix",
+      "type": "categorized_under",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "article:attention-row",
+      "target": "topic:reuse-the-prefix",
+      "type": "categorized_under",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "article:dense-budget",
+      "target": "topic:reuse-the-prefix",
+      "type": "categorized_under",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "article:shared-heads",
+      "target": "topic:store-fewer-numbers",
+      "type": "categorized_under",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "article:latent-attention",
+      "target": "topic:store-fewer-numbers",
+      "type": "categorized_under",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "article:compressed-history",
+      "target": "topic:store-fewer-numbers",
+      "type": "categorized_under",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "article:shared-layers",
+      "target": "topic:reconstruct-890-bytes",
+      "type": "categorized_under",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "article:entry-precision",
+      "target": "topic:reconstruct-890-bytes",
+      "type": "categorized_under",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "article:global-budget",
+      "target": "topic:reconstruct-890-bytes",
+      "type": "categorized_under",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "article:transfer-check",
+      "target": "topic:test-your-prediction",
+      "type": "categorized_under",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "article:causal-cache",
+      "target": "claim:causal-cache:prefix-remains-valid",
+      "type": "exemplifies",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "The drawer-prompt example follows cached prompt projections into the next decoding step."
+    },
+    {
+      "source": "article:attention-row",
+      "target": "claim:attention-row:query-changes-mixture",
+      "type": "exemplifies",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "With keys 0 and ln(3) and values 2 and 10, changing the scalar query from 1 to 0 changes the output from 8 to 6."
+    },
+    {
+      "source": "article:dense-budget",
+      "target": "claim:dense-budget:bytes-per-token",
+      "type": "exemplifies",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "At 4,096 tokens the example requires 2 GiB, and at 8,192 it requires 4 GiB."
+    },
+    {
+      "source": "article:shared-heads",
+      "target": "claim:shared-heads:fewer-banks",
+      "type": "exemplifies",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "For 32 query heads at 4,096 tokens the 32-, 8- and 1-KV-head examples use 2 GiB, 512 MiB and 64 MiB respectively."
+    },
+    {
+      "source": "article:latent-attention",
+      "target": "claim:latent-attention:query-side-projection",
+      "type": "exemplifies",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "The article works through the equality between projecting the latent and applying the transposed projection to the query."
+    },
+    {
+      "source": "article:compressed-history",
+      "target": "claim:compressed-history:storage-and-selection",
+      "type": "exemplifies",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "CSA selects among finer summaries, while HCA can read all of its coarser summaries."
+    },
+    {
+      "source": "article:shared-layers",
+      "target": "claim:shared-layers:global-writer-rate",
+      "type": "exemplifies",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "The article counts writers across layers that share their global cache and retain separate 128-token local windows."
+    },
+    {
+      "source": "article:entry-precision",
+      "target": "claim:entry-precision:include-scales",
+      "type": "exemplifies",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "The article prices the main vector at 288 bytes and the index key at 68 bytes, then sums them."
+    },
+    {
+      "source": "article:global-budget",
+      "target": "claim:global-budget:global-bytes-per-token",
+      "type": "exemplifies",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "At one million tokens the global term is 890,000,000 bytes, equal to 890 decimal MB."
+    },
+    {
+      "source": "article:transfer-check",
+      "target": "claim:transfer-check:offset-head-and-length",
+      "type": "exemplifies",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "Moving from 4,096 tokens with eight KV heads to 8,192 with four leaves 512 MiB of cached KV tensors."
+    },
+    {
+      "source": "entity:deepseek-v2",
+      "target": "claim:latent-attention:query-side-projection",
+      "type": "exemplifies",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "DeepSeek\u2011V2 is the named model in the worked latent-projection example."
+    },
+    {
+      "source": "entity:deepseek-v4-flash",
+      "target": "claim:compressed-history:storage-and-selection",
+      "type": "exemplifies",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "V4\u2011Flash combines compressed history with selective reads in CSA."
+    },
+    {
+      "source": "entity:deepseek-v4-1-flash",
+      "target": "claim:shared-layers:global-writer-rate",
+      "type": "exemplifies",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "The stated writer schedule is attributed specifically to DeepSeek\u2011V4.1\u2011Flash."
+    },
+    {
+      "source": "article:dense-budget",
+      "target": "entity:fast-transformer-decoding",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "The article links arXiv 1911.02150 under the title Fast Transformer Decoding."
+    },
+    {
+      "source": "article:shared-heads",
+      "target": "entity:fast-transformer-decoding",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "The historical discussion links the same arXiv paper as its source for MQA."
+    },
+    {
+      "source": "article:compressed-history",
+      "target": "entity:deepseek-v4-flash-model-card",
+      "type": "cites",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "The discussion of compressed and sparse global attention links the model card as its source."
+    },
+    {
+      "source": "article:transfer-check",
+      "target": "claim:compressed-history:storage-and-selection",
+      "type": "exemplifies",
+      "direction": "forward",
+      "weight": 0.7,
+      "description": "With equal-size entries and 512 reads per query in both designs, writing one entry per token stores about four times as many entries as writing one per four tokens."
+    },
+    {
+      "source": "article:transfer-check",
+      "target": "article:shared-heads",
+      "type": "builds_on",
+      "direction": "forward",
+      "weight": 0.8,
+      "description": "The exercise takes the eight-KV-head, 32-query-head example and asks what happens when context length and KV-head count change together."
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:reuse-the-prefix",
+      "name": "Reuse the prefix",
+      "description": "Reuse the prefix (8 nodes)",
+      "nodeIds": [
+        "article:causal-cache",
+        "article:attention-row",
+        "article:dense-budget",
+        "topic:reuse-the-prefix",
+        "claim:causal-cache:prefix-remains-valid",
+        "claim:attention-row:query-changes-mixture",
+        "claim:dense-budget:bytes-per-token",
+        "entity:fast-transformer-decoding"
+      ]
+    },
+    {
+      "id": "layer:store-fewer-numbers",
+      "name": "Store fewer numbers",
+      "description": "Store fewer numbers (10 nodes)",
+      "nodeIds": [
+        "article:shared-heads",
+        "article:latent-attention",
+        "article:compressed-history",
+        "topic:store-fewer-numbers",
+        "claim:shared-heads:fewer-banks",
+        "claim:latent-attention:query-side-projection",
+        "claim:compressed-history:storage-and-selection",
+        "entity:deepseek-v4-flash-model-card",
+        "entity:deepseek-v2",
+        "entity:deepseek-v4-flash"
+      ]
+    },
+    {
+      "id": "layer:reconstruct-890-bytes",
+      "name": "Reconstruct 890 bytes",
+      "description": "Reconstruct 890 bytes (8 nodes)",
+      "nodeIds": [
+        "article:shared-layers",
+        "article:entry-precision",
+        "article:global-budget",
+        "topic:reconstruct-890-bytes",
+        "claim:shared-layers:global-writer-rate",
+        "claim:entry-precision:include-scales",
+        "claim:global-budget:global-bytes-per-token",
+        "entity:deepseek-v4-1-flash"
+      ]
+    },
+    {
+      "id": "layer:test-your-prediction",
+      "name": "Test your prediction",
+      "description": "Test your prediction (3 nodes)",
+      "nodeIds": [
+        "article:transfer-check",
+        "topic:test-your-prediction",
+        "claim:transfer-check:offset-head-and-length"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Reuse the prefix",
+      "description": "Explore the Reuse the prefix section (3 articles)",
+      "nodeIds": [
+        "article:causal-cache",
+        "article:attention-row",
+        "article:dense-budget"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Store fewer numbers",
+      "description": "Explore the Store fewer numbers section (3 articles)",
+      "nodeIds": [
+        "article:shared-heads",
+        "article:latent-attention",
+        "article:compressed-history"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Reconstruct 890 bytes",
+      "description": "Explore the Reconstruct 890 bytes section (3 articles)",
+      "nodeIds": [
+        "article:shared-layers",
+        "article:entry-precision",
+        "article:global-budget"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Test your prediction",
+      "description": "Explore the Test your prediction section (1 articles)",
+      "nodeIds": [
+        "article:transfer-check"
+      ]
+    }
+  ]
+}

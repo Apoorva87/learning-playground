@@ -1,6 +1,7 @@
 # Tool catalog
 
 - [OpenMAIC](openmaic/README.md) — Trying its interactive lesson generator on transformer KV caches.
+- [Understand‑Anything](understand-anything/README.md) — Turning the same KV-cache material into a linked knowledge graph and guided tour.
 
 ## Register a tool
 

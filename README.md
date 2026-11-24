@@ -17,7 +17,7 @@ The agent working in this repository is responsible for maintaining the index, t
 
 Use English only for communication, lessons, interface labels, and trial records.
 
-**First trial** · [How Transformers Remember with OpenMAIC](topics/how-transformers-remember/README.md).
+**Current comparison** · Explore the same KV-cache example with the [OpenMAIC lesson](topics/how-transformers-remember/cases/one-more-token/runs/2026-11-23-openmaic/lesson.html) and the [Understand‑Anything knowledge graph](topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-understand-anything/map.html).
 
 ## Start a session
 

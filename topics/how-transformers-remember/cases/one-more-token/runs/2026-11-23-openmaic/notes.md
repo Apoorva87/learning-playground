@@ -14,6 +14,7 @@ The full Docker Compose classroom was attempted. Docker denied socket access for
 - The generated preset buttons did nothing in a browser. Their internal names differed from their configuration, and their handler reset the selected values. The scene also initialized its observation element too late and emitted two non-English button labels. The learner-facing [calculator](calculator.html) fixes those defects, synchronizes the controls, and offers head counts that divide the 32 query heads. Git commit `f3a4093` preserves the unedited simulator at this run’s original `lesson.html` path.
 - A second OpenMAIC scene produced four questions covering attention arithmetic, MLA, CSA2, and 890 bytes per token. The original answer key put every correct option first. The [lesson](lesson.html#quiz) varies option order, clarifies wording and two numerical distractors, and presents the explanations with the questions. The [original quiz](quiz.json) preserves the SDK result.
 - The English walkthrough, reading interface, and quiz controls were assembled locally around those outputs. The classroom generator did not produce the walkthrough.
+- After the learner reported Chinese text in the HTML, I found that the open browser preview still displayed the original Start and Reset captions. I refreshed that preview with the reviewed calculator, tested the controls there, and updated the generator to translate the SDK’s example captions during generation and replay.
 
 ## Learner feedback
 

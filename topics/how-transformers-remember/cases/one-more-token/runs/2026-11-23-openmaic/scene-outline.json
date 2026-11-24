@@ -1,0 +1,19 @@
+{
+  "id": "cache-budget",
+  "type": "interactive",
+  "order": 1,
+  "title": "How Transformers Remember",
+  "description": "Build an English interactive worked lesson. Begin with a short decoding example: a new query scores unchanged past keys and mixes values, while causal masking makes old KV reusable. Show an accessible memory calculator with actual controls and a short history from MHA to DeepSeek-V4.1-Flash. End with a predict-then-reveal question. Write all formulas using plain Unicode and HTML. Use no external libraries, web fonts, images, or LaTeX. The scene must work offline.",
+  "keyPoints": [
+    "One-head toy attention: d=1, q=1, k=[0, ln(3)], v=[2,10]. Softmax weights are 1/4 and 3/4, yielding 8. Setting q=0 equalizes the weights and yields 6. Prefill stores the prefix; decode appends one new K,V; dense attention still reads prior entries.",
+    "For one sequence use bytes = tokens × 32 layers × KV heads × 128 numbers per head × 2 arrays (K and V) × 2 bytes. Keep 32 query heads fixed. At 4096 tokens MHA with 32 KV heads uses 2 GiB, GQA with 8 uses 0.5 GiB, MQA with 1 uses 0.0625 GiB. Doubling tokens doubles storage. Use MiB or GiB correctly.",
+    "MQA (2019) shares KV across all query heads; GQA (2023) shares within groups; MLA (DeepSeek-V2, 2024) stores a learned low-dimensional latent and a positional key. V4-Flash uses detailed local attention and compressed global entries, with sparse selection or heavy compression.",
+    "V4.1-Flash uses CSA2 Full, Reindex, and Reuse layers; Full writes global state, Reindex chooses fresh positions in shared state, Reuse shares both. Layers keep their own queries and local window. Main global KV uses FP4 with scale overhead. The reported 890 bytes/token applies only to the global KV cache, roughly 1/4 of V4-Flash's global cache. At a million decimal tokens: 890 MB, excluding local state, weights, workspace. Treat DeepSeek as a distinct measured architecture. Never substitute 890 into the toy head formula."
+  ],
+  "widgetType": "simulation",
+  "widgetOutline": {
+    "concept": "Predict memory before changing the number of stored KV heads or tokens.",
+    "keyVariables": ["Number of tokens, initially 4096", "KV heads: 32, 8, or 1"],
+    "designIdea": "Readable responsive worked lesson with labelled native inputs, live result and a prediction check. Keep all sections accessible by scrolling or obvious navigation. Standalone inline CSS and JS without third-party assets. Keep the presentation concise."
+  }
+}

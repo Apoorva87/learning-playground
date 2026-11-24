@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Learning playground</title>
+  <style>
+    :root {
+      color-scheme: light;
+      font-family: "Source Sans 3", system-ui, sans-serif;
+      color: #252c25;
+      background: #faf9f4;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { max-width: 51rem; margin: auto; padding: clamp(1.5rem, 5vw, 4rem); }
+    header { padding: 1.5rem 0 2rem; border-top: 4px solid #315842; }
+    h1, h2 { font-family: "Spectral", Georgia, serif; font-weight: normal; }
+    h1 { margin: 0 0 0.75rem; font-size: clamp(2.65rem, 7vw, 4.5rem); line-height: 1.04; }
+    h2 { margin: 0 0 0.5rem; font-size: 1.6rem; }
+    p { margin: 0; max-width: 64ch; line-height: 1.6; }
+    header p { max-width: 47ch; font-size: 1.1rem; }
+    a { color: #24543d; text-underline-offset: 0.2em; }
+    a:focus-visible { outline: 3px solid #945728; outline-offset: 3px; }
+    nav { border-bottom: 1px solid #b9c2b5; }
+    nav a {
+      display: grid;
+      grid-template-columns: minmax(9rem, 1fr) 2fr auto;
+      align-items: baseline;
+      gap: 1rem;
+      padding: 1.15rem 0.4rem;
+      border-top: 1px solid #b9c2b5;
+      text-decoration: none;
+    }
+    nav a:hover, nav a:focus-visible { background: #edf1e7; }
+    nav strong { font-size: 1.1rem; }
+    nav a:hover strong, nav a:focus-visible strong { text-decoration: underline; }
+    nav span { color: #465045; line-height: 1.5; }
+    section { margin: 2rem 0; }
+    section p + p { margin-top: 0.75rem; }
+    code { font-size: 0.92em; }
+    footer { display: flex; flex-wrap: wrap; gap: 0.65rem 1.5rem; }
+    @media (max-width: 34rem) {
+      nav a { grid-template-columns: 1fr auto; gap: 0.2rem 1rem; }
+      nav a span:first-of-type { grid-column: 1; grid-row: 2; }
+      nav a span:last-of-type { grid-column: 2; grid-row: 1; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Learning playground</h1>
+      <p>A notebook for trying tools on real learning tasks and remembering which parts helped.</p>
+    </header>
+    <nav aria-label="Workspace index">
+      <a href="topics/README.md">
+        <strong>Topics</strong>
+        <span>Learning questions, shared inputs, and worked examples from each tool.</span>
+        <span aria-hidden="true">→</span>
+      </a>
+      <a href="tools/README.md">
+        <strong>Tool catalog</strong>
+        <span>Repositories, skills, and agents with their tested versions and setup recipes.</span>
+        <span aria-hidden="true">→</span>
+      </a>
+      <a href="preferences.md">
+        <strong>Preferences</strong>
+        <span>What I would use again, for which task, and the examples behind that decision.</span>
+        <span aria-hidden="true">→</span>
+      </a>
+    </nav>
+    <section aria-labelledby="design">
+      <h2 id="design">How it fits together</h2>
+      <p>A topic owns the example and its inputs. Each tool gets a separate attempt at that example, so you can compare the results side by side. Feedback stays with the attempt. The preferences log links back to it when you decide what to keep.</p>
+      <p>Git keeps the examples and installation recipes. Run <code>./install.sh</code> to recreate the tools in <code>.local/tools/</code>.</p>
+    </section>
+    <footer>
+      <a href="README.md">Workspace guide</a>
+      <a href="CODEX.md">Agent instructions</a>
+    </footer>
+  </main>
+</body>
+</html>

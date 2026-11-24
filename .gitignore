@@ -1,0 +1,3 @@
+# Third-party checkouts, environments, and other reproducible installations.
+/.local/
+.DS_Store

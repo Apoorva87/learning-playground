@@ -1,6 +1,6 @@
 # Tool catalog
 
-No tools have been registered yet. Add each tool here with a link to its record and a short description of what it was tried for.
+- [OpenMAIC](openmaic/README.md) — Trying its interactive lesson generator on transformer KV caches.
 
 ## Register a tool
 

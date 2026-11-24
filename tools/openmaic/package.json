@@ -1,0 +1,7 @@
+{
+  "name": "learning-playground-openmaic",
+  "private": true,
+  "dependencies": {
+    "@openmaic/generation": "0.3.34"
+  }
+}

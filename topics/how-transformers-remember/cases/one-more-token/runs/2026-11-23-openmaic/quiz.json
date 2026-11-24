@@ -1,0 +1,118 @@
+[
+  {
+    "id": "q1",
+    "type": "single",
+    "question": "Consider a cache with keys and values that produce scores of 0 and ln(3) for a specific query, resulting in softmax weights of 1/4 and 3/4 respectively. If the associated values are 2 and 10, what is the cached output for this query? Contrast this with the result if the query were zeroed out.",
+    "options": [
+      {
+        "value": "A",
+        "label": "The output is 8 for the specific query and 6 for a zeroed query."
+      },
+      {
+        "value": "B",
+        "label": "The output is 6 for the specific query and 8 for a zeroed query."
+      },
+      {
+        "value": "C",
+        "label": "The output is 4 for the specific query and 5 for a zeroed query."
+      },
+      {
+        "value": "D",
+        "label": "The output is 8 for the specific query and 0 for a zeroed query."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "analysis": "For the specific query, the result is calculated as the weighted sum of values: (1/4 * 2) + (3/4 * 10) = 0.5 + 7.5 = 8. For a zeroed query, the scores are all equal (typically resulting in uniform weights), so the output is the average of the values: (2 + 10) / 2 = 6. This demonstrates that a fresh query can yield different results even with identical cached keys and values.",
+    "points": 15,
+    "hasAnswer": true
+  },
+  {
+    "id": "q2",
+    "type": "single",
+    "question": "In the DeepSeek-V2 MLA architecture, how does the storage mechanism for attention heads differ from Grouped Query Attention (GQA)?",
+    "options": [
+      {
+        "value": "A",
+        "label": "MLA stores a shared compact learned latent and a positional key that head-specific projections use, whereas GQA groups query heads to share one explicit KV pair."
+      },
+      {
+        "value": "B",
+        "label": "MLA requires each attention head to maintain its own full set of keys and values independently, unlike GQA which compresses them."
+      },
+      {
+        "value": "C",
+        "label": "MLA uses a single global key for all heads without positional information, while GQA assigns unique keys per group."
+      },
+      {
+        "value": "D",
+        "label": "MLA eliminates the need for query projections entirely, whereas GQA retains full query projections for every head."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "analysis": "DeepSeek-V2 MLA introduces a shared compact learned latent and a positional key. Head-specific projections map to this latent, which is distinct from GQA where groups of query heads share one explicit KV pair. This design allows for efficient compression while maintaining head-specific capabilities.",
+    "points": 15,
+    "hasAnswer": true
+  },
+  {
+    "id": "q3",
+    "type": "single",
+    "question": "In the DeepSeek V4.1-Flash CSA2 architecture, how does the system handle token processing across layers compared to simply shrinking storage?",
+    "options": [
+      {
+        "value": "A",
+        "label": "The system shares a global store across layers where Reindex selects new positions and Reuse shares the store; each layer retains its own query and a local 128-token window, distinguishing sparse reading from storage reduction."
+      },
+      {
+        "value": "B",
+        "label": "Each layer independently writes to a private store without sharing, effectively shrinking the total storage footprint by discarding old tokens entirely."
+      },
+      {
+        "value": "C",
+        "label": "The architecture uses a single global query for all layers and shares the local 128-token window across every layer simultaneously."
+      },
+      {
+        "value": "D",
+        "label": "Reindex is used to compress old tokens into summaries, while Reuse prevents any new entries from being written to the global store."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "analysis": "DeepSeek V4.1-Flash CSA2 shares a global store across layers. Reindex chooses new positions in this store, and Reuse allows sharing the store with preceding selection. Crucially, each layer still maintains its own query and a local 128-token window. This setup involves sparse reading of entries rather than just shrinking storage.",
+    "points": 15,
+    "hasAnswer": true
+  },
+  {
+    "id": "q4",
+    "type": "single",
+    "question": "Calculate the global cache footprint per token for a DeepSeek V4.1-Flash system where one main entry costs 288 bytes and index costs 68 bytes. Assume three encoder writers create one entry per two tokens, and one decoder writer creates one entry per token.",
+    "options": [
+      {
+        "value": "A",
+        "label": "890 bytes per token, representing the cost of global entries and indices only."
+      },
+      {
+        "value": "B",
+        "label": "356 bytes per token, calculated as the sum of entry and index costs divided by two."
+      },
+      {
+        "value": "C",
+        "label": "1780 bytes per token, assuming all four writers create an entry for every single token."
+      },
+      {
+        "value": "D",
+        "label": "3560 bytes per token, including local sliding-window states and workspace overheads."
+      }
+    ],
+    "answer": [
+      "A"
+    ],
+    "analysis": "The total cost per entry is 288 + 68 = 356 bytes. The writer rate is (3/2) from encoders plus 1 from the decoder, totaling 2.5 writers per token. Therefore, the cost per token is 2.5 * 356 = 890 bytes. This calculation accounts for global entries and indices; local sliding-window states, weights, and workspace are additional costs not included in this specific figure.",
+    "points": 15,
+    "hasAnswer": true
+  }
+]

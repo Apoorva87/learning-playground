@@ -1,0 +1,14 @@
+{
+  "id": "which-memory-changed",
+  "type": "quiz",
+  "order": 2,
+  "title": "What changed in the cache?",
+  "description": "Produce four distinct single-choice questions in English. Make each question teach by explaining the answer. Use the four key points in order, one per question. Questions and explanations must be understandable on their own. Give a brief setup where appropriate. Use plain Unicode text, no LaTeX or Markdown. Use credible distractors. Ensure exactly one correct answer.",
+  "keyPoints": [
+    "Causal decoder: a fresh query can get a different result using the same cached keys and values. Give two scores 0 and ln(3), values 2 and 10: exp gives weights 1/4 and 3/4, result 8. Contrast a zero query, which gives average 6.",
+    "Explain why DeepSeek-V2 MLA stores a shared compact learned latent and a positional key. Head-specific projections can use that latent; this differs from groups of query heads sharing one explicit KV pair as in GQA.",
+    "DeepSeek V4 compressed runs of old tokens into learned summaries. V4.1-Flash CSA2 can also share a global store across layers: Full writes, Reindex chooses new positions in that store, Reuse shares the store and preceding selection. Each layer still has its own query and a local 128-token window. Distinguish sparse reading of entries from shrinking their storage. Use a concrete which-layer scenario.",
+    "Reconstruct the V4.1-Flash global cache footprint: one main entry costs 288 bytes and index costs 68 bytes. Three encoder writers each create one entry per two tokens, and one decoder writer creates one per token. Thus (3/2+1) × (288+68) = 890 bytes/token and 890 decimal MB for 1,000,000 tokens. Local sliding-window states, weights and workspace are additional. Ask for the global bytes and interpret what is included in the explanation."
+  ],
+  "quizConfig": {"questionCount": 4, "difficulty": "medium", "questionTypes": ["single"]}
+}

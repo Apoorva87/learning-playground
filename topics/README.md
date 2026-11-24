@@ -1,6 +1,6 @@
 # Topics
 
-No topics have been tried yet. Add a link to each new topic here with the learning question that prompted it.
+- [How Transformers Remember](how-transformers-remember/README.md) — What is a KV cache, and how did we get from multi-head attention to DeepSeek‑V4.1‑Flash’s 890 bytes of global cache per token?
 
 ## Inside a topic
 

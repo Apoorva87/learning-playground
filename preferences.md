@@ -1,6 +1,8 @@
 # Learning preferences
 
-No feedback has been recorded yet. Each entry captures what the learner would use for a particular kind of work and the trial that informed that view.
+**Language preference, November 24, 2026.** “Always use English only.” This applies across tools and to all learner-facing material.
+
+Tool feedback is pending for [the first OpenMAIC trial](topics/how-transformers-remember/cases/one-more-token/runs/2026-11-23-openmaic/notes.md). Each entry below captures what the learner would use for a particular kind of work and the trial that informed that view.
 
 | Date | Learning task | Tool or component | What I would use and why | Trial |
 | --- | --- | --- | --- | --- |

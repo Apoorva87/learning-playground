@@ -1,0 +1,7 @@
+providers:
+  ollama:
+    preset: ollama
+    baseUrl: http://host.docker.internal:11434/v1
+    models: ["qwen3.5:35b"]
+slots:
+  llm: "ollama:qwen3.5:35b"

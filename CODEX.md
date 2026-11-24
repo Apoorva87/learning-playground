@@ -2,6 +2,8 @@
 
 Help the learner discover which tools, or parts of tools, fit the way they want to learn. Start from the tool and learning task they name. Read the [topic index](topics/README.md), [tool catalog](tools/README.md), and [preferences](preferences.md) before extending an existing experiment.
 
+Use English only in conversation, lesson content, interface labels, feedback requests, and workspace records. Check generated tool output for other languages and provide an English learner-facing version.
+
 ## When the learner names a tool and topic
 
 1. **Find the example.** Use the learner’s material or reuse an existing case that fits the question. If they gave only a topic, choose a small, representative example and state the learning goal. Clarify when uncertainty about the source or goal would materially change the trial.

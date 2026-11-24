@@ -1,0 +1,4 @@
+services:
+  openmaic:
+    volumes:
+      - ${OPENMAIC_MODEL_CONFIG:?Set OPENMAIC_MODEL_CONFIG}:/app/openmaic.yml:ro

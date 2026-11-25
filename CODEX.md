@@ -13,8 +13,19 @@ Use English only in conversation, lesson content, interface labels, feedback req
 5. **Ask for feedback after the learner sees the work.** Ask a question grounded in the example, such as “Which explanation helped you solve the next problem yourself?” Follow up on friction or a particular part they would keep. When comparing tools, invite a preference for this use case, including a combination or an undecided answer.
 6. **Record the learner’s judgment.** Save their words or a faithful paraphrase with the dated trial. Label your observations separately. Until they respond, mark feedback as pending. Update the preference log when they express a view, naming the use case, tool or component, reason, and supporting trial. Keep earlier dated decisions when their view changes and link the revision.
 
+When the learner shares a feedback export from the index, reconcile its dated ratings and comments with the relevant trial and preference log. Preserve later changes in opinion and avoid duplicating entries already recorded. A favorite mentioned in chat is a qualitative preference. Record numerical scores only when the learner supplies them.
+
 ## Keep the workspace navigable
 
 - For a new topic, create its folder and `assets/` area, add a topic README, and link it from the topic index. Put shared inputs with that topic and tool-specific outputs under the relevant case.
 - For a new tool, follow the catalog’s recipe convention and add a link to its record. Keep install scripts safe to rerun and preserve local work. Store machine-specific setup under `.local/` when possible.
+- On the root `index.html`, explain how to use each tool and what its main workflows offer. For each trial, identify the component we ran, what it produced, what we added, and which relevant features remain untested. Link the saved result and suggest one concrete thing the learner can try. When the learner asks for the workspace dashboard or index, open this page.
 - Replace the initial empty-state text in each catalog or log as soon as it has an entry. Keep the root index and README current when the layout or entry points change. A trial is finished when its result and feedback status are findable. Resume pending feedback at the next relevant session.
+
+## Maintain the public learning site and master skill
+
+Keep each tool’s detailed English HTML guide at `tools/<tool>/index.html`. Link it from the root index, show the upstream feature or diagram with attribution, give repeatable usage steps, explain which parts use software or structured teaching, and link the saved trial. For every topic, maintain a browser landing page that leads directly to its learning assets.
+
+Commit the learning assets, including reproducible inputs, outputs and figure sources, alongside the guides and notes. Keep installed upstream repositories in ignored `.local/tools/`. For private source material, use the learner’s expressly approved public excerpts or an illustrative example. The owner approved publishing the existing Prism lesson’s excerpts and file tree.
+
+Update `skills/learn-with-tools/` when evidence changes how the agent should select or combine tools. Keep personal judgments in the preference log. Before publishing, build Pages from tracked files, check links under the repository URL prefix, and confirm that saved lessons work without local services. Label live tools and localhost links by where they run.

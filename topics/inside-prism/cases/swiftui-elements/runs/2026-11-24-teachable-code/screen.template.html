@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inside Prism · From screen to Swift</title>
+<style>
+:root{color-scheme:light;--ink:#1a2926;--muted:#4c605a;--paper:#f7f5ef;--line:#bfcac2;--accent:#125b49;--pale:#e0eee6}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 "Avenir Next",system-ui,sans-serif}
+main{max-width:1460px;margin:auto;padding:24px clamp(16px,3.8vw,62px) 48px}a{color:var(--accent);text-underline-offset:3px}header{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:0 0 20px;border-bottom:1px solid var(--line)}
+h1,h2,h3,p{margin:0}h1,h2{font-family:Georgia,serif;font-weight:500;letter-spacing:-.04em;line-height:1.1}h1{font-size:clamp(36px,4vw,62px);margin:28px 0 8px}h2{font-size:clamp(25px,2.6vw,36px)}
+button{cursor:pointer;font:inherit}.tv button:disabled{opacity:.5;cursor:default}button:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #ed913a;outline-offset:4px}
+.intro{color:var(--muted);max-width:75ch}.spread{display:grid;grid-template-columns:minmax(0,1.14fr) minmax(0,1fr);align-items:start;gap:clamp(20px,3vw,44px);margin-top:25px}
+figure{margin:0}.tv{background:#14222b;color:#eef3f3;border-radius:15px;border:5px solid #243137;min-height:295px;padding:clamp(10px,1.5vw,20px);box-shadow:0 6px 15px #202d2920}
+.tv button{color:inherit;background:transparent;border:0;text-align:left;padding:4px 7px;border-radius:4px}.tv button:hover{background-color:#ffffff22}
+.tv-header{display:flex;flex-wrap:wrap;gap:3px;align-items:center;padding:0 0 10px;border-bottom:1px solid #4a5b65;font-size:clamp(11px,1.15vw,16px)}
+.tv-header .on{background:#ebf1ec;color:#162825;font-weight:700}.tv-header .on:hover{background:#ebf1ec}
+.tv-body{margin-top:18px}.browse{display:grid;grid-template-columns:25% minmax(0,1fr);gap:14px}
+.rail{border-right:1px solid #4a5b65;padding-right:6px;font-size:clamp(11px,1vw,15px)}
+.rail strong,.rail small{display:block}.rail strong{margin-bottom:10px}.rail small{font:inherit;padding:3px 0}.rail small:first-of-type{color:#ffcf94}
+.tv .heading{font-size:clamp(14px,1.3vw,20px);font-weight:650;margin-bottom:8px}.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tv .card{min-width:0;display:block;padding:3px;line-height:1.2;text-align:left;align-self:start}
+.art{display:flex;align-items:end;padding:6px;border-radius:4px;aspect-ratio:2/3;overflow:hidden;box-shadow:inset 0 0 0 1px #ffffff25}
+.art span{font:700 clamp(9px,1.1vw,16px)/1.1 Georgia,serif;color:white;text-shadow:0 1px 3px black;overflow-wrap:anywhere}
+.a0{background:radial-gradient(ellipse at 70% 35%,#d39b63 0 4%,#684d42 9%,transparent 16%),linear-gradient(150deg,#172738,#44616b 56%,#151e2d 57%,#253448)}
+.a1{background:repeating-linear-gradient(125deg,transparent 0 14%,#e9d79850 15% 18%,transparent 19% 29%),linear-gradient(40deg,#2b6260,#253a45)}
+.a2{background:radial-gradient(ellipse at 22% 32%,#d69a6b 0 10%,transparent 11%),linear-gradient(152deg,#34394c 20%,#97634e 55%,#483846 56%)}
+.tv .hot .art{outline:3px solid white;outline-offset:1px;transform:scale(1.025)}.caption{display:block;font-size:clamp(10px,1.02vw,15px);margin-top:8px;overflow-wrap:anywhere}
+#detail,#searchScene,#otherScene{min-height:220px;padding:10px 6px}.movie-name{font:500 clamp(26px,3vw,46px)/1.1 Georgia,serif;margin:14px 0}.tv .pill,.tv .field{background:#f4f0e8;color:#142527;font-weight:650}.tv .pill:hover,.tv .field:hover{background:#d6e8dd}.tv .field{display:block;width:100%;padding:9px;margin-bottom:12px}.tv .group{display:block;margin-top:10px}
+#screenCaption{margin:8px 0;color:var(--muted);font-size:13px}.remote,.parts{display:flex;gap:7px;flex-wrap:wrap}
+.remote{margin:12px 0 20px}.remote button,.parts button{border:1px solid #a5b6ad;border-radius:6px;background:transparent;color:var(--ink);padding:6px 10px;font-size:14px}
+.remote button:hover,.parts button:hover{background:var(--pale)}.parts button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:white}
+.smallhead{font-size:14px;font-weight:680;margin:15px 0 8px}#reader{border-left:2px solid var(--line);padding-left:clamp(16px,2vw,28px);min-width:0}
+#reader p{margin:10px 0}#why{color:var(--muted)}.loc{font:13px/1.5 ui-monospace,monospace;overflow-wrap:anywhere}
+pre{background:#172724;color:#f0f6f2;font:13px/1.7 ui-monospace,Menlo,monospace;border-radius:7px;max-height:265px;overflow:auto;padding:13px 15px;tab-size:4;margin:10px 0}
+pre span{color:#a6bcad;user-select:none}.facts{margin:12px 0 0;display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:14px}.facts dt{font-family:ui-monospace,monospace;overflow-wrap:anywhere}.facts dd{margin:0}
+.practice{border-block:1px solid var(--line);padding:12px 0;margin-top:20px}.practice summary{cursor:pointer;font-weight:650}.practice p{margin:8px 0;max-width:72ch}.foot{font-size:14px;color:var(--muted);margin-top:18px}
+[hidden]{display:none!important}@media(max-width:860px){.spread{grid-template-columns:1fr}#reader{border:0;border-top:1px solid var(--line);padding:20px 0 0}.tv{min-height:240px}.tv .card{max-width:124px}.tv-header,.rail,.caption{font-size:13px}.art span{font-size:13px}.tv{padding:14px}.remote{margin-bottom:12px}}
+@media(max-width:440px){main{padding:14px 12px 32px}.browse{grid-template-columns:24% minmax(0,1fr);gap:6px}.tv{padding:8px}.cards{gap:4px}.tv-header{gap:1px}.tv-header button{padding:4px}.rail,.caption{font-size:11px}.tv .card{padding:2px}.facts{grid-template-columns:1fr}.facts dd{margin-bottom:5px}.remote button{font-size:13px}}
+</style></head><body><main>
+<header><a href="../../../../../../index.html#teachable-code">← Learning playground</a><a href="walkthrough.html">Guided code map →</a></header>
+<h1>Inside Prism</h1>
+<p class="intro">Which Swift makes the Apple TV interface? Pick something you recognize on the screen to see its code. Start with a movie poster, then try moving the remote’s focus.</p>
+<div class="spread"><section aria-label="Interactive screen sketch">
+<figure><div class="tv"><div class="tv-header" aria-label="Prism tab bar">
+<button data-step="discover">Discover</button><button data-step="live">Live TV</button><button id="browseTab" data-step="layout">Browse</button><button data-step="library">Library</button><button id="searchTab" data-step="search">Search</button><button data-step="settings">Settings</button></div>
+<div class="tv-body browse" id="browseScene">
+<div class="rail"><button data-step="layout"><strong>Categories</strong><small>All titles</small><small>Movies</small></button></div>
+<div><button class="heading" data-step="grid">Title grid</button><div class="cards" id="catalogCards"></div></div></div>
+<div id="otherScene" hidden>
+  <div data-page="discover"><p>Discover</p><button class="heading" data-step="discover">Recently added movies</button><div>Interstellar · The Science of Interstellar</div></div>
+  <div data-page="live"><h3>Your channels</h3><button class="pill" data-step="live">＋ Add or remove</button> <button data-step="live">Reorder</button><p>News · Cinema</p></div>
+  <div data-page="library"><p>Overview · Continue watching · <button class="pill" data-step="library">Watchlist</button></p><p>Your watchlist is empty. Use ＋ Watchlist on any movie or series.</p></div>
+  <div data-page="settings"><h3>Settings</h3><button class="heading" data-step="settings">Category menu</button> <span>› &nbsp; Category settings</span></div>
+</div><div id="detail" hidden><small>Movies</small><div class="movie-name" id="detailTitle"></div><button id="playPreview" class="pill" data-step="play">▶ Play</button></div>
+<div id="searchScene" hidden><button class="field" data-step="search">⌕ &nbsp; interstellar</button><strong>Best match</strong><div>Interstellar</div><button class="heading group" data-step="results">Movies →</button><div>The Science of Interstellar · Interstella 5555</div><button class="group" data-step="match">Inspect title matching →</button></div>
+</div><figcaption id="screenCaption">Apple TV teaching sketch with sample titles. Click a visible element to inspect its code.</figcaption></figure>
+<div class="remote" aria-label="Sketch controls">
+<button id="move">Move focus right →</button><button id="select">Press Select</button><button id="captions">Hide captions</button><button id="back" hidden>← Back to Browse</button></div>
+<p class="smallhead">Explore by element</p><div class="parts" id="parts"></div></section>
+<section id="reader" aria-label="Swift explanation" aria-live="polite"><h2 id="heading"></h2><p id="plain"></p><dl class="facts" id="facts"></dl><p id="why"></p><a class="loc" id="source"></a><pre tabindex="0" aria-label="Swift source with line numbers"><code id="code"></code></pre><p id="observed" hidden></p></section></div>
+<details class="practice"><summary>Try reading a change yourself</summary><p>On Browse, move the white ring to another movie. Before pressing Select, predict which title will open. Try hiding the captions. Can you still open that movie?</p><p><strong>Check your explanation.</strong> The focus style draws the ring. The grid passes an action to each poster. Activating the poster opens its title. The caption has its own condition inside the button, so hiding the text leaves the button active.</p></details>
+<p class="foot">The guided map follows the same fourteen elements through Prism’s files. The interface examples were traced in the Apple TV source. The matcher and search-ranking test ran on sample data. <a href="walkthrough.html">Open Teachable Code’s walkthrough</a> · <a href="notes.md">Trial notes</a></p>
+<noscript>This interactive lesson uses JavaScript. The <a href="../../../../README.md">topic guide</a> also lists the starting points in Swift.</noscript>
+</main><script type="application/json" id="data">__SCREEN_DATA__</script>
+<script>
+const lesson = JSON.parse(document.getElementById("data").textContent);
+const el = id => document.getElementById(id);
+const labels = {discover:"Discover feed",live:"Channel controls",library:"Library sections",settings:"Settings sidebar",app:"App window",tabs:"Tab bar",layout:"Category rail",grid:"Title grid",poster:"Poster and caption",focus:"Focus ring",play:"Play button",search:"Search field",match:"Title matching",results:"Results row"};
+const movies = ["Interstellar","The Science of Interstellar","Interstellar Wars"];
+let focused = 0, captions = true;
+for (const step of lesson.steps) {
+  const button = document.createElement("button");
+  button.dataset.step = step.id; button.textContent = labels[step.id]; el("parts").append(button);
+}
+function drawCards() {
+  el("catalogCards").replaceChildren();
+  movies.forEach((name,i) => {
+    const button = document.createElement("button"); button.className = "card" + (i===focused ? " hot" : "");
+    button.setAttribute("aria-label","Inspect the poster for " + name); button.dataset.card = i;
+    const art = document.createElement("span"); art.className = "art a" + i;
+    const lettering = document.createElement("span"); lettering.textContent = name; art.append(lettering);
+    const caption = document.createElement("span"); caption.className = "caption"; caption.textContent = name; caption.hidden = !captions;
+    button.append(art,caption); el("catalogCards").append(button);
+  });
+}
+function showStep(id) {
+  const s = lesson.steps.find(item => item.id === id);
+  if (!s) return;
+  const other = ["discover","live","library","settings"].includes(id);
+  const search = ["search","results","match"].includes(id), detail = id==="play", browse = !search && !detail && !other;
+  el("otherScene").hidden = !other;
+  for (const part of el("otherScene").children) part.hidden = part.dataset.page!==id;
+  el("browseScene").hidden = !browse; el("detail").hidden = !detail; el("searchScene").hidden = !search;
+  const tabStep = other ? id : search ? "search" : "layout";
+  document.querySelectorAll(".tv-header button").forEach(b => b.classList.toggle("on",b.dataset.step===tabStep));
+  el("playPreview").disabled = focused===2;
+  el("playPreview").title = focused===2 ? "The test catalog marks this title unavailable." : "Inspect the code for Play";
+  ["move","select","captions"].forEach(key => el(key).hidden = !browse); el("back").hidden = browse;
+  el("detailTitle").textContent = movies[focused]; el("captions").textContent = captions ? "Hide captions" : "Show captions";
+  el("heading").textContent = s.title; el("plain").textContent = s.plain; el("why").textContent = s.why;
+  el("facts").replaceChildren();
+  for (const [term,meaning] of s.facts) {
+    const dt = document.createElement("dt"), dd = document.createElement("dd");
+    dt.textContent = term; dd.textContent = meaning; el("facts").append(dt,dd);
+  }
+  const c = s.code, path = c.f.split("/").pop();
+  el("source").textContent = path + " · lines " + c.a + "–" + c.b;
+  el("source").href = lesson.repo.url + "/blob/" + lesson.repo.commit + "/" + c.f + "#L" + c.a + "-L" + c.b;
+  el("code").replaceChildren();
+  c.text.split("\n").forEach((line,i) => {
+    const number = document.createElement("span"); number.textContent = String(c.a+i).padStart(3) + "  ";
+    el("code").append(number,document.createTextNode(line+"\n"));
+  });
+  el("observed").hidden = id!=="match"; el("observed").textContent = "Observed against Interstellar: " + (id==="match" ? s.output.text.split("\n").join(" · ") : "");
+  for (const button of el("parts").children) button.setAttribute("aria-pressed",String(button.dataset.step===id));
+}
+function inspect(id) {
+  if (!Object.hasOwn(labels,id)) return;
+  if (location.hash.slice(1)!==id) location.hash = id;
+  showStep(id);
+}
+document.addEventListener("click", event => {
+  const button = event.target.closest("button"); if (!button) return;
+  if (button.dataset.step) return inspect(button.dataset.step);
+  if (button.dataset.card!==undefined) { focused=Number(button.dataset.card); drawCards(); inspect("poster"); el("catalogCards").children[focused].focus(); return; }
+  if (button.id==="move") { focused=(focused+1)%movies.length; drawCards(); inspect("focus"); }
+  if (button.id==="select") { inspect("play"); el("back").focus(); }
+  if (button.id==="back") { inspect("grid"); el("select").focus(); }
+  if (button.id==="captions") { captions=!captions; drawCards(); inspect("poster"); }
+});
+function fromHash() { const id=location.hash.slice(1); showStep(Object.hasOwn(labels,id) ? id : "poster"); }
+window.addEventListener("hashchange",fromHash); drawCards(); fromHash();
+</script></body></html>

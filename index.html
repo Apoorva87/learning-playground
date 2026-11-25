@@ -15,7 +15,7 @@
     body { margin: 0; }
     main { max-width: 51rem; margin: auto; padding: clamp(1.5rem, 5vw, 4rem); }
     header { padding: 1.5rem 0 2rem; border-top: 4px solid #315842; }
-    h1, h2 { font-family: "Spectral", Georgia, serif; font-weight: normal; }
+    h1, h2, h3 { font-family: "Spectral", Georgia, serif; font-weight: normal; }
     h1 { margin: 0 0 0.75rem; font-size: clamp(2.65rem, 7vw, 4.5rem); line-height: 1.04; }
     h2 { margin: 0 0 0.5rem; font-size: 1.6rem; }
     p { margin: 0; max-width: 64ch; line-height: 1.6; }
@@ -38,8 +38,42 @@
     nav span { color: #465045; line-height: 1.5; }
     section { margin: 2rem 0; }
     section p + p { margin-top: 0.75rem; }
+    .tool { border-top: 1px solid #b9c2b5; padding: 1.15rem 0; }
+    .tool:first-of-type { margin-top: 1rem; }
+    .tool h3 { margin: 0; font-size: 1.4rem; }
+    .tool p { margin-top: 0.4rem; }
+    .tool details { margin: 0.65rem 0 1rem; }
+    .tool summary { cursor: pointer; color: #24543d; width: fit-content; }
+    .tool summary:focus-visible { outline: 3px solid #945728; outline-offset: 3px; }
+    .tool ul { max-width: 64ch; margin: 0.5rem 0; padding-left: 1.4rem; line-height: 1.5; }
+    .tool li + li { margin-top: 0.35rem; }
+    .tool .links { display: flex; flex-wrap: wrap; gap: 0.35rem 1.25rem; margin-top: 0.65rem; }
+    .directory { margin:1.6rem 0; }
+    .directory h2 {font-size:1.65rem}
+    .directory ul { display:grid; grid-template-columns:repeat(auto-fit,minmax(15rem,1fr)); padding:0; list-style:none; margin:.8rem 0; }
+    .directory li {padding:.55rem .5rem .55rem 0; border-bottom:1px solid #d4dbd1; }
+    .directory li a {font-weight:650;}
+    .directory li span {display:block; font-size:.91rem; color:#49584c;}
     code { font-size: 0.92em; }
     footer { display: flex; flex-wrap: wrap; gap: 0.65rem 1.5rem; }
+    #feedback { border-block: 1px solid #b9c2b5; padding: 1.25rem 0; }
+    #feedback-form { max-width: 38rem; margin: 1rem 0 0; }
+    .review-fields { display: flex; flex-wrap: wrap; gap: .65rem 1rem; }
+    #feedback-form label { display: grid; gap: .3rem; font-weight: 600; flex: 1 1 11rem; }
+    #feedback-form select, #feedback-form textarea { font: inherit; font-weight: normal; padding: .45rem; color: inherit; background: #fff; border: 1px solid #889889; border-radius: .3rem; }
+    #feedback-form textarea { resize: vertical; min-height: 4rem; }
+    .comment-field { margin: .75rem 0; }
+    .review-actions { display: flex; flex-wrap: wrap; gap: .6rem; }
+    #feedback button { font: inherit; border: 1px solid #315842; border-radius: .35rem; padding: .4rem .85rem; cursor: pointer; }
+    #feedback button[type="submit"] { background: #315842; color: white; }
+    #feedback button[type="button"] { background: transparent; color: #24543d; }
+    #feedback button:focus-visible, #feedback select:focus-visible, #feedback textarea:focus-visible { outline: 3px solid #945728; outline-offset: 2px; }
+    #review-status, #storage-note, #review-history { font-size: .9rem; }
+    #review-status:not(:empty) { margin: .6rem 0; }
+    #review-history { max-width: 38rem; margin-top: 1rem; }
+    #review-history summary { cursor: pointer; }
+    #review-history li { overflow-wrap: anywhere; margin: .6rem 0; }
+    #review-history li p { white-space: pre-wrap; }
     @media (max-width: 34rem) {
       nav a { grid-template-columns: 1fr auto; gap: 0.2rem 1rem; }
       nav a span:first-of-type { grid-column: 1; grid-row: 2; }
@@ -51,15 +85,186 @@
   <main>
     <header>
       <h1>Learning playground</h1>
-      <p>A notebook for trying tools on real learning tasks and remembering which parts helped.</p>
+      <p>Explore a topic through the lessons, diagrams, and experiments we made with different learning tools.</p>
+      <p><a href="#topics">Learn a topic</a> · <a href="#guides">Tool guides</a> · <a href="#skill">Master skill</a> · <a href="#feedback">Rate a tool</a></p>
     </header>
+    <section class="directory" aria-labelledby="topics"><h2 id="topics">Learn a topic</h2>
+      <ul><li><a href="topics/how-transformers-remember/index.html">How Transformers Remember</a><span>Work an attention example and measure what changes as a KV cache grows.</span></li>
+      <li><a href="topics/inside-prism/index.html">Inside Prism · From screen to Swift</a><span>Pick an Apple TV interface element and read the Swift that makes it work.</span></li></ul>
+    </section>
+    <section class="directory" aria-labelledby="guides"><h2 id="guides">Tool guides</h2>
+      <p>Each guide explains how to use the tool, the software or teaching method behind it, and what happened in our trial.</p>
+      <ul>
+        <li><a href="tools/deeptutor/index.html">DeepTutor</a><span>Study with a tutor and review its worked answer.</span></li>
+        <li><a href="tools/teachable-code/index.html">Teachable Code</a><span>Connect a working interface to real source lines.</span></li>
+        <li><a href="tools/openmaic/index.html">OpenMAIC</a><span>Generate a classroom, a simulation, or a quiz.</span></li>
+        <li><a href="tools/huggingarch/index.html">HuggingArch</a><span>Calculate a model’s architecture costs from its specification.</span></li>
+        <li><a href="tools/llm-viz/index.html">LLM Visualization</a><span>Walk through the operations of a small GPT model in 3D.</span></li>
+        <li><a href="tools/socratic-workshop/index.html">Socratic Workshop</a><span>Test your understanding one question at a time.</span></li>
+        <li><a href="tools/understand-anything/index.html">Understand-Anything</a><span>Explore a graph of connected concepts and evidence.</span></li>
+        <li><a href="tools/visual-explainer/index.html">Visual Explainer</a><span>Turn a process or a calculation into a visual lesson.</span></li>
+      </ul>
+    </section>
+    <section aria-labelledby="skill"><h2 id="skill">The master learning skill</h2>
+      <p>Give the skill a learning goal and your background. It uses the trial records and your feedback to pick a tool or combine several. For a KV-cache lesson, an architecture calculation and a visual walkthrough can run in parallel. The tutor can then use both to check your explanation.</p>
+      <p><a href="skills/learn-with-tools/SKILL.md">Read the skill</a> · <a href="https://github.com/Apoorva87/learning-playground/tree/main/skills/learn-with-tools">Get it from GitHub</a></p>
+    </section>
+    <section id="feedback" aria-labelledby="feedback-heading">
+      <h2 id="feedback-heading">Your tool feedback</h2>
+      <p><strong>Workspace owner’s favorites so far</strong> · <a href="#deeptutor">DeepTutor</a>, <a href="#teachable-code">Teachable Code</a>, and <a href="#openmaic">OpenMAIC</a>. <a href="preferences.md">Preference log</a></p>
+      <form id="feedback-form" hidden>
+        <div class="review-fields">
+          <label>Tool <select id="review-tool"></select></label>
+          <label>Rating <select id="review-score">
+            <option value="">No score</option><option value="1">1 · Least useful</option><option value="2">2</option>
+            <option value="3">3</option><option value="4">4</option><option value="5">5 · Most useful</option>
+          </select></label>
+        </div>
+        <label class="comment-field">Comment <textarea id="review-comment" rows="2" placeholder="What helped you learn? What would you use again?"></textarea></label>
+        <div class="review-actions"><button type="submit">Save feedback</button><button type="button" id="export-reviews">Download all feedback</button></div>
+      </form>
+      <p id="review-status" role="status"></p>
+      <p id="storage-note">Ratings and comments are saved in this browser. Download a copy to keep or share with the agent.</p>
+      <details id="review-history" hidden><summary></summary><ol></ol></details>
+      <noscript>Enable JavaScript to save ratings and comments.</noscript>
+    </section>
+    <section aria-labelledby="prism">
+      <h2 id="prism">Inside Prism · From screen to Swift</h2>
+      <article class="tool" id="teachable-code">
+        <h3><a href="tools/teachable-code/index.html">Teachable Code</a></h3>
+        <p>Give the agent a codebase, tell it what you want to understand and how familiar you are with the language. Its guided map connects each step to real files and shows its inputs and outputs.</p>
+        <p><strong>What we tried · Nov 24, 2026.</strong> We used the 2D lesson builder on Prism’s Apple TV app. It connects fourteen interface examples to Swift source, including the six tabs, the poster grid, remote focus, playback controls and search. We added a clickable TV sketch for exploring the same code by what you see on screen.</p>
+        <p><strong>Try it.</strong> Open the screen explorer, move the white ring to another movie and press Select. Look at which Swift draws the ring and which Swift opens the movie.</p>
+        <p class="links">
+          <a href="topics/inside-prism/cases/swiftui-elements/runs/2026-11-24-teachable-code/index.html">Explore the Prism screen</a>
+          <a href="topics/inside-prism/cases/swiftui-elements/runs/2026-11-24-teachable-code/walkthrough.html">Follow the guided code map</a>
+          <a href="topics/inside-prism/cases/swiftui-elements/runs/2026-11-24-teachable-code/notes.md">Teachable Code trial notes</a>
+          <a href="tools/teachable-code/README.md">Set up Teachable Code</a>
+        </p>
+        <details><summary>Other ways to use this tool</summary><p>The skill also supports 3D tensor and training lessons, tracing research papers to code, and exploring where to change or reuse an implementation. Those modes are untested here.</p></details>
+      </article>
+    </section>
+    <section aria-labelledby="trials">
+      <h2 id="trials">KV-cache learning trials</h2>
+      <p>For <strong>How Transformers Remember</strong>, we tried five ways to learn what a KV cache stores and how DeepSeek reached 890 global bytes per token. Each entry links to the actual trial.</p>
+      <p><a href="#openmaic">OpenMAIC</a> · <a href="#understand-anything">Understand-Anything</a> · <a href="#socratic-workshop">Socratic Workshop</a> · <a href="#deeptutor">DeepTutor</a> · <a href="#visual-explainer">Visual Explainer</a></p>
+      <article class="tool" id="openmaic">
+        <h3><a href="tools/openmaic/index.html">OpenMAIC</a></h3>
+        <p><strong>What it does.</strong> Give the app a topic or upload your reading to create a live, interactive classroom. An AI teacher can explain a slide aloud, draw on a shared whiteboard, and answer your questions. AI classmates can join the discussion.</p>
+        <details>
+          <summary>Lesson creation, activities, and export options</summary>
+          <ul>
+            <li><strong>Build a course.</strong> Plan and edit the outline, reuse uploaded materials, research a topic on the web, and revise slides by hand or with an agent.</li>
+            <li><strong>Practice.</strong> Generate quizzes, simulations, games, mind maps, 3D models, or coding exercises. A project-based tutor can guide you through milestones.</li>
+            <li><strong>Teach and share.</strong> Run a lecture, Q&amp;A, or roundtable debate. Replay the course or export it to PowerPoint, offline HTML, a classroom ZIP, or video with the optional renderer.</li>
+            <li><strong>Use it from other tools.</strong> An agent integration can request a classroom from an IDE or messaging app. The generation SDK can produce individual lesson activities.</li>
+          </ul>
+          <a href="https://github.com/THU-MAIC/OpenMAIC/blob/c09bb0e2a9f32c2ce330817767eda4697c635351/README.md">OpenMAIC feature guide</a>
+        </details>
+        <p><strong>What we used · Nov 23, 2026.</strong> We ran the generation SDK with a local Qwen model. It produced a KV-cache calculator and four quiz questions. We fixed the calculator controls and English labels, edited the quiz, and wrote the walkthrough around them.</p>
+        <p><strong>Classroom status.</strong> We attempted to start the full app, but the session could not access Docker. Live teaching, class discussion, speech, and whiteboard interaction are still untested here.</p>
+        <p><strong>Try it.</strong> Open the calculator, choose <strong>Double Tokens</strong>, and check your memory prediction. Then take the quiz.</p>
+        <p class="links">
+          <a href="topics/how-transformers-remember/cases/one-more-token/runs/2026-11-23-openmaic/calculator.html">Try the calculator</a>
+          <a href="topics/how-transformers-remember/cases/one-more-token/runs/2026-11-23-openmaic/lesson.html#quiz">Take the quiz</a>
+          <a href="topics/how-transformers-remember/cases/one-more-token/runs/2026-11-23-openmaic/lesson.html">Read the full lesson</a>
+          <a href="topics/how-transformers-remember/cases/one-more-token/runs/2026-11-23-openmaic/notes.md">OpenMAIC trial notes</a>
+          <a href="tools/openmaic/README.md">Set up OpenMAIC</a>
+        </p>
+      </article>
+      <article class="tool" id="understand-anything">
+        <h3><a href="tools/understand-anything/index.html">Understand-Anything</a></h3>
+        <p><strong>What it does.</strong> Point the tool at a code repository, a wiki of linked notes, or a Figma file. It builds a graph of how the pieces fit together. Open the dashboard to search, select an item, follow its connections, or take a guided tour.</p>
+        <details>
+          <summary>Code, knowledge-base, and design workflows</summary>
+          <ul>
+            <li><strong>Explore code.</strong> Map files, functions, classes, and dependencies. Ask questions about the project, get an explanation of one function, or generate an onboarding guide.</li>
+            <li><strong>Understand changes.</strong> See which parts of a system a code change affects, trace business processes across the code, and update the graph as files change.</li>
+            <li><strong>Explore notes.</strong> The knowledge-base skill follows links between articles and uses an agent to identify claims, named entities, and connections the author left implicit.</li>
+            <li><strong>Explore designs.</strong> The Figma skill maps screens, components, instances, and design tokens so you can trace where a design element is reused.</li>
+          </ul>
+          <a href="https://github.com/Egonex-AI/Understand-Anything/tree/8ec75de1de8c9d2eef685d8d6cbc50782ad31fbb/understand-anything-plugin/skills">Understand-Anything skill directory</a>
+        </details>
+        <p><strong>What we used · Nov 24, 2026.</strong> We turned the shared guide into ten linked notes. The knowledge-base skill and an analysis agent produced 29 nodes, 51 connections, and a four-stop tour. We opened the graph in the official browser dashboard and saved a portable reading view.</p>
+        <p><strong>Still untested here.</strong> Codebase and Figma analysis, code Q&amp;A, onboarding guides, business-process mapping, and change-impact analysis.</p>
+        <p><strong>Try it.</strong> Open the 890-byte calculation and follow its links to answer two questions. How large is one cache entry? How many entries does each token add on average?</p>
+        <p class="links">
+          <a href="topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-understand-anything/map.html">Explore the offline map</a>
+          <a href="topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-understand-anything/map.html#article:global-budget">Trace the 890-byte calculation</a>
+          <a href="topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-understand-anything/notes.md">Understand-Anything trial notes</a>
+          <a href="tools/understand-anything/README.md">Set up Understand-Anything</a>
+        </p>
+      </article>
+      <article class="tool" id="socratic-workshop">
+        <h3><a href="tools/socratic-workshop/index.html">Socratic Workshop</a></h3>
+        <p><strong>What it does.</strong> Bring a topic, paper, or set of notes to a conversation. The tutor asks one question at a time, listens to your explanation, and uses your answer to choose the next question or hint.</p>
+        <details><summary>Practice, progress, and visuals</summary>
+          <p>You can ask for a hint, a direct explanation, or an interactive figure. As you practice, the tutor tracks skills, checks recall, and asks you to apply an idea to a new situation. You can save the session and resume it later.</p>
+        </details>
+        <p><strong>What we used · Nov 24, 2026.</strong> We started its source-based workshop in Codex with the shared field guide. The first question asks what a model can reuse after it reads a clue about a key in a drawer. The saved page contains the actual opening turn. The live conversation continues in chat.</p>
+        <p><strong>Try it.</strong> Answer the question in your own words, even if you are guessing. The tutor needs your answer before it can assess a skill or tailor a hint.</p>
+        <p class="links">
+          <a href="topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-socratic-workshop/opening.html">Read the first question</a>
+          <a href="topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-socratic-workshop/notes.md">Socratic Workshop trial notes</a>
+          <a href="tools/socratic-workshop/README.md">Set up Socratic Workshop</a>
+        </p>
+      </article>
+      <article class="tool" id="deeptutor">
+        <h3><a href="tools/deeptutor/index.html">DeepTutor</a></h3>
+        <p><strong>What it does.</strong> Ask a tutor a question and give it material to teach from. You can use chat from the command line or open the learning workspace to study and organize material over time.</p>
+        <details><summary>Study modes and learning records</summary>
+          <p>DeepTutor offers knowledge-base search, guided learning paths, practice quizzes, research, visualization, and math animation through optional modules. It can also keep sessions, reading material, notebooks, and learning memory.</p>
+        </details>
+        <p><strong>What we used · Nov 24, 2026.</strong> DeepTutor’s command-line chat and a local Qwen model produced a full answer from our prompt and field guide. The answer got the memory arithmetic right but applied the toy model’s 32 layers to DeepSeek. The reviewed lesson flags the error and links to the original answer.</p>
+        <p><strong>Try it.</strong> Read the worked attention example, then cover the answer and predict what doubling the token count does to memory. This trial used one chat turn. The full web workspace, retrieval, quizzes, and personalized learning paths are untested here.</p>
+        <p class="links">
+          <a href="topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-deeptutor/lesson.html">Read the reviewed DeepTutor lesson</a>
+          <a href="topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-deeptutor/lesson.md">Read the original answer</a>
+          <a href="topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-deeptutor/notes.md">DeepTutor trial notes</a>
+          <a href="tools/deeptutor/README.md">Set up DeepTutor</a>
+        </p>
+      </article>
+      <article class="tool" id="visual-explainer">
+        <h3><a href="tools/visual-explainer/index.html">Visual Explainer</a></h3>
+        <p><strong>What it does.</strong> Ask an agent to explain a process or comparison visually. It chooses diagrams, charts, and step-by-step figures, then renders the explanation as a browser page.</p>
+        <details><summary>Other formats and uses</summary>
+          <p>The skill also supports architectural diagrams, code-change reviews, project recaps, plan comparisons, slide decks, and optional PowerPoint or video export. Those workflows are untested here.</p>
+        </details>
+        <p><strong>What we used · Nov 24, 2026.</strong> Codex wrote the figure source from our shared guide. The tool’s renderer built an attention replay, two charts comparing KV heads at different sequence lengths, and a breakdown of a 356-byte compressed entry.</p>
+        <p><strong>Try it.</strong> Press Play to see how a query produces the value 8. Predict what happens when the query becomes zero, then reveal the answer.</p>
+        <p class="links">
+          <a href="topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-visual-explainer/one-more-token.html">Open the visual lesson</a>
+          <a href="topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-visual-explainer/notes.md">Visual Explainer trial notes</a>
+          <a href="tools/visual-explainer/README.md">Set up Visual Explainer</a>
+        </p>
+      </article>
+    </section>
+    <section aria-labelledby="local-tools">
+      <h2 id="local-tools">Local visualization tools</h2>
+      <article class="tool" id="llm-viz">
+        <h3><a href="tools/llm-viz/index.html">LLM Visualization</a></h3>
+        <p>Brendan Bycroft’s interactive 3D walkthrough follows a small GPT model as it sorts six letters. Open a chapter and move through the model one operation at a time.</p>
+        <p><strong>What we tried.</strong> We ran the app locally, loaded the bundled model and opened <strong>Self Attention</strong> with an active WebGL canvas. This chapter shows where queries, keys and values come from. DeepSeek cache compression is covered in the separate KV-cache lessons.</p>
+        <p><strong>Try it.</strong> Choose <strong>Self Attention</strong> in the table of contents and press <strong>Continue</strong>. Find the key and value vectors for an earlier token.</p>
+        <p class="links"><a href="https://bbycroft.net/llm">Open the author’s visualization</a> <a href="http://127.0.0.1:3002/llm">Open your running local copy</a> <a href="tools/llm-viz/README.md">Start it on this computer</a> <a href="topics/how-transformers-remember/cases/attention-walkthrough/runs/2026-11-24-llm-viz/notes.md">Local trial notes</a></p>
+      </article>
+    </section>
+    <section aria-labelledby="architecture"><h2 id="architecture">Model architecture and cost</h2>
+      <article class="tool" id="huggingarch">
+        <h3><a href="tools/huggingarch/index.html">HuggingArch</a></h3>
+        <p>Choose a bundled model in the hosted explorer or run the local CLI against its architecture specification. Pick a sequence length and inspect the operations and cache sizes the model requires. The linked guide also covers bringing a new Hugging Face model to the tool.</p>
+        <p><strong>What we tried.</strong> We compared Llama 3.2 1B and DeepSeek V4.1 Flash with the local engine. The Flash result separates 890 bytes per token on average from 2,727,936 bytes of bounded state. The worked example shows why adding a single token can cost more or less than 890 bytes.</p>
+        <p class="links"><a href="topics/how-transformers-remember/cases/huggingarch-cache/runs/2026-11-24-huggingarch/result.html">Inspect the cache measurements</a>
+        <a href="tools/huggingarch/index.html">Read the HuggingArch guide</a> <a href="https://www.huggingarch.com">Open the hosted explorer</a> <a href="https://shenhan.cc/blog/huggingarch.html">Read the author’s explanation</a></p>
+      </article>
+    </section>
     <nav aria-label="Workspace index">
-      <a href="topics/README.md">
+      <a href="#topics">
         <strong>Topics</strong>
         <span>Learning questions, shared inputs, and worked examples from each tool.</span>
         <span aria-hidden="true">→</span>
       </a>
-      <a href="tools/README.md">
+      <a href="#guides">
         <strong>Tool catalog</strong>
         <span>Repositories, skills, and agents with their tested versions and setup recipes.</span>
         <span aria-hidden="true">→</span>
@@ -70,20 +275,17 @@
         <span aria-hidden="true">→</span>
       </a>
     </nav>
-    <section aria-labelledby="trial">
-      <h2 id="trial">How Transformers Remember</h2>
-      <p>Compare two ways to learn KV caching. Change the inputs in OpenMAIC’s calculator, or follow the connections behind DeepSeek’s 890 bytes per token in the Understand‑Anything graph.</p>
-      <p><a href="topics/how-transformers-remember/cases/one-more-token/runs/2026-11-23-openmaic/lesson.html">Try the OpenMAIC lesson</a> · <a href="topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-understand-anything/map.html">Explore the Understand‑Anything graph</a> · <a href="topics/how-transformers-remember/assets/field-guide.md">Read the worked guide</a></p>
-    </section>
     <section aria-labelledby="design">
       <h2 id="design">How it fits together</h2>
-      <p>A topic owns the example and its inputs. Each tool gets a separate attempt at that example, so you can compare the results side by side. Feedback stays with the attempt. The preferences log links back to it when you decide what to keep.</p>
+      <p>A topic holds the <a href="topics/how-transformers-remember/cases/one-more-token/brief.md">shared question</a> and its inputs, such as the <a href="topics/how-transformers-remember/assets/field-guide.md">KV-cache field guide</a>. Each tool gets a separate attempt at that example. Feedback stays with the attempt, and the preferences log records what you decide to keep.</p>
       <p>Git keeps the examples and installation recipes. Run <code>./install.sh</code> to recreate the tools in <code>.local/tools/</code>.</p>
     </section>
     <footer>
       <a href="README.md">Workspace guide</a>
       <a href="CODEX.md">Agent instructions</a>
+      <a href="https://github.com/Apoorva87/learning-playground">Public repository</a>
     </footer>
   </main>
+  <script src="feedback.js"></script>
 </body>
 </html>

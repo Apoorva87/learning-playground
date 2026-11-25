@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="See how a classroom generator turns a learning objective into scenes. Our KV-cache trial produced a calculator and a quiz that you can work through here.">
+  <title>OpenMAIC guide · Learning Playground</title>
+  <link rel="stylesheet" href="../../guide.css">
+</head>
+<body>
+<main>
+<nav aria-label="Playground"><a href="../../index.html#openmaic">← All tools</a></nav>
+<header>
+<p class="kicker">Learning Playground · Tool guide</p>
+<h1>OpenMAIC</h1>
+<p class="lede">See how a classroom generator turns a learning objective into scenes. Our KV-cache trial produced a calculator and a quiz that you can work through here.</p>
+<p><a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-23-openmaic/lesson.html">Open the reviewed lesson</a> · <a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-23-openmaic/calculator.html">Try the memory calculator</a></p>
+</header>
+<nav aria-label="In this guide">
+<a href="#try">Work the memory problem</a>
+<a href="#features">Inside a classroom</a>
+<a href="#implementation">From outline to scene</a>
+<a href="#replay">Generate a fresh scene</a>
+<a href="#record">What happened in the trial</a>
+</nav>
+<section id="try">
+<h2>Work the memory problem</h2>
+<p>The example holds the model size fixed so you can isolate two choices a serving system makes. Each cached token has a key and a value per KV head at each layer. The model has 32 layers, 32 query heads, 128 numbers per head, and uses two bytes per number.</p>
+<ol>
+<li><strong>Make a baseline.</strong> In the calculator, choose <b>MHA (32 KV)</b> and set the sequence length to 4,096. The storage calculation gives 2 GiB. Query heads describe who reads the cache. The KV head count tells you how many sets the model stores.</li>
+<li><strong>Share a set of entries.</strong> Choose <b>GQA (8 KV)</b>. Confirm that the sequence still has 4,096 tokens. Four query heads share each KV head, so the answer falls to 512 MiB. <b>MQA (1 KV)</b> gives 64 MiB.</li>
+<li><strong>Change the other factor.</strong> Choose the 8-head preset again, predict the result at 8,192 tokens, and set the token count. Keeping twice as many entries takes 1 GiB. Read the formula above the controls to see both factors.</li>
+<li><strong>Connect storage to attention.</strong> In the lesson, open <b>Work one attention row</b>. The same two values produce different outputs under two queries. Then choose an answer in <b>Test yourself</b> and open its explanation.</li>
+</ol>
+</section>
+<section id="features">
+<h2>Inside a classroom</h2>
+<dl>
+<dt><strong>Generation</strong></dt><dd>A topic or source material becomes a classroom outline. Scenes can contain slides, assessments, browser simulations, or project-based tasks. An outline lets a caller select a single scene type and keep its purpose explicit.</dd>
+<dt><strong>Playback and participation</strong></dt><dd>A generated course has a playback state, teacher actions, and places for the learner to intervene. The full application supports classroom discussion, teacher and student agents, a whiteboard, and speech when its providers are configured.</dd>
+<dt><strong>Editing and reuse</strong></dt><dd>The application includes a slide editor and course persistence. The generation SDK can be called independently if the deliverable is a scene for an existing course.</dd>
+</dl>
+<figure>
+<a href="media/simulation_interactive.gif" aria-label="View the full-size figure"><img loading="lazy" src="media/simulation_interactive.gif" alt="An OpenMAIC physics scene with sliders and a tabletop simulation."></a>
+<figcaption>The upstream tablecloth experiment shows the interaction we wanted for cache memory. A learner varies a parameter and observes a consequence. THU-MAIC. <a href="https://github.com/THU-MAIC/OpenMAIC/blob/c09bb0e2a9f32c2ce330817767eda4697c635351/assets/interactive_mode/simulation_interactive.gif">Original figure</a> · <a href="media/LICENSE.txt">MIT license</a>.</figcaption>
+</figure>
+</section>
+<section id="implementation">
+<h2>From outline to scene</h2>
+<p class="flow"><span>Scene outline</span> <span aria-hidden="true">→</span> <span>SDK prompt</span> <span aria-hidden="true">→</span> <span>Model reply</span> <span aria-hidden="true">→</span> <span>Scene parser</span> <span aria-hidden="true">→</span> <span>Rendered content</span></p>
+<p>The published <code>@openmaic/generation</code> package loads templates and snippets for each scene type. The caller supplies a model callback. For an interactive scene, the SDK extracts HTML from the reply, checks script syntax, and post-processes supported libraries. For a quiz, it parses structured question data. The full app can also generate scene actions and assemble content and actions into its course format.</p>
+<p>Syntax checks made the simulator loadable. They could not detect that its preset buttons reset the values the learner had chosen. Testing a generated control in the browser caught that defect. <a href="https://github.com/THU-MAIC/OpenMAIC/blob/c09bb0e2a9f32c2ce330817767eda4697c635351/packages/@openmaic/generation/README.md">SDK contracts</a> · <a href="https://github.com/THU-MAIC/OpenMAIC/blob/c09bb0e2a9f32c2ce330817767eda4697c635351/packages/@openmaic/generation/src/scene-generator.ts">Scene generator</a>.</p>
+</section>
+<section id="replay">
+<h2>Generate a fresh scene</h2>
+<p>In a checkout of this playground, install Git, Node.js 22.19 or newer, npm, and curl. For the recorded model settings, start Ollama and make <code>qwen3.5:35b</code> available first. Run these commands from the playground root. The model call requires sufficient memory for that model.</p>
+<pre><code>./install.sh openmaic
+run=topics/how-transformers-remember/cases/one-more-token/runs/2026-11-23-openmaic
+tmp=$(mktemp -d)
+node tools/openmaic/scene.mjs request &quot;$run/scene-outline.json&quot; &gt; &quot;$tmp/request.json&quot;
+curl --fail-with-body -sS -H &#x27;Content-Type: application/json&#x27; \
+  --data-binary @&quot;$tmp/request.json&quot; http://localhost:11434/api/chat -o &quot;$tmp/reply.json&quot;
+node tools/openmaic/scene.mjs render &quot;$run/scene-outline.json&quot; &quot;$tmp/reply.json&quot; &gt; &quot;$tmp/replay.html&quot;
+echo &quot;$tmp/replay.html&quot;</code></pre>
+<p>Open the printed file in a browser and test the presets. To generate questions, use <code>quiz-outline.json</code> for both outline arguments and write to <code>replay-quiz.json</code>. Expect a new model answer. To compare with the saved inputs and output, inspect the <a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-23-openmaic/scene-outline.json">scene outline</a>, <a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-23-openmaic/quiz-outline.json">quiz outline</a> and <a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-23-openmaic/quiz.json">original questions</a>.</p>
+</section>
+<section id="record">
+<h2>What happened in the trial</h2>
+<p>On November 23–24, 2026, the official scene generator (SDK 0.3.34, OpenMAIC checkout 1.5.0) made two calls to local Qwen. Both used temperature 0.2, seed 42 and a 16,384-token context. The first returned a working memory formula and prediction exercise. The second returned four questions, each with its correct answer first.</p>
+<p>The playground repaired the calculator’s preset handlers, initialization and English captions. It varied the quiz option order, clarified distractors, and added the worked attention calculation and historical walkthrough that generation omitted. Docker Compose validated the full classroom configuration, but access to the Docker socket blocked startup. Classroom agents, live chat, and speech remain untested.</p>
+<p>The learner named OpenMAIC, DeepTutor and Teachable Code as favorites on November 24, 2026. They also asked for English throughout. The specific OpenMAIC feature behind the preference and a numerical rating are still open. <a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-23-openmaic/notes.md">Read the trial record</a>.</p>
+</section>
+<footer><p><a href="../../index.html#openmaic">← All tools</a> · <a href="https://github.com/THU-MAIC/OpenMAIC/tree/c09bb0e2a9f32c2ce330817767eda4697c635351">THU-MAIC/OpenMAIC at c09bb0e2</a> · <a href="https://github.com/Apoorva87/learning-playground">Download the playground and replay scripts</a></p></footer>
+</main>
+</body>
+</html>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Start with what you can already explain. The tutor uses your own account of the next token to choose one question, and your next answer determines where the lesson goes.">
+  <title>Socratic Workshop guide · Learning Playground</title>
+  <link rel="stylesheet" href="../../guide.css">
+</head>
+<body>
+<main>
+<nav aria-label="Playground"><a href="../../index.html#socratic-workshop">← All tools</a></nav>
+<header>
+<p class="kicker">Learning Playground · Tool guide</p>
+<h1>Socratic Workshop</h1>
+<p class="lede">Start with what you can already explain. The tutor uses your own account of the next token to choose one question, and your next answer determines where the lesson goes.</p>
+<p><a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-socratic-workshop/opening.html">Read the opening question</a> · <a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-socratic-workshop/state.txt">Read the saved session state</a></p>
+</header>
+<nav aria-label="In this guide">
+<a href="#try">Take the learner’s first turn</a>
+<a href="#features">How the questioning works</a>
+<a href="#implementation">What the skill actually supplies</a>
+<a href="#replay">Start a workshop in your own agent</a>
+<a href="#record">One opening, awaiting one answer</a>
+</nav>
+<section id="try">
+<h2>Take the learner’s first turn</h2>
+<p>Read the original turn, then close the page and answer from memory. The prompt ends after “The spare key is in the blue drawer. Open the”. What could the model have kept from those earlier words, and how could it use that information now? An incomplete explanation gives the tutor a place to begin.</p>
+<ol>
+<li><strong>Start the live tutor.</strong> In a skill-capable coding agent, load the pinned instructions using the setup below. The published page holds the first question. Put your reply in the agent conversation.</li>
+<li><strong>Supply the checkpoint.</strong> Paste the <a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-socratic-workshop/state.txt">saved state</a> and your response. Ask the tutor to resume in English and ask one question at a time. Notice the field recording that initial placement is still pending.</li>
+<li><strong>Respond to the actual follow-up.</strong> If the tutor asks which part changes when a word is added, try to reason through a single position. Use <b>hint</b> for one small cue or <b>just tell me</b> for an explanation. The next independent check gives the tutor evidence of what you can do unaided.</li>
+<li><strong>Inspect what it remembered.</strong> After placement, say <b>show progress</b>. When you pause, say <b>save state</b> and keep the block. Compare the next focus, any open misconception and the target level with your own experience.</li>
+</ol>
+</section>
+<section id="features">
+<h2>How the questioning works</h2>
+<dl>
+<dt><strong>Diagnostic</strong></dt><dd>The learner and tutor agree on a concrete performance target. The tutor breaks it into observable subskills, generally four to ten, and uses an initial explanation and short probes to place each one.</dd>
+<dt><strong>Practice and recall</strong></dt><dd>The six levels run from unfamiliarity through independent application to transfer. A level-four judgment requires independent evidence, delayed recall, transfer and a connection to another subskill. Earlier skills can be revisited and revised.</dd>
+<dt><strong>Figures and final checks</strong></dt><dd>“Show me” can produce a standalone Workbench figure for the current gap. A learner can make a prediction, vary an input or find a flaw, then explain the result. The final assessment checks individual skills, an integrated problem and a new domain.</dd>
+</dl>
+<figure>
+<a href="media/learning-loop.jpg" aria-label="View the full-size figure"><img loading="lazy" src="media/learning-loop.jpg" alt="Five steps in the upstream learning loop, from an explanation and targeted question through a hint, revision and new case."></a>
+<figcaption>The project’s learning loop. A hint gives the learner another attempt before the tutor asks them to apply the idea elsewhere. Noa Katana / smashburger-dev. <a href="https://github.com/smashburger-dev/socratic-workshop/blob/b74b71c2d4476cdbaa76cabd8f2d113cc171b6a8/media/learning-loop.jpg">Original figure</a> · <a href="media/LICENSE.txt">MIT license</a>.</figcaption>
+</figure>
+</section>
+<section id="implementation">
+<h2>What the skill actually supplies</h2>
+<p>The core is a written teaching protocol executed by a host model. The host reads the learner’s answer, chooses a question and judges the evidence against the rubric. Progress bars reflect those judgments. A checkpoint records the target, levels, focus, outstanding gaps and next question in plain text. It can be inspected and pasted into a new conversation.</p>
+<p>The repository adds reference material, a Workbench adapter, examples and visual assets. It can guide an agent to make an interactive figure, but the skill map and turn-taking depend on the agent following the instructions. There is no independent grading service in this trial. <a href="https://github.com/smashburger-dev/socratic-workshop/blob/b74b71c2d4476cdbaa76cabd8f2d113cc171b6a8/SKILL.md">Teaching protocol</a> · <a href="https://github.com/smashburger-dev/socratic-workshop/blob/b74b71c2d4476cdbaa76cabd8f2d113cc171b6a8/references/workbench.md">Workbench figure guide</a>.</p>
+</section>
+<section id="replay">
+<h2>Start a workshop in your own agent</h2>
+<p>From the root of a playground checkout, use Git and a POSIX shell. The installer puts the project registration under the tool home. Start a fresh Codex session there with an already configured Codex CLI.</p>
+<pre><code>./install.sh socratic-workshop
+cd .local/tools/socratic-workshop
+codex</code></pre>
+<p>For the recorded workshop, paste this message, replacing the final bracketed words with your answer. If the skill picker is unavailable, ask the host to read <code>source/SKILL.md</code> directly from the tool home.</p>
+<pre><code>Use $socratic-workshop. Resume from
+../../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-socratic-workshop/state.txt.
+Ask one question at a time in English. My answer to the opening question is [your answer].</code></pre>
+<p>For a new topic, specify what you want to do unaided, a source and your current understanding. The first expected output is a diagnostic question. The map comes after the initial probes.</p>
+</section>
+<section id="record">
+<h2>One opening, awaiting one answer</h2>
+<p>On November 24, 2026, the active Codex agent read the pinned skill, took the spare-key example from the shared KV-cache field guide and asked its first diagnostic question. We saved an offline reading copy and a compact resume block. The setup resolved to the pinned skill on repeated installs. A separate Codex CLI process could not open its state database in the sandbox, so automatic discovery in a fresh session was unverified.</p>
+<p>The opening has no learner answer or assigned level. Follow-ups, figures, hints, retention, the mastery map and final assessment remain untested for this learner. Feedback is pending. <a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-socratic-workshop/opening.html">Opening turn</a> · <a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-socratic-workshop/notes.md">Trial record</a>.</p>
+</section>
+<footer><p><a href="../../index.html#socratic-workshop">← All tools</a> · <a href="https://github.com/smashburger-dev/socratic-workshop/tree/b74b71c2d4476cdbaa76cabd8f2d113cc171b6a8">smashburger-dev/socratic-workshop at b74b71c2</a> · <a href="https://github.com/Apoorva87/learning-playground">Download the playground and replay scripts</a></p></footer>
+</main>
+</body>
+</html>

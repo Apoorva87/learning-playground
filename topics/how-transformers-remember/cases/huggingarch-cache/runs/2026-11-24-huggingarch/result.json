@@ -1,0 +1,397 @@
+{
+  "huggingarch_commit": "2c31e91ebcc83ee0f32d5ba26e4e13d14ee24f1a",
+  "batch_size": 1,
+  "analysis_seq_len": 4096,
+  "cli_dtype_argument": "bfloat16",
+  "cache_scope": "model backbone, native formats, one rank",
+  "models": [
+    {
+      "model_id": "meta-llama/Llama-3.2-1B",
+      "spec_name": "meta-llama__Llama-3.2-1B",
+      "snapshot_path": "backend/arch/snapshots/meta-llama__Llama-3.2-1B.json",
+      "checkpoint_revision": "4e20de362430cd3b72f300e6b0f18e50e7166e08",
+      "layers": 16,
+      "checkpoint_byte_difference": 0,
+      "cache_formats": [
+        {
+          "dtype": "BF16",
+          "source": "native"
+        }
+      ],
+      "average_bytes_per_token": 32768,
+      "bounded_bytes_at_full_window": 0,
+      "stored_bytes": {
+        "128": 4194304,
+        "4096": 134217728,
+        "4097": 134250496,
+        "4098": 134283264,
+        "8192": 268435456,
+        "32768": 1073741824
+      },
+      "storage_rows_at_4096": [
+        {
+          "component": "GQA",
+          "label": "GQA",
+          "variant": null,
+          "layer_count": 16,
+          "storage_positions": 4096,
+          "per_token_per_rank": 32768.0,
+          "request_bytes": 134217728.0,
+          "nodes": [
+            {
+              "node": "k_rope",
+              "expr": "s_kv",
+              "positions": 4096,
+              "per_token_per_rank": 16384.0,
+              "bytes": 67108864.0
+            },
+            {
+              "node": "v_split_heads",
+              "expr": "s_kv",
+              "positions": 4096,
+              "per_token_per_rank": 16384.0,
+              "bytes": 67108864.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "model_id": "deepseek-ai/DeepSeek-V4.1-Flash",
+      "spec_name": "deepseek-ai__DeepSeek-V4.1-Flash",
+      "snapshot_path": "backend/arch/snapshots/deepseek-ai__DeepSeek-V4.1-Flash.json",
+      "checkpoint_revision": "2cba9e42aa026125f3ed06c6d98c1db82f7ca027",
+      "layers": 40,
+      "checkpoint_byte_difference": 0,
+      "cache_formats": [
+        {
+          "dtype": "FP8 (E4M3)",
+          "source": "native"
+        },
+        {
+          "dtype": "FP32",
+          "source": "declared"
+        },
+        {
+          "dtype": "FP4",
+          "source": "native"
+        }
+      ],
+      "average_bytes_per_token": 890,
+      "bounded_bytes_at_full_window": 2727936,
+      "stored_bytes": {
+        "128": 2841856,
+        "4096": 6373376,
+        "4097": 6374800,
+        "4098": 6375156,
+        "8192": 10018816,
+        "32768": 31891456,
+        "1000000": 892727936
+      },
+      "storage_rows_at_4096": [
+        {
+          "component": "SWA",
+          "label": "SWA",
+          "variant": null,
+          "layer_count": 1,
+          "storage_positions": 128,
+          "per_token_per_rank": 528.0,
+          "request_bytes": 67584.0,
+          "nodes": [
+            {
+              "node": "kv_concat",
+              "expr": "Min(128, s_kv)",
+              "positions": 128,
+              "per_token_per_rank": 528.0,
+              "bytes": 67584.0
+            }
+          ]
+        },
+        {
+          "component": "SWA",
+          "label": "SWA",
+          "variant": null,
+          "layer_count": 1,
+          "storage_positions": 128,
+          "per_token_per_rank": 528.0,
+          "request_bytes": 67584.0,
+          "nodes": [
+            {
+              "node": "kv_concat",
+              "expr": "Min(128, s_kv)",
+              "positions": 128,
+              "per_token_per_rank": 528.0,
+              "bytes": 67584.0
+            }
+          ]
+        },
+        {
+          "component": "MLA",
+          "label": "MLA",
+          "variant": "CSA",
+          "layer_count": 1,
+          "storage_positions": 128,
+          "per_token_per_rank": 528.0,
+          "request_bytes": 67584.0,
+          "nodes": [
+            {
+              "node": "kv_concat",
+              "expr": "Min(128, s_kv)",
+              "positions": 128,
+              "per_token_per_rank": 528.0,
+              "bytes": 67584.0
+            }
+          ]
+        },
+        {
+          "component": "attention",
+          "label": null,
+          "variant": null,
+          "layer_count": 1,
+          "storage_positions": 1,
+          "per_token_per_rank": 8192.0,
+          "request_bytes": 8192.0,
+          "nodes": [
+            {
+              "node": "kv_state",
+              "expr": "1",
+              "positions": 1,
+              "per_token_per_rank": 4096.0,
+              "bytes": 4096.0
+            },
+            {
+              "node": "score_state",
+              "expr": "1",
+              "positions": 1,
+              "per_token_per_rank": 4096.0,
+              "bytes": 4096.0
+            }
+          ]
+        },
+        {
+          "component": "attention",
+          "label": null,
+          "variant": null,
+          "layer_count": 1,
+          "storage_positions": 2048,
+          "per_token_per_rank": 68.0,
+          "request_bytes": 139264.0,
+          "nodes": [
+            {
+              "node": "k_cache",
+              "expr": "ceiling(s_kv/2)",
+              "positions": 2048,
+              "per_token_per_rank": 68.0,
+              "bytes": 139264.0
+            }
+          ]
+        },
+        {
+          "component": "attention",
+          "label": null,
+          "variant": null,
+          "layer_count": 1,
+          "storage_positions": 2048,
+          "per_token_per_rank": 288.0,
+          "request_bytes": 589824.0,
+          "nodes": [
+            {
+              "node": "compress_pooled",
+              "expr": "ceiling(s_kv/2)",
+              "positions": 2048,
+              "per_token_per_rank": 288.0,
+              "bytes": 589824.0
+            }
+          ]
+        },
+        {
+          "component": "MLA",
+          "label": "MLA",
+          "variant": "CSA",
+          "layer_count": 2,
+          "storage_positions": 128,
+          "per_token_per_rank": 1056.0,
+          "request_bytes": 135168.0,
+          "nodes": [
+            {
+              "node": "kv_concat",
+              "expr": "Min(128, s_kv)",
+              "positions": 128,
+              "per_token_per_rank": 1056.0,
+              "bytes": 135168.0
+            }
+          ]
+        },
+        {
+          "component": "attention",
+          "label": null,
+          "variant": null,
+          "layer_count": 2,
+          "storage_positions": 1,
+          "per_token_per_rank": 16384.0,
+          "request_bytes": 16384.0,
+          "nodes": [
+            {
+              "node": "kv_state",
+              "expr": "1",
+              "positions": 1,
+              "per_token_per_rank": 8192.0,
+              "bytes": 8192.0
+            },
+            {
+              "node": "score_state",
+              "expr": "1",
+              "positions": 1,
+              "per_token_per_rank": 8192.0,
+              "bytes": 8192.0
+            }
+          ]
+        },
+        {
+          "component": "attention",
+          "label": null,
+          "variant": null,
+          "layer_count": 2,
+          "storage_positions": 2048,
+          "per_token_per_rank": 136.0,
+          "request_bytes": 278528.0,
+          "nodes": [
+            {
+              "node": "k_cache",
+              "expr": "ceiling(s_kv/2)",
+              "positions": 2048,
+              "per_token_per_rank": 136.0,
+              "bytes": 278528.0
+            }
+          ]
+        },
+        {
+          "component": "attention",
+          "label": null,
+          "variant": null,
+          "layer_count": 2,
+          "storage_positions": 2048,
+          "per_token_per_rank": 576.0,
+          "request_bytes": 1179648.0,
+          "nodes": [
+            {
+              "node": "compress_pooled",
+              "expr": "ceiling(s_kv/2)",
+              "positions": 2048,
+              "per_token_per_rank": 576.0,
+              "bytes": 1179648.0
+            }
+          ]
+        },
+        {
+          "component": "MLA",
+          "label": "MLA",
+          "variant": "CSA",
+          "layer_count": 1,
+          "storage_positions": 128,
+          "per_token_per_rank": 528.0,
+          "request_bytes": 67584.0,
+          "nodes": [
+            {
+              "node": "kv_concat",
+              "expr": "Min(128, s_kv)",
+              "positions": 128,
+              "per_token_per_rank": 528.0,
+              "bytes": 67584.0
+            }
+          ]
+        },
+        {
+          "component": "attention",
+          "label": null,
+          "variant": null,
+          "layer_count": 1,
+          "storage_positions": 4096,
+          "per_token_per_rank": 68.0,
+          "request_bytes": 278528.0,
+          "nodes": [
+            {
+              "node": "k_cache",
+              "expr": "ceiling(s_kv)",
+              "positions": 4096,
+              "per_token_per_rank": 68.0,
+              "bytes": 278528.0
+            }
+          ]
+        },
+        {
+          "component": "attention",
+          "label": null,
+          "variant": null,
+          "layer_count": 1,
+          "storage_positions": 4096,
+          "per_token_per_rank": 288.0,
+          "request_bytes": 1179648.0,
+          "nodes": [
+            {
+              "node": "compress_pooled",
+              "expr": "ceiling(s_kv)",
+              "positions": 4096,
+              "per_token_per_rank": 288.0,
+              "bytes": 1179648.0
+            }
+          ]
+        },
+        {
+          "component": "MLA",
+          "label": "MLA",
+          "variant": "CSA",
+          "layer_count": 4,
+          "storage_positions": 128,
+          "per_token_per_rank": 2112.0,
+          "request_bytes": 270336.0,
+          "nodes": [
+            {
+              "node": "kv_concat",
+              "expr": "Min(128, s_kv)",
+              "positions": 128,
+              "per_token_per_rank": 2112.0,
+              "bytes": 270336.0
+            }
+          ]
+        },
+        {
+          "component": "MLA",
+          "label": "MLA",
+          "variant": "CSA",
+          "layer_count": 15,
+          "storage_positions": 128,
+          "per_token_per_rank": 7920.0,
+          "request_bytes": 1013760.0,
+          "nodes": [
+            {
+              "node": "kv_concat",
+              "expr": "Min(128, s_kv)",
+              "positions": 128,
+              "per_token_per_rank": 7920.0,
+              "bytes": 1013760.0
+            }
+          ]
+        },
+        {
+          "component": "MLA",
+          "label": "MLA",
+          "variant": "CSA",
+          "layer_count": 15,
+          "storage_positions": 128,
+          "per_token_per_rank": 7920.0,
+          "request_bytes": 1013760.0,
+          "nodes": [
+            {
+              "node": "kv_concat",
+              "expr": "Min(128, s_kv)",
+              "positions": 128,
+              "per_token_per_rank": 7920.0,
+              "bytes": 1013760.0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

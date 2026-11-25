@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Turn a folder of cross-linked notes into a map you can question. In the KV-cache trial, following two links is enough to reconstruct a published memory figure.">
+  <title>Understand Anything guide · Learning Playground</title>
+  <link rel="stylesheet" href="../../guide.css">
+</head>
+<body>
+<main>
+<nav aria-label="Playground"><a href="../../index.html#understand-anything">← All tools</a></nav>
+<header>
+<p class="kicker">Learning Playground · Tool guide</p>
+<h1>Understand Anything</h1>
+<p class="lede">Turn a folder of cross-linked notes into a map you can question. In the KV-cache trial, following two links is enough to reconstruct a published memory figure.</p>
+<p><a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-understand-anything/map.html">Explore the saved knowledge map</a> · <a href="https://understand-anything.com/demo/">Explore the upstream dashboard demo</a></p>
+</header>
+<nav aria-label="In this guide">
+<a href="#try">Find the evidence for 890 bytes</a>
+<a href="#features">Choose the graph you need</a>
+<a href="#implementation">Which relationships are generated?</a>
+<a href="#replay">Rebuild the graph from the saved batch</a>
+<a href="#record">How the trial was assembled</a>
+</nav>
+<section id="try">
+<h2>Find the evidence for 890 bytes</h2>
+<ol>
+<li><strong>Start with a mechanism.</strong> Open the saved map at <b>What can the next token reuse?</b>. Select <b>Read the same cache two ways</b>. Keep the two values fixed. Predict the result for a zero query before reading the calculation. The weights become equal and the output is 6.</li>
+<li><strong>Search for a result.</strong> Enter <code>890</code> in the search box. Select <b>Reconstruct 890 bytes per token</b>. The selected article appears alongside the tour, with links into and out of that node.</li>
+<li><strong>Follow the dependencies.</strong> Follow the entry-size and writer-rate links. One packed entry occupies 356 bytes. Across the four global writers the model retains an average of 2.5 entries per token. Multiply them, then explain what each factor counts. The unit is global cache bytes per token.</li>
+<li><strong>Use the tour in reverse.</strong> Pick a different node linking to the result. Explain how it helps a reader check the calculation. A returning reader can go straight to the <a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-understand-anything/map.html#article:global-budget">global-budget article</a>.</li>
+</ol>
+</section>
+<section id="features">
+<h2>Choose the graph you need</h2>
+<dl>
+<dt><strong>Linked notes</strong></dt><dd>The knowledge skill reads Markdown articles with double-bracket wiki links and an index organized by headings. Index categories define layers and give the tour an order. An optional raw-source folder can contribute source nodes.</dd>
+<dt><strong>Software architecture</strong></dt><dd>The codebase workflow maps files, their relationships, and architectural layers. Related skills explain individual files, analyze a diff, build an onboarding tour, or map domains and flows. This is a different entry point from the wiki analysis.</dd>
+<dt><strong>Saved graph</strong></dt><dd>A reader can pan and search the official dashboard, select a node, inspect its neighbors, or follow a tour. Once saved, the graph can be explored without running another analysis or connecting a model.</dd>
+</dl>
+<figure>
+<a href="media/overview.png" aria-label="View the full-size figure"><img loading="lazy" src="media/overview.png" alt="The upstream dashboard shows a code graph next to the selected node’s details."></a>
+<figcaption>The official codebase dashboard demonstrates node selection and the detail panel. Our linked-article map uses a separate portable reader. Yuxiang Lin and Infinite Universe, Inc.. <a href="https://github.com/Egonex-AI/Understand-Anything/blob/8ec75de1de8c9d2eef685d8d6cbc50782ad31fbb/assets/overview.png">Original figure</a> · <a href="media/LICENSE.txt">MIT license</a>.</figcaption>
+</figure>
+</section>
+<section id="implementation">
+<h2>Which relationships are generated?</h2>
+<p class="flow"><span>Markdown articles</span> <span aria-hidden="true">→</span> <span>Parsed wiki links</span> <span aria-hidden="true">→</span> <span>Agent analysis batch</span> <span aria-hidden="true">→</span> <span>Merged graph</span> <span aria-hidden="true">→</span> <span>Reader or dashboard</span></p>
+<p>The Python parser reads headings, metadata and explicit links. If article A links to article B, this relationship can be recovered directly from the text. The agent contributes a different class of information, such as recognizing that two articles support one claim. Its inferences appear in a batch file you can inspect.</p>
+<p>The merger takes the scan and any analysis batches, merges duplicate entities by name, normalizes relationship types, and builds layers and tour stops. A reader consumes a saved graph, so a second person sees the same connections. The quality of a semantic edge still depends on how faithfully the agent interpreted the material. <a href="https://github.com/Egonex-AI/Understand-Anything/blob/8ec75de1de8c9d2eef685d8d6cbc50782ad31fbb/understand-anything-plugin/skills/understand-knowledge/parse-knowledge-base.py">Parser</a> · <a href="https://github.com/Egonex-AI/Understand-Anything/blob/8ec75de1de8c9d2eef685d8d6cbc50782ad31fbb/understand-anything-plugin/skills/understand-knowledge/merge-knowledge-graph.py">Merger</a>.</p>
+</section>
+<section id="replay">
+<h2>Rebuild the graph from the saved batch</h2>
+<p>From a playground checkout, use Git, curl, tar, Python 3.10 or newer and Node.js 18 or newer. This replay keeps the ten Markdown articles and the agent batch fixed. The final two lines create a portable HTML reader in a fresh directory.</p>
+<pre><code>./install.sh understand-anything
+run=topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-understand-anything
+skill=.local/tools/understand-anything/source/understand-anything-plugin/skills/understand-knowledge
+tmp=$(mktemp -d)
+cp &quot;$run&quot;/wiki/*.md &quot;$tmp/&quot;
+python3 &quot;$skill/parse-knowledge-base.py&quot; &quot;$tmp&quot;
+cp &quot;$run/analysis-batch-1.json&quot; &quot;$tmp/.ua/intermediate/&quot;
+python3 &quot;$skill/merge-knowledge-graph.py&quot; &quot;$tmp&quot;
+python3 tools/understand-anything/export-map.py &quot;$tmp/.ua/intermediate/assembled-graph.json&quot; &quot;$tmp/map.html&quot;
+echo &quot;$tmp/map.html&quot;</code></pre>
+<p>For fresh analysis of your own wiki, give the installed <code>understand-knowledge</code> skill your directory and ask for an English knowledge graph. Expect the parser to report resolved and unresolved links before semantic extraction. Inspect any unexpected edges in the resulting batch. <a href="https://github.com/Egonex-AI/Understand-Anything/blob/8ec75de1de8c9d2eef685d8d6cbc50782ad31fbb/understand-anything-plugin/skills/understand-knowledge/SKILL.md">Knowledge skill</a>.</p>
+</section>
+<section id="record">
+<h2>How the trial was assembled</h2>
+<p>On November 24, 2026, we split the shared field guide into ten English wiki articles, added an index and made references explicit with wiki links. The parser found ten articles, four index topics and 23 resolved links. A Codex agent following the upstream analyzer instructions added five entities, ten claims and eighteen connections in one batch. The result contains <strong>29 nodes, 51 edges, four layers and four tour stops</strong>.</p>
+<p>The upstream viewer v2.9.8 CLI loaded, but the environment rejected its request to bind a local port. A bundled copy of the official dashboard displayed the saved graph in Safari. The playground also wrote the portable map with search, article text and links in both directions. Codebase analysis, diff review and domain mapping remain untested here.</p>
+<p>Learner feedback is pending. The question for this case is whether navigating the writer rate and entry size helps the learner reconstruct the number independently. <a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-understand-anything/analysis-batch-1.json">Saved semantic analysis</a> · <a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-understand-anything/notes.md">Trial record</a>.</p>
+</section>
+<footer><p><a href="../../index.html#understand-anything">← All tools</a> · <a href="https://github.com/Egonex-AI/Understand-Anything/tree/8ec75de1de8c9d2eef685d8d6cbc50782ad31fbb">Egonex-AI/Understand-Anything at 8ec75de1</a> · <a href="https://github.com/Apoorva87/learning-playground">Download the playground and replay scripts</a></p></footer>
+</main>
+</body>
+</html>

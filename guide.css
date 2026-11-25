@@ -1,0 +1,36 @@
+:root { color-scheme:light; --ink:#202e26; --leaf:#22543d; --muted:#516055; --paper:#faf9f4; --line:#c4cec2; --wash:#eaf1e8; }
+* { box-sizing:border-box; }
+html { background:var(--paper); color:var(--ink); }
+body { margin:0; font:1.03rem/1.65 "Source Sans 3",system-ui,sans-serif; }
+main { width:min(100% - 2rem,55rem); margin:clamp(1.1rem,4vw,3.5rem) auto 5rem; }
+a { color:var(--leaf); text-underline-offset:.18em; overflow-wrap:anywhere; }
+a:hover { text-decoration-thickness:2px; }
+:focus-visible { outline:3px solid #aa642d; outline-offset:3px; }
+nav, main>header:first-child { border-top:4px solid var(--leaf); padding-top:1rem; }
+nav { display:flex; flex-wrap:wrap; align-items:center; gap:.5rem 1.3rem; font-size:.95rem; }
+header { margin:1.8rem 0; }
+h1,h2,h3 { font-family:Spectral,Georgia,serif; font-weight:500; line-height:1.12; text-wrap:balance; }
+h1 { font-size:clamp(2.4rem,7vw,4.5rem); letter-spacing:-.045em; margin:.4rem 0 1rem; }
+h2 { margin:2.25rem 0 .8rem; font-size:clamp(1.65rem,4vw,2.3rem); }
+h3 { margin:1.5rem 0 .6rem; font-size:1.4rem; }
+p,ul,ol,dl { margin:.7rem 0; }
+p,li { max-width:76ch; }
+li+li { margin-top:.38rem; }
+.lede, .lead { font-size:1.2rem; color:var(--muted); max-width:66ch; }
+.kicker { color:var(--muted); font-size:.88rem; font-weight:650; }
+section { margin:1.6rem 0; }
+article { min-width:0; }
+figure { margin:1.6rem 0; padding:clamp(.65rem,2.2vw,1.25rem); background:white; border:1px solid var(--line); border-radius:.45rem; }
+img,svg,video { max-width:100%; height:auto; }
+figure img { display:block; margin:0 auto; max-height:42rem; object-fit:contain; }
+figcaption { font-size:.92rem; color:var(--muted); margin-top:.75rem; }
+.flow { display:flex; flex-wrap:wrap; gap:.5rem 1rem; align-items:center; }
+pre { background:#192a23; color:#eff5ed; padding:1rem; border-radius:.4rem; overflow:auto; line-height:1.55; }
+code { font: .92em/1.55 "IBM Plex Mono",ui-monospace,Menlo,monospace; overflow-wrap:anywhere; }
+pre code { overflow-wrap:normal; }
+table { display:block; overflow:auto; max-width:100%; border-collapse:collapse; margin:1.2rem 0; }
+th,td { text-align:left; vertical-align:top; padding:.6rem .8rem; border-bottom:1px solid var(--line); }
+th { background:var(--wash); }
+blockquote { margin:1.25rem 0; padding:.2rem 1rem; border-left:3px solid var(--leaf); color:var(--muted); }
+footer { margin-top:2.5rem; border-top:1px solid var(--line); padding:1rem 0; }
+@media(max-width:36rem){body{font-size:1rem}main{width:calc(100% - 2rem)}td,th{padding:.45rem}ul,ol{padding-left:1.4rem}}

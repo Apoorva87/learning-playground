@@ -1,0 +1,15 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>How Transformers Remember · Learning playground</title><link rel="stylesheet" href="../../guide.css"></head><body><main>
+<nav><a href="../../index.html">← Learning playground</a><a href="../../index.html#guides">Tool guides</a></nav>
+<header><h1>How Transformers Remember</h1><p class="lede">When a language model writes one more token, which earlier calculations can it reuse? Follow two cached values by hand, work out the memory they occupy, then compare the answer with a real architecture.</p></header>
+<section><h2>Start with one more token</h2><p>Read the <a href="assets/field-guide.md">worked guide</a> for the math. In the first example, changing only the query changes the answer from 8 to 6. The stored keys and values stay the same.</p>
+<table><thead><tr><th>Choose a way to study</th><th>Try this</th></tr></thead><tbody>
+<tr><td><a href="cases/one-more-token/runs/2026-11-23-openmaic/lesson.html">OpenMAIC · Calculator and quiz</a></td><td>Double the context length. Predict the memory before you read the result.</td></tr>
+<tr><td><a href="cases/one-more-token/runs/2026-11-24-deeptutor/lesson.html">DeepTutor · Worked explanation</a></td><td>Trace the attention arithmetic and check the corrections to the tutor’s answer.</td></tr>
+<tr><td><a href="cases/one-more-token/runs/2026-11-24-visual-explainer/one-more-token.html">Visual Explainer · Attention replay</a></td><td>Play through one token and see how weights combine the cached values.</td></tr>
+<tr><td><a href="cases/one-more-token/runs/2026-11-24-understand-anything/map.html">Understand-Anything · Knowledge graph</a></td><td>Follow the 890-byte total back to the entry size and write frequency.</td></tr>
+<tr><td><a href="cases/one-more-token/runs/2026-11-24-socratic-workshop/opening.html">Socratic Workshop · Opening question</a></td><td>Explain what a model could reuse after reading a clue. Continue with a tutor in chat.</td></tr>
+</tbody></table></section>
+<section><h2>Inspect a model</h2><p><a href="../../tools/llm-viz/index.html">LLM Visualization</a> shows the query, key and value calculations in a tiny GPT. The <a href="https://bbycroft.net/llm">author’s interactive model</a> works in a browser.</p>
+<p>Then use the <a href="cases/huggingarch-cache/runs/2026-11-24-huggingarch/result.html">HuggingArch cache measurements</a>. Compare the change from position 4,096 to 4,097 with the next step. The <a href="../../tools/huggingarch/index.html">HuggingArch guide</a> explains how to reproduce the calculation.</p></section>
+<footer><a href="README.md">Trial notes and source material</a> · <a href="../../index.html#feedback">Rate a tool</a></footer>
+</main></body></html>

@@ -20,4 +20,4 @@ The full Docker Compose classroom was attempted. Docker denied socket access for
 
 **Language requirement:** “always use english only” (November 24, 2026). Recorded in the workspace instructions and preferences.
 
-**Tool preference:** Pending. Which made the storage savings easier to explain in your own words — changing the calculator, working the arithmetic, or answering the quiz? Which part would you want from another topic?
+**November 24, 2026.** The learner named OpenMAIC among their three favorites so far. Which made the storage savings easier to explain in your own words — changing the calculator, working the arithmetic, or answering the quiz? Which part would you want from another topic?

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en" data-register="paper">
+<head>
+  <title>One more token · How Transformers Remember</title>
+  <link rel="stylesheet" href="kit.css" data-ve-kit>
+  <style>
+    .readout { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: var(--s-5); }
+    .readout h3 { margin-top: 0; }
+    .arithmetic { font-variant-numeric: tabular-nums; font-size: var(--t-h3); }
+    .prediction { margin-block: var(--s-4); }
+    .prediction summary { cursor: pointer; }
+    .sources a { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+<nav class="ve-toc" aria-label="Sections"><div><a href="#read">Read one row</a><a href="#heads">Count the heads</a><a href="#history">Compress history</a><a href="#bytes">Count the bytes</a></div><span class="pos"></span></nav>
+<main>
+  <header>
+    <h1>What does the next token reuse?</h1>
+    <p class="lead">A transformer keeps earlier <strong>keys and values</strong>. Each new query decides how much to read from each value.</p>
+  </header>
+  <section id="read" aria-label="Read one row of attention">
+    <figure class="ve-steps">
+      <ve-flow label="A query scores two saved keys. Softmax turns the scores into weights. The weighted values add to eight.">
+        <ve-node id="query" at="1 1" data-s="1" sub="q = 1">New query</ve-node>
+        <ve-node id="keys" at="2 1" data-s="1" sub="0 and ln(3)" shape="db">Saved keys</ve-node>
+        <ve-node id="weights" at="2 2" data-s="2" sub="¼ and ¾">Weights</ve-node>
+        <ve-node id="out" at="1 2" data-s="3" sub="¼ × 2 + ¾ × 10" key>Output = 8</ve-node>
+        <ve-edge from="query" to="keys" label="scores" data-s="1"></ve-edge>
+        <ve-edge from="keys" to="weights" label="normalize" data-s="2"></ve-edge>
+        <ve-edge from="weights" to="out" label="mix values" data-s="3" hot></ve-edge>
+      </ve-flow>
+      <div class="ve-player">
+        <ol class="ve-cap"><li data-n="1/3">With key dimension 1, multiplying the keys by the query gives scores 0 and ln(3).</li><li data-n="2/3">Exponentiating gives 1 and 3. Dividing each by their sum gives ¼ and ¾.</li><li data-n="3/3">Multiply the saved values 2 and 10 by those weights. Their contributions add to 8.</li></ol>
+        <button data-go="-1" aria-label="Previous step">←</button><button data-play>Play</button><input type="range" aria-label="Attention step"><button data-go="1" aria-label="Next step">→</button>
+      </div>
+      <figcaption>One query reads two eligible positions in this toy attention row.</figcaption>
+    </figure>
+    <p>During prefill, each layer saves a key and a value for each prefix position. Causal masking makes earlier positions independent of future tokens. During decoding, the layer appends one more pair. Dense attention still reads the growing history on every step.</p>
+    <details class="prediction"><summary>Predict the output if the query becomes zero. Then check.</summary><p>Both dot products are zero. Softmax gives ½ and ½, so the same cache now returns (2 + 10) / 2 = <strong>6</strong>.</p></details>
+  </section>
+  <section id="heads">
+    <h2>32 queries can share one set of keys and values</h2>
+    <figure>
+      <div class="readout">
+        <div><h3>4,096 tokens · MiB</h3><ve-bars max="4096" label="At 4,096 tokens, MHA uses 2,048 MiB, GQA 512 MiB and MQA 64 MiB."><ve-bar value="2048">MHA · 32</ve-bar><ve-bar value="512">GQA · 8</ve-bar><ve-bar value="64" hot>MQA · 1</ve-bar></ve-bars></div>
+        <div><h3>8,192 tokens · MiB</h3><ve-bars max="4096" label="At 8,192 tokens, MHA uses 4,096 MiB, GQA 1,024 MiB and MQA 128 MiB."><ve-bar value="4096">MHA · 32</ve-bar><ve-bar value="1024">GQA · 8</ve-bar><ve-bar value="128" hot>MQA · 1</ve-bar></ve-bars></div>
+      </div>
+      <figcaption>Both plots use the same scale. The labels count KV heads in multi-head, grouped-query, and multi-query attention.</figcaption>
+    </figure>
+    <p>For one sequence, multiply tokens × 32 layers × KV heads × 128 numbers per head × 2 arrays × 2 bytes. Multi-head attention adds 524,288 bytes per token. Sharing a KV head lets several queries score the same keys with different weights.</p>
+    <details class="prediction"><summary>Double the tokens and halve the KV heads. Predict the memory change.</summary><p>The two factors cancel. For example, 4,096 tokens with 8 KV heads and 8,192 tokens with 4 KV heads both use 512 MiB. These are hypothetical model designs.</p></details>
+  </section>
+  <section id="history">
+    <h2>What changed after heads began sharing?</h2>
+    <div class="ve-table"><table>
+      <thead><tr><th scope="col">Design</th><th scope="col">What persists between tokens</th><th scope="col">What a new query does</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">2017–23 · MHA, MQA, GQA</th><td>One KV pair per head, then one pair for all heads or one per group.</td><td>Each query scores the history in its own way.</td></tr>
+        <tr><th scope="row">2024 · DeepSeek-V2</th><td>Multi-head latent attention stores a learned vector c and a small positional key per token.</td><td>For the content score, qᵀ(Wc) = (Wᵀq)ᵀc. Each head can transform its query and read the same latent.</td></tr>
+        <tr><th scope="row">2026 · V4-Flash</th><td>A recent window plus summaries covering groups of older positions.</td><td>Compression reduces the number stored. Sparse selection can reduce the number read.</td></tr>
+        <tr><th scope="row">2026 · V4.1-Flash</th><td>Several layers share packed global entries. Each layer keeps its local window.</td><td>A Full layer writes and selects. A Reindex layer selects again. A Reuse layer also shares the preceding selection.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+  <section id="bytes">
+    <h2>How does DeepSeek reach 890 bytes per token?</h2>
+    <figure>
+      <div class="frame"><ve-stack unit=" B" label="One entry contains 288 bytes for its main vector and 68 bytes for its index key."><ve-bar value="288">Main vector</ve-bar><ve-bar value="68" hot>Index key</ve-bar></ve-stack></div>
+      <div class="readout"><p><strong>Main vector</strong><br>512 four-bit values take 256 B. One scale byte per 16 values adds 32 B.</p><p><strong>Index key</strong><br>128 four-bit values take 64 B. One scale byte per 32 values adds 4 B.</p></div>
+      <figcaption>A packed global entry costs 356 bytes including both sets of scale factors.</figcaption>
+    </figure>
+    <p>Three encoder layers each write one entry per two tokens. One decoder layer writes one per token. Across a long sequence, that averages 3 × ½ + 1 = 2.5 entries per token.</p>
+    <p class="arithmetic"><strong>356 B/entry × 2.5 entries/token = 890 B/token</strong></p>
+    <p>A million tokens therefore use about 890 MB of global cache. Budget separately for the local 128-token windows, model weights, temporary activations, and serving overhead.</p>
+    <details class="prediction"><summary>Two designs each read 512 entries per query. Must they occupy the same memory?</summary><p>No. A design storing one entry per four old tokens holds roughly a quarter as many as one storing an entry per token, given equal entry sizes. The read count alone cannot tell you the inventory.</p></details>
+  </section>
+  <footer class="sources"><p><a href="../../../../assets/field-guide.md">Worked guide and primary sources</a> · <a href="https://arxiv.org/html/2609.19969v1">DeepSeek-V4.1 technical report</a> · <a href="notes.md">Trial notes</a> · <a href="../../../../../../tools/visual-explainer/LICENSE">Visual Explainer kit license</a></p></footer>
+</main>
+</body>
+</html>

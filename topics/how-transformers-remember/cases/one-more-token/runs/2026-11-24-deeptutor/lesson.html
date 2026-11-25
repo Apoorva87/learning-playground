@@ -1,0 +1,298 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>How Transformers Remember · DeepTutor</title><style>
+:root{color-scheme:light;--ink:#172c28;--muted:#455c56;--line:#c8d6cf;--green:#195e4d}
+*{box-sizing:border-box}html{font-size:100%;scroll-padding-top:1rem}body{margin:0;background:#f9faf7;color:var(--ink);font:1.08rem/1.65 system-ui,sans-serif}main{max-width:51rem;margin:auto;padding:2.5rem clamp(1rem,4vw,3.25rem) 4rem}
+a{color:var(--green);text-underline-offset:.2em}a:focus-visible,summary:focus-visible{outline:3px solid #994d13;outline-offset:3px}nav{font-size:.92rem}nav a{display:inline-block;margin:.1rem 1.25rem .1rem 0}
+h1,h2,h3{line-height:1.15;text-wrap:balance}h1,h2{font-family:Georgia,serif}h1{font-size:clamp(2.7rem,7vw,4.3rem);letter-spacing:-.045em;margin:.5rem 0 1rem}h2{font-size:clamp(1.65rem,5vw,2.2rem);margin:2rem 0 .9rem}h3{font-size:1.25rem;margin:1.5rem 0 .6rem}header{border-bottom:1px solid var(--line);padding-bottom:1rem}header p{max-width:60ch}
+aside{border-left:4px solid #9a5b27;background:#fbf0dd;padding:.8rem 1.2rem;margin:1.5rem 0}aside h2{font:700 1.05rem/1.4 system-ui,sans-serif;margin:.1rem 0 .5rem}aside p{margin:.3rem 0}.scroll{overflow:auto}table{width:100%;border-collapse:collapse;font-size:.98rem}td,th{vertical-align:top;text-align:left;padding:.6rem .65rem;border-bottom:1px solid var(--line)}th{background:#e3eee7}td:first-child{font-weight:500}hr{border:0;border-top:1px solid var(--line);margin:2.5rem 0 0}blockquote{margin:1rem 0;padding-left:1rem;border-left:3px solid var(--line);color:var(--muted)}
+p:has(math[display=block]){overflow-x:auto;padding:.3rem 0}math{font-size:1.05em}summary{cursor:pointer;color:var(--green);font-weight:650;padding:.6rem .8rem}details{border:1px solid var(--line);border-radius:.4rem;background:#fff;margin:.6rem 0 1.4rem}details p{padding:0 .85rem}footer{margin-top:2rem;border-top:1px solid var(--line);padding-top:1rem}li+li{margin-top:.3rem}.meta{font-size:.92rem;color:var(--muted);margin:1.8rem 0 0}@media(max-width:40rem){main{padding-top:1rem}td,th{padding:.45rem .35rem}table{font-size:.9rem}}
+</style></head><body><main><header>
+<nav aria-label="Trial materials"><a href="lesson.md">Original tutor answer</a><a href="notes.md">Trial notes</a><a href="../../../../assets/field-guide.md">Source guide</a></nav>
+<p class="meta">DeepTutor Chat · November 24, 2026</p><h1>How Transformers Remember</h1>
+<p>Follow a single query, then count how many bytes one more token adds to the cache. At the end, predict the global cache at 16,384 tokens.</p></header>
+<aside aria-labelledby="editor-note"><h2 id="editor-note">Corrections in this reading edition</h2>
+<p>The original tutor answer used the toy model’s 32 layers when explaining DeepSeek. The released model has 40 layers and four global cache writers. The opening attention sum also omitted the current token. Both are corrected below.</p>
+<p>The edition also corrects the tutor’s claims about guaranteed GQA quality, global cache growth and a fixed allocator allowance. DeepTutor received the source guide, including the numerical answers, in its prompt.</p></aside>
+<nav aria-label="Lesson sections"><a href="#do-one-attention-calculation-by-hand">Try the attention row</a><a href="#counting-the-cache-bytes">Count cache bytes</a><a href="#final-prediction-to-check">Test your prediction</a></nav>
+<article><h2 id="one-decoding-step-by-hand">One Decoding Step by Hand</h2>
+<p>Imagine a decoder following a clue in an earlier sentence:</p>
+<blockquote>
+<p>&quot;The spare key is in the blue drawer. Open the …&quot;</p>
+</blockquote>
+<p>Use a smaller example with four cached token positions. During <strong>prefill</strong>, each attention layer saves a key (K) and a value (V) for each position.</p>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th scope="col">Position</th>
+<th scope="col">Key <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>k</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">k_i</annotation></semantics></math></span></th>
+<th scope="col">Value <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>v</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">v_i</annotation></semantics></math></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>learned vector</td>
+<td>learned vector</td>
+</tr>
+<tr>
+<td>2</td>
+<td>learned vector</td>
+<td>learned vector</td>
+</tr>
+<tr>
+<td>3</td>
+<td>learned vector</td>
+<td>learned vector</td>
+</tr>
+<tr>
+<td>4</td>
+<td>learned vector</td>
+<td>learned vector</td>
+</tr>
+</tbody>
+</table></div>
+<p>During <strong>decode</strong>, position 5 produces its query, key and value. The layer appends the new key and value to its cache. The query <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>q</mi><mn>5</mn></msub></mrow><annotation encoding="application/x-tex">q_5</annotation></semantics></math></span> scores each eligible key, including <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>k</mi><mn>5</mn></msub></mrow><annotation encoding="application/x-tex">k_5</annotation></semantics></math></span>:</p>
+<p><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>s</mi><mi>i</mi></msub><mo>=</mo><mfrac><mrow><msub><mi>q</mi><mn>5</mn></msub><mo>⋅</mo><msub><mi>k</mi><mi>i</mi></msub></mrow><msqrt><mi>d</mi></msqrt></mfrac></mrow><annotation encoding="application/x-tex">s_i = \frac{q_5 \cdot k_i}{\sqrt{d}}</annotation></semantics></math></span></p>
+<p>Then softmax to get attention weights:</p>
+<p><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>a</mi><mi>i</mi></msub><mo>=</mo><mfrac><mrow><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>s</mi><mi>i</mi></msub><mo stretchy="false">)</mo></mrow><mrow><munder><mo>∑</mo><mi>j</mi></munder><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><msub><mi>s</mi><mi>j</mi></msub><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">a_i = \frac{\exp(s_i)}{\sum_j \exp(s_j)}</annotation></semantics></math></span></p>
+<p>Finally, blend the values:</p>
+<p><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mtext>output</mtext><mn>5</mn></msub><mo>=</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>=</mo><mn>1</mn></mrow><mn>5</mn></munderover><msub><mi>a</mi><mi>i</mi></msub><msub><mi>v</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">\text{output}_5 = \sum_{i=1}^5 a_i v_i</annotation></semantics></math></span></p>
+<p><strong>Why is this safe?</strong> Causal attention means position 5 can only attend to positions 1–5 (including itself). With the same prefix, weights, position scheme and inference settings, positions 1–4 retain their earlier hidden states. Their keys and values are projections of fixed hidden states, so reusing them gives identical results as if you recomputed everything. The new query still reads history in dense attention, but the <em>computation</em> of earlier K/V pairs is saved.</p>
+<hr />
+<h2 id="do-one-attention-calculation-by-hand">Do One Attention Calculation by Hand</h2>
+<p>Let's work through a single head with <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>d</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">d=1</annotation></semantics></math></span>:</p>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th scope="col">Position</th>
+<th scope="col">Key <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>k</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">k_i</annotation></semantics></math></span></th>
+<th scope="col">Value <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>v</mi><mi>i</mi></msub></mrow><annotation encoding="application/x-tex">v_i</annotation></semantics></math></span></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>0</mn></mrow><annotation encoding="application/x-tex">0</annotation></semantics></math></span></td>
+<td><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>2</mn></mrow><annotation encoding="application/x-tex">2</annotation></semantics></math></span></td>
+</tr>
+<tr>
+<td>2</td>
+<td><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ln</mi><mo>⁡</mo><mo stretchy="false">(</mo><mn>3</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">\ln(3)</annotation></semantics></math></span></td>
+<td><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>10</mn></mrow><annotation encoding="application/x-tex">10</annotation></semantics></math></span></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Query A:</strong> <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">q = 1</annotation></semantics></math></span></p>
+<p><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>s</mi><mn>1</mn></msub><mo>=</mo><mfrac><mrow><mn>1</mn><mo>⋅</mo><mn>0</mn></mrow><msqrt><mn>1</mn></msqrt></mfrac><mo>=</mo><mn>0</mn><mo separator="true">,</mo><mspace width="1em"/><msub><mi>s</mi><mn>2</mn></msub><mo>=</mo><mfrac><mrow><mn>1</mn><mo>⋅</mo><mi>ln</mi><mo>⁡</mo><mo stretchy="false">(</mo><mn>3</mn><mo stretchy="false">)</mo></mrow><msqrt><mn>1</mn></msqrt></mfrac><mo>=</mo><mi>ln</mi><mo>⁡</mo><mo stretchy="false">(</mo><mn>3</mn><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">s_1 = \frac{1 \cdot 0}{\sqrt{1}} = 0, \quad s_2 = \frac{1 \cdot \ln(3)}{\sqrt{1}} = \ln(3)</annotation></semantics></math></span></p>
+<p>Exponentiate: <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><mn>0</mn><mo stretchy="false">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\exp(0)=1</annotation></semantics></math></span>, <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>exp</mi><mo>⁡</mo><mo stretchy="false">(</mo><mi>ln</mi><mo>⁡</mo><mo stretchy="false">(</mo><mn>3</mn><mo stretchy="false">)</mo><mo stretchy="false">)</mo><mo>=</mo><mn>3</mn></mrow><annotation encoding="application/x-tex">\exp(\ln(3))=3</annotation></semantics></math></span>. Weights: <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mn>1</mn></msub><mo>=</mo><mfrac><mn>1</mn><mn>4</mn></mfrac></mrow><annotation encoding="application/x-tex">a_1=\frac{1}{4}</annotation></semantics></math></span>, <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>a</mi><mn>2</mn></msub><mo>=</mo><mfrac><mn>3</mn><mn>4</mn></mfrac></mrow><annotation encoding="application/x-tex">a_2=\frac{3}{4}</annotation></semantics></math></span>.</p>
+<p>Output: <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mn>1</mn><mn>4</mn></mfrac><mo>×</mo><mn>2</mn><mo>+</mo><mfrac><mn>3</mn><mn>4</mn></mfrac><mo>×</mo><mn>10</mn><mo>=</mo><mn mathvariant="bold">8</mn></mrow><annotation encoding="application/x-tex">\frac{1}{4}\times 2 + \frac{3}{4}\times 10 = \mathbf{8}</annotation></semantics></math></span></p>
+<p><strong>Query B:</strong> <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>q</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">q = 0</annotation></semantics></math></span></p>
+<p><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>s</mi><mn>1</mn></msub><mo>=</mo><msub><mi>s</mi><mn>2</mn></msub><mo>=</mo><mn>0</mn><mtext>  </mtext><mo>⟹</mo><mtext>  </mtext><msub><mi>a</mi><mn>1</mn></msub><mo>=</mo><msub><mi>a</mi><mn>2</mn></msub><mo>=</mo><mfrac><mn>1</mn><mn>2</mn></mfrac></mrow><annotation encoding="application/x-tex">s_1 = s_2 = 0 \implies a_1=a_2=\frac{1}{2}</annotation></semantics></math></span></p>
+<p>Output: <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>×</mo><mn>2</mn><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><mo>×</mo><mn>10</mn><mo>=</mo><mn mathvariant="bold">6</mn></mrow><annotation encoding="application/x-tex">\frac{1}{2}\times 2 + \frac{1}{2}\times 10 = \mathbf{6}</annotation></semantics></math></span></p>
+<p>The same cache, different queries produce different outputs. The keys and values stay fixed. Each query assigns its own weights.</p>
+<hr />
+<h2 id="counting-the-cache-bytes">Counting the cache bytes</h2>
+<p>For dense attention with equal key and value dimensions:</p>
+<p><strong>Bytes per token for one sequence</strong> = layers × KV heads × head dimension × 2 arrays × bytes per element. Multiply by tokens and batch size for the whole batch.</p>
+<p><strong>Our toy model</strong></p>
+<ul>
+<li>Batch = 1 (one sequence)</li>
+<li>Layers = 32</li>
+<li>Query heads = 32 (fixed)</li>
+<li>Head dimension = 128 numbers</li>
+<li>Bytes per number = 2 (BF16 or FP16)</li>
+</ul>
+<p>One new token adds: <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>32</mn><mo>×</mo><mn>32</mn><mo>×</mo><mn>128</mn><mo>×</mo><mn>2</mn><mo>×</mo><mn>2</mn><mo>=</mo><mrow><mn mathvariant="bold">524</mn><mo separator="true">,</mo><mn mathvariant="bold">288</mn><mtext> </mtext><mi mathvariant="bold">b</mi><mi mathvariant="bold">y</mi><mi mathvariant="bold">t</mi><mi mathvariant="bold">e</mi><mi mathvariant="bold">s</mi></mrow></mrow><annotation encoding="application/x-tex">32 \times 32 \times 128 \times 2 \times 2 = \mathbf{524,288\ bytes}</annotation></semantics></math></span> = <strong>512 KiB</strong></p>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th scope="col">Design</th>
+<th scope="col">KV heads</th>
+<th scope="col">At 4,096 tokens</th>
+<th scope="col">At 8,192 tokens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Multi-head attention (MHA)</td>
+<td>32</td>
+<td>2 GiB</td>
+<td>4 GiB</td>
+</tr>
+<tr>
+<td>Grouped-query attention (GQA)</td>
+<td>8</td>
+<td>512 MiB</td>
+<td>1 GiB</td>
+</tr>
+<tr>
+<td>Multi-query attention (MQA)</td>
+<td>1</td>
+<td>64 MiB</td>
+<td>128 MiB</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Try predicting before reading on:</strong> Double the prompt length and halve the KV head count. What happens to storage? Those factors cancel. The number of query heads can stay the same because several queries can use the same bank of keys and values. Each query still computes its own scores. These are architectures learned during training or adaptation. Changing the head count of a trained MHA model is a model change.</p>
+<hr />
+<h2 id="the-route-from-separate-heads-to-shared-history">The Route from Separate Heads to Shared History</h2>
+<h3>2017–2023: Share Across Heads</h3>
+<p>The original Transformer assigns different projections to each attention head. <strong>MQA</strong> gives all query heads one set of keys and values. <strong>GQA</strong> splits the query heads into groups, providing one KV set per group. This reduces stored bytes and the amount of KV data that must move during decode. Query heads can still attend to different positions.</p>
+<h3>2024: Store a Learned Latent</h3>
+<p><strong>DeepSeek‑V2's multi-head latent attention (MLA)</strong> compresses the hidden state <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi></mrow><annotation encoding="application/x-tex">h</annotation></semantics></math></span> into a compact vector <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mo>=</mo><msub><mi>W</mi><mo>↓</mo></msub><mi>h</mi></mrow><annotation encoding="application/x-tex">c = W_\downarrow h</annotation></semantics></math></span>. Heads learn different projections of <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi></mrow><annotation encoding="application/x-tex">c</annotation></semantics></math></span>. In the content part of an attention score, <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>q</mi><mi mathvariant="normal">⊤</mi></msup><mo stretchy="false">(</mo><msub><mi>W</mi><mo>↑</mo></msub><mi>c</mi><mo stretchy="false">)</mo><mo>=</mo><mo stretchy="false">(</mo><msubsup><mi>W</mi><mo>↑</mo><mi mathvariant="normal">⊤</mi></msubsup><mi>q</mi><msup><mo stretchy="false">)</mo><mi mathvariant="normal">⊤</mi></msup><mi>c</mi></mrow><annotation encoding="application/x-tex">q^\top(W_\uparrow c) = (W_\uparrow^\top q)^\top c</annotation></semantics></math></span>. That identity lets an implementation score cached latents directly. A small positional key is cached separately for rotary position information. A latent costs fewer numbers per position while still supporting different heads.</p>
+<h3>2026: Compress Along the Sequence</h3>
+<p><strong>V4‑Flash</strong> keeps a detailed recent window and represents older context with learned summary entries. <strong>Compressed Sparse Attention (CSA)</strong> forms summaries at a finer stride and chooses relevant ones for a query. <strong>Heavily Compressed Attention (HCA)</strong> forms much coarser summaries and can attend to all of them. Two costs are at play.</p>
+<ol>
+<li>Packing more tokens into each entry reduces how much history is stored.</li>
+<li>Selecting fewer stored entries reduces the work of reading them for the next token.</li>
+</ol>
+<h3>2026: Share Across Layers and Shrink Each Entry</h3>
+<p><strong>DeepSeek‑V4.1‑Flash</strong> uses <strong>CSA2</strong>.</p>
+<ul>
+<li>A <strong>Full</strong> layer writes a global cache and selects positions.</li>
+<li>A <strong>Reindex</strong> layer reads that cache and picks positions for its own query.</li>
+<li>A <strong>Reuse</strong> layer reads the cache and a preceding layer's selection.</li>
+</ul>
+<p>Each layer still computes its own attention query and local sliding-window state. The window spans up to 128 tokens. The encoder's global entries cover pairs of positions. The decoder's cover single positions, with many layers reading the same store.</p>
+<hr />
+<h2 id="follow-the-rounding-fp4-main-cache">Follow the Rounding: FP4 Main Cache</h2>
+<p>The main global cache uses <strong>4-bit numbers</strong> with a one-byte scale per group of 16.</p>
+<ul>
+<li>Sixteen such values cost <span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>8</mn><mo>+</mo><mn>1</mn><mo>=</mo><mrow><mn mathvariant="bold">9</mn><mtext> </mtext><mi mathvariant="bold">b</mi><mi mathvariant="bold">y</mi><mi mathvariant="bold">t</mi><mi mathvariant="bold">e</mi><mi mathvariant="bold">s</mi></mrow></mrow><annotation encoding="application/x-tex">8 + 1 = \mathbf{9\ bytes}</annotation></semantics></math></span></li>
+<li>Storing 16 BF16 values takes <strong>32 bytes</strong></li>
+</ul>
+<p>That small example explains one ingredient. The model's overall cache also includes the indexer and benefits from sharing entries across layers. Its local sliding-window cache uses FP8.</p>
+<hr />
+<h2 id="what-fits-in-890-mb">What Fits in 890 MB?</h2>
+<p>Here is one way to reconstruct the reported global total:</p>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th scope="col">Component</th>
+<th scope="col">Calculation</th>
+<th scope="col">Bytes per entry</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Main entry (512-channel)</td>
+<td><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>512</mn><mi mathvariant="normal">/</mi><mn>2</mn><mo>+</mo><mn>512</mn><mi mathvariant="normal">/</mi><mn>16</mn></mrow><annotation encoding="application/x-tex">512/2 + 512/16</annotation></semantics></math></span></td>
+<td><strong>288 bytes</strong></td>
+</tr>
+<tr>
+<td>Index key (128-channel)</td>
+<td><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>128</mn><mi mathvariant="normal">/</mi><mn>2</mn><mo>+</mo><mn>128</mn><mi mathvariant="normal">/</mi><mn>32</mn></mrow><annotation encoding="application/x-tex">128/2 + 128/32</annotation></semantics></math></span></td>
+<td><strong>68 bytes</strong></td>
+</tr>
+<tr>
+<td><strong>Total per entry</strong></td>
+<td><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>288</mn><mo>+</mo><mn>68</mn></mrow><annotation encoding="application/x-tex">288 + 68</annotation></semantics></math></span></td>
+<td><strong>356 bytes</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p>Three encoder cache writers each create one entry per two tokens. One decoder writer creates one per token. Over a long sequence, the average is:</p>
+<p><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mo stretchy="false">(</mo><mn>3</mn><mo>×</mo><mstyle scriptlevel="0" displaystyle="false"><mfrac><mn>1</mn><mn>2</mn></mfrac></mstyle><mo>+</mo><mn>1</mn><mo stretchy="false">)</mo><mo>×</mo><mn>356</mn><mo>=</mo><mrow><mn mathvariant="bold">890</mn><mtext> </mtext><mi mathvariant="bold">b</mi><mi mathvariant="bold">y</mi><mi mathvariant="bold">t</mi><mi mathvariant="bold">e</mi><mi mathvariant="bold">s</mi><mtext> </mtext><mi mathvariant="bold">p</mi><mi mathvariant="bold">e</mi><mi mathvariant="bold">r</mi><mtext> </mtext><mi mathvariant="bold">t</mi><mi mathvariant="bold">o</mi><mi mathvariant="bold">k</mi><mi mathvariant="bold">e</mi><mi mathvariant="bold">n</mi></mrow></mrow><annotation encoding="application/x-tex">(3 \times \tfrac{1}{2} + 1) \times 356 = \mathbf{890\ bytes\ per\ token}</annotation></semantics></math></span></p>
+<p>Across the network, other layers can use those entries again. DeepSeek reports <strong>890 bytes of global KV cache per token</strong>, about one quarter of V4‑Flash's corresponding footprint. At exactly 1,000,000 tokens that is <strong>890 MB</strong>, about <strong>849 MiB</strong>. Weights, the bounded local window, temporary activations, and allocator overhead require additional memory.</p>
+<hr />
+<h2 id="compare-hypothetical-vs-deepseek-s-reported-figure">Compare Hypothetical vs. DeepSeek's Reported Figure</h2>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th scope="col">Design</th>
+<th scope="col">KV heads</th>
+<th scope="col">4,096 tokens</th>
+<th scope="col">8,192 tokens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>MHA (32 KV heads)</td>
+<td>32</td>
+<td>2 GiB</td>
+<td>4 GiB</td>
+</tr>
+<tr>
+<td>GQA (8 KV heads)</td>
+<td>8</td>
+<td>512 MiB</td>
+<td>1 GiB</td>
+</tr>
+<tr>
+<td>MQA (1 KV head)</td>
+<td>1</td>
+<td>64 MiB</td>
+<td>128 MiB</td>
+</tr>
+<tr>
+<td><strong>DeepSeek V4.1-Flash</strong></td>
+<td>—</td>
+<td>~3.6 MB</td>
+<td>~7.3 MB</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Why the gap?</strong> The toy architecture has 32 layers. DeepSeek-V4.1-Flash has 20 encoder and 20 decoder layers. Three encoder layers and one decoder layer write global entries. Other CSA2 layers reuse entries from an earlier writer.</p>
+<ul>
+<li><strong>Sequence compression</strong> changes the number of global entries. Each encoder writer produces one entry per pair of positions. The decoder writer produces one per position.</li>
+<li><strong>Cross-layer reuse</strong> changes how many global stores are needed. The first two encoder layers use only local attention.</li>
+<li><strong>Precision</strong> changes each entry’s byte cost. Sixteen main-cache values plus their scale occupy nine bytes. Each 512-channel main entry costs 288 bytes, and its index key adds 68.</li>
+</ul>
+<p>The 128-channel toy head and the 512-channel main entry belong to different architectures. <a href="https://arxiv.org/html/2609.19969v1">DeepSeek technical report, §§2.3, 2.4.4 and 4.2.1</a></p>
+<hr />
+<h2 id="local-state-weights-and-serving-overhead">Local state, weights and serving overhead</h2>
+<div class="scroll"><table>
+<thead>
+<tr>
+<th scope="col">Component</th>
+<th scope="col">Estimate</th>
+<th scope="col">Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Global KV cache</strong></td>
+<td>890 bytes/token</td>
+<td>DeepSeek's reported figure</td>
+</tr>
+<tr>
+<td><strong>Local sliding window</strong></td>
+<td>FP8, ~128 tokens</td>
+<td>Per-layer, not shared</td>
+</tr>
+<tr>
+<td><strong>Model weights</strong></td>
+<td>Checkpoint dependent</td>
+<td>Shared across sequences on a model replica</td>
+</tr>
+<tr>
+<td><strong>Temporary activations</strong></td>
+<td>Variable</td>
+<td>During forward pass</td>
+</tr>
+<tr>
+<td><strong>Allocator overhead</strong></td>
+<td>Implementation dependent</td>
+<td>Depends on allocation, padding and fragmentation</td>
+</tr>
+</tbody>
+</table></div>
+<p>For persistent storage on SSD or host memory, DeepSeek reports about one eighth of its predecessor's footprint, aided by reconstructing missing sliding-window state when a session resumes. These ratios have different denominators.</p>
+<hr />
+<h2 id="check-your-prediction">Check Your Prediction</h2>
+<p><strong>Question:</strong> If you double the prompt length from 4,096 to 8,192 tokens while keeping KV heads at 8 (GQA), what happens to storage?</p>
+<details><summary>Check your answer</summary>
+<p>Storage doubles from <strong>512 MiB to 1 GiB</strong>. The number of query heads can stay fixed because several queries can use the same bank of keys and values. Each query still computes its own scores. How closely quality matches the original model depends on training and evaluation. The GQA paper reported quality close to MHA in its experiments. <a href="https://arxiv.org/abs/2305.13245">GQA results</a></p>
+</details>
+<p><strong>Question:</strong> Why is DeepSeek’s global cache smaller at the same context length?</p>
+<details><summary>Check your answer</summary>
+<p>Stored global bytes still grow approximately linearly with sequence length. The reported slope is 890 bytes per token across the model. The four writers, sequence compression, quantized entries and cross-layer reuse determine that slope. Each layer also has bounded local state.</p>
+</details>
+<hr />
+<h2 id="final-prediction-to-check">Final Prediction to Check</h2>
+<p><strong>Predict:</strong> At 16,384 tokens with DeepSeek V4.1-Flash's architecture, what is the approximate global KV cache size?</p>
+<details><summary>Check the global byte count</summary>
+<p><span class="katex"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>16</mn><mo separator="true">,</mo><mn>384</mn><mo>×</mo><mn>890</mn><mtext> </mtext><mi>b</mi><mi>y</mi><mi>t</mi><mi>e</mi><mi>s</mi><mo>≈</mo><mrow><mn mathvariant="bold">14.6</mn><mtext> </mtext><mi mathvariant="bold">M</mi><mi mathvariant="bold">B</mi></mrow></mrow><annotation encoding="application/x-tex">16,384 \times 890\ bytes \approx \mathbf{14.6\ MB}</annotation></semantics></math></span> (global only; add local window and overhead for total).</p>
+</details>
+</article>
+<footer><nav aria-label="Sources and original"><a href="lesson.md">Read DeepTutor’s original answer</a><a href="https://arxiv.org/html/2609.19969v1">DeepSeek technical report</a><a href="../../../../assets/field-guide.md">All source notes</a></nav></footer>
+</main></body></html>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Point at a control, find the code that draws it, and predict what pressing it will do. Our Apple TV example follows a movie poster from its SwiftUI label to the action on the remote.">
+  <title>Teachable Code guide · Learning Playground</title>
+  <link rel="stylesheet" href="../../guide.css">
+</head>
+<body>
+<main>
+<nav aria-label="Playground"><a href="../../index.html#teachable-code">← All tools</a></nav>
+<header>
+<p class="kicker">Learning Playground · Tool guide</p>
+<h1>Teachable Code</h1>
+<p class="lede">Point at a control, find the code that draws it, and predict what pressing it will do. Our Apple TV example follows a movie poster from its SwiftUI label to the action on the remote.</p>
+<p><a href="../../topics/inside-prism/cases/swiftui-elements/runs/2026-11-24-teachable-code/index.html">Explore the Prism screen sketch</a> · <a href="../../topics/inside-prism/cases/swiftui-elements/runs/2026-11-24-teachable-code/walkthrough.html">Open the guided code map</a></p>
+</header>
+<nav aria-label="In this guide">
+<a href="#try">Follow a poster through SwiftUI</a>
+<a href="#features">How the lesson is organized</a>
+<a href="#implementation">From a file reference to checked code</a>
+<a href="#replay">Build the upstream public example</a>
+<a href="#record">How the Prism trial was checked</a>
+</nav>
+<section id="try">
+<h2>Follow a poster through SwiftUI</h2>
+<ol>
+<li><strong>Pick a visible element.</strong> Open the screen sketch in <b>Browse</b>. Select <b>Poster and caption</b> under <b>Explore by element</b>. The Swift excerpt shows the artwork and a conditional caption inside one button. Find the condition that controls whether the title text appears.</li>
+<li><strong>Predict what the remote will do.</strong> Choose <b>Move focus right</b>. The white ring marks the newly focused title. Before choosing <b>Press Select</b>, predict which movie will open. Press Select and check that the title on the details screen matches the focused poster.</li>
+<li><strong>Separate a label from an action.</strong> Return to Browse. Choose <b>Hide captions</b>, move focus and select a movie again. The button still works. In the guided map, inspect the grid step to find where each poster receives its action, then the poster step to find where its appearance is built.</li>
+<li><strong>Switch to executed evidence.</strong> Open <b>Search</b> in the sketch and choose <b>Inspect title matching</b>. Compare the results for <code>in</code>, <code>INTERSTELLAR</code> and <code>dune</code>. The real matcher returned prefix, exact and no match against the same sample title.</li>
+</ol>
+</section>
+<section id="features">
+<h2>How the lesson is organized</h2>
+<dl>
+<dt><strong>Persistent map</strong></dt><dd>The overall system stays on screen while the active components change with each step. For a UI, a 2D map can connect a visible element to its input, transformation and output. The 3D option can represent data movement in a training or serving system.</dd>
+<dt><strong>Code and questions</strong></dt><dd>A learner can select a step, inspect the source excerpt and folder tree, or use prediction prompts. Provenance labels identify what came from reading code, running it, or authoring an illustrative value.</dd>
+<dt><strong>Other directions</strong></dt><dd>The skill also guides paper-to-code comparison, reproduction, proposed changes and transfer between projects. Those routes require different evidence. A successful source citation establishes what code was present, while a runtime claim needs a suitable run.</dd>
+</dl>
+<p>The upstream example about DeepTutor shows the 2D map for another application. Select a component and compare its highlighted stage with the source and explanation panels. <a href="https://github.com/ywEdAi/teachable-code/blob/e74598d4b0d2a13cf67182ec897ad8f308894495/assets/readme/deeptutor-en.png">Upstream English screenshot by ywEdAi</a> · <a href="https://ywedai.github.io/teachable-code/lessons/deeptutor.html">Upstream interactive example</a>.</p>
+</section>
+<section id="implementation">
+<h2>From a file reference to checked code</h2>
+<figure>
+<a href="media/lesson-build.svg" aria-label="View the full-size figure"><img loading="lazy" src="media/lesson-build.svg" alt="A lesson step and a clean source checkout feed a citation check that packages the real lines in the browser lesson."></a>
+<figcaption>Playground diagram of the checks performed by the upstream Python builder. <a href="https://github.com/ywEdAi/teachable-code/blob/e74598d4b0d2a13cf67182ec897ad8f308894495/scripts/build_lesson.py">Builder source</a>.</figcaption>
+</figure>
+<p>The agent supplies a JavaScript lesson definition, including a pinned commit, an expected substring for each cited range, stage objects and step descriptions. A Python builder evaluates the lesson with Node, reads the checkout, verifies its revision and cleanliness, and checks that the requested range actually contains the expected text. It inserts the real excerpt from disk.</p>
+<p>The builder also checks map references, visible endpoints of flows, and inputs and outputs for each step. A valid citation can still point to a dormant screen. We traced Prism’s active Browse route from its root view to make sure the lesson described what appears at this revision. <a href="https://github.com/ywEdAi/teachable-code/blob/e74598d4b0d2a13cf67182ec897ad8f308894495/references/lessons.md">Lesson authoring contract</a>.</p>
+</section>
+<section id="replay">
+<h2>Build the upstream public example</h2>
+<p>You can explore the saved Prism views without access to its checkout. To practice the full build with public inputs, use the upstream mini-SGLang lesson. In a fresh directory, use Git, Python 3 and Node.js to clone the lesson builder and its example subject at their exact revisions.</p>
+<pre><code>git clone https://github.com/ywEdAi/teachable-code.git
+git -C teachable-code checkout --detach e74598d4b0d2a13cf67182ec897ad8f308894495
+git clone https://github.com/sgl-project/mini-sglang.git
+git -C mini-sglang checkout --detach 9a91cfafe754aa85daee49998176275667eb58f2
+python3 teachable-code/scripts/build_lesson.py teachable-code/examples/lessons/mini-sglang \
+  --repo mini-sglang --standalone --out mini-sglang-lesson.html</code></pre>
+<p>Open <code>mini-sglang-lesson.html</code> in a browser with internet access for the 3D library. Expect a 14-step lesson showing how shared request prefixes change the work performed. The sample values come from the authors’ cache-rule replay. For a lesson about your own repository, give the agent a commit, one behavior to trace, and what the reader already understands. <a href="https://github.com/ywEdAi/teachable-code/blob/e74598d4b0d2a13cf67182ec897ad8f308894495/examples/lessons/mini-sglang/lesson.js">Worked lesson source</a>.</p>
+</section>
+<section id="record">
+<h2>How the Prism trial was checked</h2>
+<p>On November 24, 2026, Teachable Code’s classifier suggested “library”. We followed the Apple TV application entry point and selected a 2D app lesson. The playground authored the steps for a learner new to Swift and UI design. The upstream builder checked fourteen citations against Prism commit <code>960198d0</code> and generated the guided map. The playground’s screen sketch and simulated remote use those same excerpts.</p>
+<p>The real title matcher ran on three inputs, and a separate search-ranking XCTest passed. Safari checks covered a poster, focus, title details, Library and the guided path to Settings. The Apple TV application, playback, iPad UI and phone-width browser verification were outside the completed checks. The trial did not exercise the reproduction and code-change workflows.</p>
+<p>The learner named Teachable Code among their three favorites on November 24, 2026. Their preference between the screen sketch and guided map, and their reason, remain open. <a href="../../topics/inside-prism/cases/swiftui-elements/runs/2026-11-24-teachable-code/notes.md">Trial record</a>.</p>
+</section>
+<footer><p><a href="../../index.html#teachable-code">← All tools</a> · <a href="https://github.com/ywEdAi/teachable-code/tree/e74598d4b0d2a13cf67182ec897ad8f308894495">ywEdAi/teachable-code at e74598d4</a> · <a href="https://github.com/Apoorva87/learning-playground">Download the playground and replay scripts</a></p></footer>
+</main>
+</body>
+</html>

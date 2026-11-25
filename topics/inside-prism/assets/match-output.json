@@ -1,0 +1,35 @@
+[
+  {
+    "candidate" : "Interstellar",
+    "candidateWords" : [
+      "interstellar"
+    ],
+    "query" : "in",
+    "queryWords" : [
+      "in"
+    ],
+    "tier" : "prefix"
+  },
+  {
+    "candidate" : "Interstellar",
+    "candidateWords" : [
+      "interstellar"
+    ],
+    "query" : "INTERSTELLAR",
+    "queryWords" : [
+      "interstellar"
+    ],
+    "tier" : "exact"
+  },
+  {
+    "candidate" : "Interstellar",
+    "candidateWords" : [
+      "interstellar"
+    ],
+    "query" : "dune",
+    "queryWords" : [
+      "dune"
+    ],
+    "tier" : "none"
+  }
+]

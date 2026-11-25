@@ -1,0 +1,10 @@
+socratic-workshop state
+topic: Explain how a model reuses its history and predict how much memory that history takes, from a basic transformer to DeepSeek-V4.1-Flash.
+target level: 4
+sources: Paths from the learning_playground root. topics/how-transformers-remember/cases/one-more-token/brief.md (Shared teaching task); topics/how-transformers-remember/assets/field-guide.md (Predict one more token; Do one attention calculation by hand; Count the bytes; The route from separate heads to shared history; What fits in 890 MB?)
+map: pending initial diagnostic
+focus: learner's opening explanation of one decoding step
+misconceptions: unassessed
+told: none
+figures: none
+next: After reading “The spare key is in the blue drawer. Open the”, how do you think the model uses what it kept from the earlier words to predict the next token?

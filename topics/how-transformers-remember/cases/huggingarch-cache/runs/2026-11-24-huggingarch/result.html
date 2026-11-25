@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>What does the next token cost? · HuggingArch cache trial</title>
+<style>
+:root{color-scheme:light;--ink:#172d2d;--text:#344b49;--paper:#fffdf6;--a:#166a68;--b:#ba582a;--line:#cad6cd;font:17px/1.58 'Source Sans 3',system-ui,sans-serif}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink)}main{max-width:860px;margin:auto;padding:32px clamp(18px,6vw,60px) 65px}nav,figcaption,caption,.unit{font-size:.86rem}nav{display:flex;gap:1.1rem;flex-wrap:wrap}a{color:#075c5a;text-underline-offset:.19em}h1,h2,h3,p{margin:0 0 .7rem}h1,h2{font-family:'Source Serif 4',Georgia,serif;font-weight:500;letter-spacing:-.035em;line-height:1.1}h1{font-size:clamp(2.7rem,8vw,5rem);max-width:12em;margin-top:1.6rem}h2{font-size:clamp(1.7rem,4.5vw,2.45rem)}h3{font-size:1.12rem}header{border-bottom:2px solid var(--ink);padding-bottom:1.4rem}.lead{font-size:1.15rem;color:var(--text);max-width:59ch}section{margin-top:2.35rem}figure{margin:1rem 0;background:#eff4ed;border:1px solid var(--line);border-radius:5px;padding:clamp(14px,3.8vw,28px)}select{font:inherit;color:var(--ink);background:var(--paper);border:1px solid #77918e;border-radius:4px;margin-left:.5em;padding:.25rem .4rem}.meter{margin:1rem 0}.meter div{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.2rem .5rem}.track{display:block;background:#dae4dc;height:13px;margin-top:.3rem}.bar{display:block;height:100%;background:var(--a)}.deep{background:var(--b)}figcaption,caption,.unit{color:#455956}table{border-collapse:collapse;width:100%;font-size:clamp(.78rem,2.2vw,1rem);font-variant-numeric:tabular-nums}th,td{padding:.54rem .32rem;border-bottom:1px solid var(--line);text-align:right}th:first-child,td:first-child{text-align:left}thead th{border-bottom:2px solid var(--ink)}caption{text-align:left;padding:.5rem 0}details{padding:.7rem .9rem;background:#f4f0e6;border-left:3px solid var(--b);margin:.7rem 0}summary{cursor:pointer;font-weight:650}details p{margin:.65rem 0 .2rem}code{font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:.88em;overflow-wrap:anywhere}.formula{font-variant-numeric:tabular-nums;padding:.6rem 1rem;border-left:3px solid var(--a);background:#eff4ed}.links{display:flex;flex-wrap:wrap;gap:.5rem 1.25rem}footer{margin-top:2rem;border-top:1px solid var(--line);padding-top:.8rem}a:focus-visible,summary:focus-visible,select:focus-visible{outline:3px solid #b85119;outline-offset:3px}
+</style></head><body><main>
+<nav aria-label="Workspace"><a href="../../../../../../tools/huggingarch/index.html">HuggingArch guide</a><a href="../../../../../../index.html">Learning playground</a></nav>
+<header><h1>What does the next token cost?</h1><p class="lead">DeepSeek‑V4.1‑Flash averages <strong>890 bytes</strong> of growing cache per token. Does a single extra token add 890 bytes? Follow two consecutive steps in HuggingArch’s model of the cache.</p></header>
+<section><h2>Compare two real architectures</h2><p>Llama 3.2 1B stores new keys and values at every layer. DeepSeek V4.1 Flash keeps a short local window at each layer and shares compressed entries across layers. Compare the modeled backbone cache for one request on one rank, using each model’s own storage formats.</p>
+<figure id="comparison" hidden><label for="context"><strong>Context length</strong></label><select id="context"><option value="128">128 tokens</option><option selected value="4096">4,096 tokens</option><option value="4097">4,097 tokens</option><option value="4098">4,098 tokens</option><option value="8192">8,192 tokens</option><option value="32768">32,768 tokens</option></select>
+<div aria-live="polite" aria-atomic="true"><div class="meter"><div><strong>Llama 3.2 1B</strong><span id="llama-total"></span></div><span class="track" aria-hidden="true"><span class="bar" style="width:100%"></span></span></div><div class="meter"><div><strong>DeepSeek V4.1 Flash</strong><span id="deep-total"></span></div><span class="track" aria-hidden="true"><span class="bar deep" id="deep-bar"></span></span></div></div>
+<figcaption>Bar length compares resident cache bytes at the selected context. Each length uses Llama’s total as its full scale.</figcaption></figure>
+<table id="measurements"><caption>Stored cache bytes returned by the engine</caption><thead><tr><th scope="col">Tokens</th><th scope="col">Llama 3.2 1B</th><th scope="col">DeepSeek V4.1 Flash</th></tr></thead><tbody>
+<tr><th scope="row">128</th><td>4,194,304</td><td>2,841,856</td></tr>
+<tr><th scope="row">4,096</th><td>134,217,728</td><td>6,373,376</td></tr>
+<tr><th scope="row">4,097</th><td>134,250,496</td><td>6,374,800</td></tr>
+<tr><th scope="row">4,098</th><td>134,283,264</td><td>6,375,156</td></tr>
+<tr><th scope="row">8,192</th><td>268,435,456</td><td>10,018,816</td></tr>
+<tr><th scope="row">32,768</th><td>1,073,741,824</td><td>31,891,456</td></tr>
+</tbody></table></section>
+<section><h2>Count the writers</h2><h3>Llama adds a fixed amount each step</h3><p>Each of its 16 layers appends a key and a value for each of 8 KV heads. Each vector holds 64 BF16 values at two bytes apiece. Its 32 query heads share those KV heads in groups of four.</p><p class="formula">16 layers × 2 vectors × 8 KV heads × 64 values × 2 bytes = <strong>32,768 bytes per token</strong></p>
+<h3>DeepSeek adds whole entries</h3><p>The main compressed entry occupies 288 bytes and its index key occupies 68 bytes, including their scales. One writer allocates a 356-byte entry per token. Three more writers allocate one each per pair of tokens. HuggingArch rounds the number of stored pairs up. After the first token of a new pair, four new slots count toward the footprint. After the second, only the every-token writer needs another slot.</p><p class="formula">356 × (1 + 3 ÷ 2) = <strong>890 bytes per token on average</strong></p>
+<details><summary>Predict the change from 4,096 to 4,097, then to 4,098.</summary><p>6,374,800 − 6,373,376 = <strong>1,424 bytes</strong>, or four entries. Next, 6,375,156 − 6,374,800 = <strong>356 bytes</strong>, or one entry. Together they add 1,780 bytes over two tokens.</p></details></section>
+<section><h2>Where the extra 2.73 MB goes</h2><p>DeepSeek’s 40 local windows hold up to 128 entries of 528 bytes each. They account for <strong>2,703,360 bytes</strong> once full. Two kinds of fixed compressor state add another 12,288 bytes each. Together these bounded tensors occupy <strong>2,727,936 bytes</strong> per request. Their sizes come from the engine’s per-node storage records.</p><details><summary>Predict the total backbone cache for 1,000,000 tokens.</summary><p>The growing entries take 890,000,000 bytes at this even length. Adding the bounded state gives <strong>892,727,936 bytes</strong>, the exact value from the engine. Model weights, serving buffers and allocator overhead each have a separate budget.</p></details><p class="unit">MB means 1,000,000 bytes. MiB means 1,048,576 bytes. These are analytical storage counts. This run downloaded no weights and measured no GPU memory.</p></section>
+<footer><p>HuggingArch 0.2.0 · revision <code>2c31e91</code> · November 24, 2026</p><p class="links"><a href="result.json">Download the engine data</a><a href="measure.py">Inspect the extraction script</a><a href="notes.md">Trial notes</a><a href="https://arxiv.org/html/2609.19969v1">DeepSeek technical report</a></p></footer>
+</main><script>
+const number = new Intl.NumberFormat('en-US');
+const rows = new Map(Array.from(document.querySelectorAll('#measurements tbody tr'), row => {
+  const values = Array.from(row.cells, cell => Number(cell.textContent.replaceAll(',', '')));
+  return [values[0], values.slice(1)];
+}));
+const context = document.getElementById('context');
+function showComparison() {
+  const [llama, deep] = rows.get(Number(context.value));
+  document.getElementById('llama-total').textContent = `${number.format(llama)} bytes`;
+  document.getElementById('deep-total').textContent = `${number.format(deep)} bytes`;
+  document.getElementById('deep-bar').style.width = `${100 * deep / llama}%`;
+}
+context.addEventListener('change', showComparison);
+showComparison();
+document.getElementById('comparison').hidden = false;
+</script></body></html>

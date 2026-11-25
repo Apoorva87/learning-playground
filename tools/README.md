@@ -2,6 +2,12 @@
 
 - [OpenMAIC](openmaic/README.md) — Trying its interactive lesson generator on transformer KV caches.
 - [Understand‑Anything](understand-anything/README.md) — Turning the same KV-cache material into a linked knowledge graph and guided tour.
+- [Socratic Workshop](socratic-workshop/README.md) asks one diagnostic question at a time and adapts to the learner’s reply. We started a source-based KV-cache workshop.
+- [DeepTutor](deeptutor/README.md) offers tutor chat and optional study modes. We ran its chat command and reviewed its generated KV-cache lesson.
+- [Visual Explainer](visual-explainer/README.md) turns an agent’s figure source into a browser page. We rendered an attention replay, cache-size charts, and a byte breakdown.
+- [Teachable Code](teachable-code/README.md) connects a guided diagram to verified code excerpts. We used its app lesson on Prism’s SwiftUI interface.
+- [LLM Visualization](llm-viz/README.md) runs a small transformer in the browser. We started it locally and explored its Self Attention chapter.
+- [HuggingArch](huggingarch/index.html) computes architecture costs from a model specification. We measured Llama and DeepSeek KV growth with its local engine.
 
 ## Register a tool
 

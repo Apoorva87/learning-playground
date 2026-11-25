@@ -12,7 +12,7 @@ The source material is the same [worked guide](../../../../assets/field-guide.md
 
 The pinned knowledge skill parsed ten articles, four index topics, and 23 resolved wiki links. The upstream article-analyzer instructions were applied to one batch by a Codex subagent. It added five entities, ten claims, and eighteen connections. The upstream merger produced 29 nodes, 51 edges, four layers, and four tour stops. The [saved graph](wiki/.ua/knowledge-graph.json) and [agent batch](analysis-batch-1.json) record the run. The [tool record](../../../../../../tools/understand-anything/README.md) includes both tested versions and replay commands.
 
-The tool produced the graph, relationships, and tour. The project’s offline HTML export presents the graph’s article text and relationships with clickable links, a search box, and an article map. The official v2.9.8 dashboard is a separate view of the same data. Its launcher offers the full product interface on macOS or from a terminal. The viewer’s CLI loaded successfully here, but this session denied it permission to bind its local web port. Live dashboard interaction remains untested in this run.
+The tool produced the graph, relationships, and tour. The project’s offline HTML export presents the graph’s article text and relationships with clickable links, a search box, and an article map. The official v2.9.8 viewer’s CLI loaded, but this session denied it permission to bind its local web port. We then bundled the official browser dashboard with the saved graph and verified in Safari that it displayed the KV-cache material.
 
 ## Comparison with OpenMAIC
 

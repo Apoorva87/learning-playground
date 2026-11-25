@@ -1,0 +1,24 @@
+{
+  "tool": "DeepTutor",
+  "version": "1.7.4",
+  "source_revision": "1284116f92368480aef3a47f91b8df9e9b105062",
+  "capability": "chat",
+  "language": "en",
+  "provider": "ollama",
+  "model": "qwen3.5:35b",
+  "source_event": "done",
+  "status": "completed",
+  "session_id": "unified_1795565256944_1e9c1b9f",
+  "turn_id": "turn_1795565256948_a2ebeba668",
+  "engine": "agent_loop",
+  "scheduler": "python",
+  "rounds": 1,
+  "tool_steps": 0,
+  "tokens": {
+    "prompt_tokens": 5219,
+    "completion_tokens": 2923,
+    "total_tokens": 8142
+  },
+  "prompt_sha256": "4df1c081a6197709f83e302ee540a71ba337da00e3b842dceb19124964932bb9",
+  "lesson_md_sha256": "915d85946118a90f776b4def5f774da101234568564d39c5668ba04c008d8f83"
+}

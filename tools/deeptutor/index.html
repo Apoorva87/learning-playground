@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Teach from a source, keep a conversation, and inspect the answer the model actually gave. The KV-cache trial pairs one complete tutor turn with a checked reading edition.">
+  <title>DeepTutor guide · Learning Playground</title>
+  <link rel="stylesheet" href="../../guide.css">
+</head>
+<body>
+<main>
+<nav aria-label="Playground"><a href="../../index.html#deeptutor">← All tools</a></nav>
+<header>
+<p class="kicker">Learning Playground · Tool guide</p>
+<h1>DeepTutor</h1>
+<p class="lede">Teach from a source, keep a conversation, and inspect the answer the model actually gave. The KV-cache trial pairs one complete tutor turn with a checked reading edition.</p>
+<p><a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-deeptutor/lesson.html">Open the corrected reading edition</a> · <a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-deeptutor/lesson.md">Read the original tutor response</a></p>
+</header>
+<nav aria-label="In this guide">
+<a href="#try">Try the tutor’s predictions</a>
+<a href="#features">What a tutoring session can do</a>
+<a href="#implementation">Inside a tutor turn</a>
+<a href="#replay">Run a new English turn</a>
+<a href="#record">The model answer and the edits</a>
+</nav>
+<section id="try">
+<h2>Try the tutor’s predictions</h2>
+<ol>
+<li><strong>Trace a single query.</strong> Open the reading edition and work the two-position example. With values 2 and 10 and weights ¼ and ¾, the mix is 8. Replace the query with zero. Equal scores give equal weights, so the result is 6. Say which pieces were reused and which had to be computed again.</li>
+<li><strong>Test the memory rule.</strong> At <b>Check Your Prediction</b>, decide what happens when a 4,096-token sequence doubles with eight KV heads. Open the first answer after committing. You should get 1 GiB from the original 512 MiB.</li>
+<li><strong>Separate two different budgets.</strong> At the final question, multiply 16,384 tokens by 890 bytes per token. The result is 14,581,760 bytes, about 14.6 MB of global KV storage. Identify another memory cost, such as each layer’s local window, before revealing the explanation.</li>
+<li><strong>Compare with the model’s text.</strong> Open the original Markdown alongside the reading edition. Find where the original text described the fifth token while summing only four positions. Count the eligible positions after the current key and value have been appended.</li>
+</ol>
+</section>
+<section id="features">
+<h2>What a tutoring session can do</h2>
+<dl>
+<dt><strong>Core Chat</strong></dt><dd>Ask for an explanation, supply a source passage, or continue an existing session with a follow-up. The core package also includes Ask Questions. A conversation can preserve relevant history across turns.</dd>
+<dt><strong>Grounded reading</strong></dt><dd>In the larger workspace, an indexed knowledge base can supply passages. Immersive Reading, notebooks and materials give learners a place to inspect sources and keep working notes. Indexed retrieval needs the relevant module and an embedding provider.</dd>
+<dt><strong>Practice and longer work</strong></dt><dd>The full installation offers guided mastery, practice questions, books, research and visualization. An installed capability determines which tools and resources are available. The CLI can report the module state before a learner tries a mode.</dd>
+</dl>
+</section>
+<section id="implementation">
+<h2>Inside a tutor turn</h2>
+<figure>
+<a href="media/chat-agent-loop.svg" aria-label="View the full-size figure"><img loading="lazy" src="media/chat-agent-loop.svg" alt="The DeepTutor chat loop assembles context, runs the model, optionally calls tools, emits a result and records events."></a>
+<figcaption>Follow the final-answer branch for this trial. The optional loop on the left shows what would happen if the model requested a tool. HKUDS / DeepTutor. <a href="https://github.com/HKUDS/DeepTutor/blob/1284116f92368480aef3a47f91b8df9e9b105062/assets/figs/system/chat-agent-loop.svg">Original figure</a> · <a href="media/LICENSE.txt">Apache 2.0 license</a>.</figcaption>
+</figure>
+<p>Web, terminal and SDK use a common turn engine. It assembles context and the available tool definitions, dispatches the selected capability, and records typed events for its consumers. Chat can run another model round after observing a tool result or can finish directly. A session ID and the recorded events make follow-up turns and post-run inspection possible.</p>
+<p>For this case, generation used the shared guide supplied directly in the message. The saved completion event identifies one round, zero tool steps and a completed response. Those fields distinguish the actual run from the larger product’s retrieval and orchestration options. <a href="https://github.com/HKUDS/DeepTutor/blob/1284116f92368480aef3a47f91b8df9e9b105062/deeptutor/runtime/turn_engine.py">Turn engine</a> · <a href="https://github.com/HKUDS/DeepTutor/blob/1284116f92368480aef3a47f91b8df9e9b105062/deeptutor/core/stream.py">Stream event definitions</a>.</p>
+</section>
+<section id="replay">
+<h2>Run a new English turn</h2>
+<p>From a playground checkout use Git, uv and Python 3.11. Start Ollama and provide the trial model, <code>qwen3.5:35b</code>. The installer builds the pinned core wheel. The following uses the playground runtime, creates a temporary directory, and exports only the final answer into the lesson file.</p>
+<pre><code>./install.sh deeptutor
+export DEEPTUTOR_HOME=&quot;$PWD/.local/tools/deeptutor/runtime&quot;
+dt=&quot;$PWD/.local/tools/deeptutor/environment/.venv/bin/deeptutor&quot;
+&quot;$dt&quot; doctor --format json
+tmp=$(mktemp -d)
+python3 tools/deeptutor/case.py prompt &gt; &quot;$tmp/prompt.md&quot;
+&quot;$dt&quot; run chat &quot;$(cat &quot;$tmp/prompt.md&quot;)&quot; --language en --format json &gt; &quot;$tmp/events.ndjson&quot;
+python3 tools/deeptutor/case.py answer &quot;$tmp/events.ndjson&quot; &gt; &quot;$tmp/lesson.md&quot;
+echo &quot;$tmp/lesson.md&quot;</code></pre>
+<p>Read the Markdown in the printed file. Expect a new response to the same material. For an interactive conversation, run <code>"$dt" chat --language en</code>. To continue a generated lesson use the <code>session_id</code> returned by its <code>done</code> event with <code>--session</code>. <a href="https://github.com/HKUDS/DeepTutor/blob/1284116f92368480aef3a47f91b8df9e9b105062/SKILL.md">CLI options and capabilities</a>.</p>
+</section>
+<section id="record">
+<h2>The model answer and the edits</h2>
+<p>On November 24, 2026 we used DeepTutor 1.7.4 and local Qwen. A Python-to-Ollama connection failed, so we passed the CLI’s exact HTTP request through curl and returned the reply to the upstream parser. The agent loop completed. The receipt records 5,219 prompt tokens and 2,923 completion tokens. The separate title-generation call and buffered delivery make this trial unsuitable for timing comparisons.</p>
+<p>The original Markdown got the two mixtures and the dense memory table right. The playground reading edition corrected the current-token sum, separated a toy 32-layer configuration from DeepSeek’s 40 layers, and corrected unsupported claims about quality and allocator overhead. The source already contained worked answers. Retrieval, web UI, mastery checks, quiz generation and adaptation over multiple replies remain untested in this trial.</p>
+<p>The learner named DeepTutor among three favorites on November 24, 2026. No individual score or favored component has been recorded. <a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-deeptutor/receipt.json">Completion receipt</a> · <a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-deeptutor/notes.md">Run details and corrections</a>.</p>
+</section>
+<footer><p><a href="../../index.html#deeptutor">← All tools</a> · <a href="https://github.com/HKUDS/DeepTutor/tree/1284116f92368480aef3a47f91b8df9e9b105062">HKUDS/DeepTutor at 1284116f</a> · <a href="https://github.com/Apoorva87/learning-playground">Download the playground and replay scripts</a></p></footer>
+</main>
+</body>
+</html>

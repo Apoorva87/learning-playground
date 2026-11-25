@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Build an explanation that a reader can step through, measure, and replay. Our example uses three figures to connect the arithmetic of one attention row to the memory cost of a long sequence.">
+  <title>Visual Explainer guide · Learning Playground</title>
+  <link rel="stylesheet" href="../../guide.css">
+</head>
+<body>
+<main>
+<nav aria-label="Playground"><a href="../../index.html#visual-explainer">← All tools</a></nav>
+<header>
+<p class="kicker">Learning Playground · Tool guide</p>
+<h1>Visual Explainer</h1>
+<p class="lede">Build an explanation that a reader can step through, measure, and replay. Our example uses three figures to connect the arithmetic of one attention row to the memory cost of a long sequence.</p>
+<p><a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-visual-explainer/one-more-token.html">Play the visual lesson</a> · <a download href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-visual-explainer/one-more-token.src.html">Download the editable HTML source</a></p>
+</header>
+<nav aria-label="In this guide">
+<a href="#try">Read one row, then change a factor</a>
+<a href="#features">What to ask the agent to draw</a>
+<a href="#implementation">Where the figures come from</a>
+<a href="#replay">Render the page again</a>
+<a href="#record">What produced the lesson</a>
+</nav>
+<section id="try">
+<h2>Read one row, then change a factor</h2>
+<ol>
+<li><strong>Play the attention row.</strong> Open <b>Read one row</b> and press <b>Play</b>. Step back with the left arrow or drag the step control to pause at the weights. A query of 1 gives scores 0 and ln(3). Exponentiating and normalizing gives ¼ and ¾.</li>
+<li><strong>Predict the output.</strong> Before opening the zero-query answer, predict what happens to the same values, 2 and 10. The original weighted sum is 8. A zero query makes the two scores equal and the output becomes 6. The diagram’s captions explain each step.</li>
+<li><strong>Use the same scale.</strong> Move to <b>Count the heads</b>. Read the 8-head bar in both plots. At 4,096 tokens it is 512 MiB, and at 8,192 it reaches 1,024 MiB. The shared 4,096 MiB axis lets the bar lengths show this change directly.</li>
+<li><strong>Rebuild the packed entry.</strong> In <b>Count the bytes</b>, add the 288-byte main vector and the 68-byte index key. Multiply the 356-byte entry by 2.5 stored entries per token. Explain why reading a fixed number of entries per query does not determine the amount stored.</li>
+</ol>
+</section>
+<section id="features">
+<h2>What to ask the agent to draw</h2>
+<dl>
+<dt><strong>Mechanisms over time</strong></dt><dd>A step player coordinates captions and highlighted elements. State-machine figures can replay individual transitions so a reader can stop when an event takes an unexpected route.</dd>
+<dt><strong>Quantitative comparisons</strong></dt><dd>Chart tags describe values, units and limits in text. Bars suit comparisons across settings. A stack shows how parts contribute to a total. A shared maximum matters when a reader compares two charts by eye.</dd>
+<dt><strong>Other formats</strong></dt><dd>The repository includes slide generation, comparison and review commands, and optional PowerPoint and video utilities. HTML is the primary output for the page workflow. Video needs additional browser and media tooling.</dd>
+</dl>
+<figure>
+<a href="media/replay.gif" aria-label="View the full-size figure"><img loading="lazy" src="media/replay.gif" alt="The upstream job-queue replay highlights state transitions as jobs move between a queue and workers."></a>
+<figcaption>The upstream queue example shows how a step player links a caption to a changing drawing. The KV-cache lesson uses the same interaction for attention. Nico Bailon. <a href="https://github.com/nicobailon/visual-explainer/blob/9d5f880b7e8e0a9a80c890b8e1bb6918b68481ad/replay.gif">Original figure</a> · <a href="LICENSE">MIT license</a>.</figcaption>
+</figure>
+</section>
+<section id="implementation">
+<h2>Where the figures come from</h2>
+<p class="flow"><span>Question and data</span> <span aria-hidden="true">→</span> <span>Agent-authored HTML source</span> <span aria-hidden="true">→</span> <span>Node renderer</span> <span aria-hidden="true">→</span> <span>Embedded graphics and controls</span></p>
+<p>The host agent picks a representation, writes the explanation, and enters the data. The source marks its kit stylesheet with <code>data-ve-kit</code>. It can describe connected nodes using <code>&lt;ve-flow&gt;</code>, comparisons with <code>&lt;ve-bars&gt;</code>, and component sizes with <code>&lt;ve-stack&gt;</code>. These declarations remain editable in a small source file.</p>
+<p>The Node renderer parses the source, expands supported figure tags and inlines the kit’s styles, SVG definitions and behavior. Its report counts figures, data tags and flows. Rendering the same source needs no model. Its checks can catch invalid chart markup, but the author must verify input values and the meaning of a label. <a href="https://github.com/nicobailon/visual-explainer/blob/9d5f880b7e8e0a9a80c890b8e1bb6918b68481ad/plugins/visual-explainer/kit/render.mjs">Renderer</a> · <a href="https://github.com/nicobailon/visual-explainer/blob/9d5f880b7e8e0a9a80c890b8e1bb6918b68481ad/plugins/visual-explainer/kit/flow.mjs">Flow implementation</a>.</p>
+</section>
+<section id="replay">
+<h2>Render the page again</h2>
+<p>Use Git and a modern Node.js runtime in a playground checkout. The trial used Node.js 25.8.1. Copy the editable source to a fresh directory so that the existing trial stays available for comparison.</p>
+<pre><code>./install.sh visual-explainer
+skill=.local/tools/visual-explainer/source/plugins/visual-explainer
+run=topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-visual-explainer
+tmp=$(mktemp -d)
+cp &quot;$run/one-more-token.src.html&quot; &quot;$tmp/&quot;
+node &quot;$skill/kit/render.mjs&quot; &quot;$tmp/one-more-token.src.html&quot;
+echo &quot;$tmp/one-more-token.html&quot;</code></pre>
+<p>Open the printed HTML and press Play. The expected report contains three figures, three data tags and one flow. The copied figure works on its own. Its relative links to the playground notes are intended for the published trial directory. To study a different mechanism, give your agent the diagram-generation command and specify a question, concrete inputs, and one prediction a reader should make. <a href="https://github.com/nicobailon/visual-explainer/blob/9d5f880b7e8e0a9a80c890b8e1bb6918b68481ad/plugins/visual-explainer/commands/generate-web-diagram.md">Diagram authoring command</a>.</p>
+</section>
+<section id="record">
+<h2>What produced the lesson</h2>
+<p>On November 24, 2026, Codex followed the release 0.15.0 instructions to author the attention replay, two bar charts on the same scale, and the packed-entry figure. The agent supplied the text, chart data, and prediction checks from the shared case. The upstream renderer transformed the editable source into its browser-ready edition.</p>
+<p>Safari displayed the controls, answer reveal and final calculation. The automated layout checker could not launch a headless browser in the trial environment. The generated file can be opened from disk and falls back to local fonts when Google Fonts is unavailable. Slide, video, review and other host workflows remain untested here.</p>
+<p>Learner feedback is pending. The open question is which figure helped more with an independent explanation of attention or memory. <a href="../../topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-visual-explainer/notes.md">Trial record</a>.</p>
+</section>
+<footer><p><a href="../../index.html#visual-explainer">← All tools</a> · <a href="https://github.com/nicobailon/visual-explainer/tree/9d5f880b7e8e0a9a80c890b8e1bb6918b68481ad">nicobailon/visual-explainer at 9d5f880b</a> · <a href="https://github.com/Apoorva87/learning-playground">Download the playground and replay scripts</a></p></footer>
+</main>
+</body>
+</html>

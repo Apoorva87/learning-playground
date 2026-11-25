@@ -26,6 +26,8 @@ When the learner shares a feedback export from the index, reconcile its dated ra
 
 Keep each tool’s detailed English HTML guide at `tools/<tool>/index.html`. Link it from the root index, show the upstream feature or diagram with attribution, give repeatable usage steps, explain which parts use software or structured teaching, and link the saved trial. For every topic, maintain a browser landing page that leads directly to its learning assets.
 
+When a trial produces a browser experience that can run on GitHub Pages, publish the files it needs and link straight to the playable result from the index, tool guide and topic. Test a learner action through that link. Keep the local launcher available for people who want to run their own copy.
+
 Commit the learning assets, including reproducible inputs, outputs and figure sources, alongside the guides and notes. Keep installed upstream repositories in ignored `.local/tools/`. For private source material, use the learner’s expressly approved public excerpts or an illustrative example. The owner approved publishing the existing Prism lesson’s excerpts and file tree.
 
 Update `skills/learn-with-tools/` when evidence changes how the agent should select or combine tools. Keep personal judgments in the preference log. Before publishing, build Pages from tracked files, check links under the repository URL prefix, and confirm that saved lessons work without local services. Label live tools and localhost links by where they run.

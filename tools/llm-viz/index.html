@@ -6,6 +6,7 @@
   <meta name="description" content="Watch a small GPT sort six letters. Brendan Bycroft’s browser visualization lets you follow a single attention head from its input vectors to the values it mixes.">
   <title>LLM Visualization guide · Learning Playground</title>
   <link rel="stylesheet" href="../../guide.css">
+  <style>.play-link{display:inline-block;padding:.6rem 1.1rem;background:#22543d;color:#fff;border-radius:.35rem;font-weight:650;text-decoration:none}.play-link:hover,.play-link:focus-visible{background:#173d2c;text-decoration:underline}</style>
 </head>
 <body>
 <main>
@@ -14,7 +15,8 @@
 <p class="kicker">Learning Playground · Tool guide</p>
 <h1>LLM Visualization</h1>
 <p class="lede">Watch a small GPT sort six letters. Brendan Bycroft’s browser visualization lets you follow a single attention head from its input vectors to the values it mixes.</p>
-<p><a href="https://bbycroft.net/llm">Launch the public visualization</a> · <a href="../../topics/how-transformers-remember/cases/attention-walkthrough/runs/2026-11-24-llm-viz/notes.md">Read our local trial record</a></p>
+<p><a class="play-link" href="https://apoorva87.github.io/learning-playground/tools/llm-viz/play/">▶ Play the 3D visualization</a></p>
+<p><a href="../../topics/how-transformers-remember/cases/attention-walkthrough/runs/2026-11-24-llm-viz/notes.md">Read our local trial record</a></p>
 </header>
 <nav aria-label="In this guide">
 <a href="#try">Follow the query through one head</a>
@@ -40,8 +42,8 @@
 <dt><strong>Larger layouts</strong></dt><dd>The visualization supports layouts for larger networks to convey their shape and scale. The default bundled working inference example is the small sorter. It is the right place to inspect the individual numbers used in this walkthrough.</dd>
 </dl>
 <figure>
-<a href="media/llm-viz-screenshot2.jpg" aria-label="View the full-size figure"><img loading="lazy" src="media/llm-viz-screenshot2.jpg" alt="A tall stack of model blocks appears in the upstream three-dimensional transformer visualization."></a>
-<figcaption>The author’s overview shows the spatial arrangement of the network. In the live view, zoom into one block to inspect its cells. Brendan Bycroft. <a href="https://github.com/bbycroft/llm-viz/blob/9da93742382f1bf36c020c38a1ace454e82c4490/public/images/llm-viz-screenshot2.jpg">Original figure</a> · <a href="media/LICENSE.txt">MIT license</a>.</figcaption>
+<a href="https://apoorva87.github.io/learning-playground/tools/llm-viz/play/" aria-label="Play the interactive 3D visualization"><img loading="lazy" src="media/llm-viz-screenshot2.jpg" alt="A tall stack of model blocks appears in the upstream three-dimensional transformer visualization."></a>
+<figcaption>The author’s overview shows the spatial arrangement of the network. Select the image to open the live model, then zoom into a block to inspect its cells. Brendan Bycroft. <a href="https://github.com/bbycroft/llm-viz/blob/9da93742382f1bf36c020c38a1ace454e82c4490/public/images/llm-viz-screenshot2.jpg">Original figure</a> · <a href="media/LICENSE.txt">MIT license</a>.</figcaption>
 </figure>
 </section>
 <section id="implementation">
@@ -63,7 +65,8 @@ npm run dev -- --hostname 127.0.0.1</code></pre>
 <p>For the second command sequence, append <code>/llm</code> to the local server address Next.js prints. The repository includes the small model weights and <code>native.wasm</code>. The first install needs network access for the JavaScript dependencies. <a href="https://github.com/bbycroft/llm-viz/blob/9da93742382f1bf36c020c38a1ace454e82c4490/package.json">Upstream scripts</a>.</p>
 </section>
 <section id="record">
-<h2>What the local check established</h2>
+<h2>What we ran</h2>
+<p>The Play button runs the small model directly on this site. The same pinned model weights, WebAssembly runtime, and interactive chapters from the local trial are packaged together for GitHub Pages.</p>
 <p>On November 24, 2026, Yarn failed to resolve its registry hostname. npm installed the dependencies and the Next.js 16.3.0 development server started. The walkthrough, the small model JSON and the WebAssembly binary each returned HTTP 200. Chromium displayed the six-letter example, an active WebGL 2 canvas and the Self Attention chapter with its Continue control.</p>
 <p>React reported invalid paragraph nesting in the upstream development build. It did not prevent opening the chapter. This trial covered the bundled nano model and entry to Self Attention. The deeper sequence above is a reproducible reading route from the upstream chapter. We have no recorded exploration of all chapters, the larger layouts, or measured KV-cache performance.</p>
 <p>Learner feedback is pending. A useful test is whether the learner can point to the old keys and values and explain why a new query still has work to do. <a href="../../topics/how-transformers-remember/cases/attention-walkthrough/runs/2026-11-24-llm-viz/notes.md">Local observations</a>.</p>

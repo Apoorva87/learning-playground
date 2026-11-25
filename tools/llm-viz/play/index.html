@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>Play LLM Visualization · Learning Playground</title>
+  <meta name="description" content="Explore the internals of a working GPT model in Brendan Bycroft’s interactive 3D walkthrough.">
+  <style>
+    html, body { height: 100%; margin: 0; }
+    body { display: flex; flex-direction: column; background: #f3f3f3; color: #17231e; }
+    header.viewer-header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .3rem 1rem; padding: .35rem 1rem; background: #faf9f4; border-bottom: 1px solid #c4cec2; font: .9rem/1.4 system-ui, sans-serif; }
+    .viewer-header a, .player-message a { color: #22543d; text-decoration: underline; }
+    #viewer { flex: 1; min-height: 0; }
+    .player-message { padding: 1rem; font: 1rem/1.6 system-ui, sans-serif; }
+  </style>
+  <script type="module" crossorigin src="./assets/index-CheRCapW.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-B4SYPfzT.css">
+</head>
+<body>
+  <header class="viewer-header">
+    <a href="../index.html">← LLM Visualization guide</a>
+    <span>LLM Visualization by <a href="https://bbycroft.net/llm">Brendan Bycroft</a> · <a href="./notices.txt">Credits</a></span>
+  </header>
+  <div id="viewer"><p class="player-message">Loading the interactive model… <a href="https://apoorva87.github.io/learning-playground/tools/llm-viz/play/">Open the hosted player</a>.</p></div>
+  <noscript>Enable JavaScript to run the model and its walkthrough.</noscript>
+  <div id="portal-container"></div>
+</body>
+</html>

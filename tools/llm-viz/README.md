@@ -2,6 +2,12 @@
 
 Explore how a small GPT model predicts its next token while sorting six letters. Its guided chapters cover embeddings, attention, the feed-forward network and output probabilities. Larger model layouts are also available. [Upstream at the tested commit](https://github.com/bbycroft/llm-viz/tree/9da93742382f1bf36c020c38a1ace454e82c4490)
 
+## Play in your browser
+
+[Launch the 3D visualization on Learning Playground](https://apoorva87.github.io/learning-playground/tools/llm-viz/play/). Choose **Self Attention** and press **Continue**. The browser loads the model weights, WebAssembly and font atlas from this site.
+
+The published player lives in `tools/llm-viz/play/`. To rebuild it from the pinned upstream revision, run `./tools/llm-viz/build-player.sh` from the playground root and commit the generated files with the recipe. The recipe uses the upstream React view, shaders and chapters with a small static page wrapper. The checkout and build dependencies stay under `.local/`. Source and font credits ship with the player.
+
 ## Run it locally
 
 From the playground root:

@@ -1,6 +1,6 @@
 # Running LLM Visualization locally
 
-November 24, 2026 · [Local walkthrough](http://127.0.0.1:3002/llm) · [Setup and restart](../../../../../../tools/llm-viz/README.md)
+November 24, 2026 · [Play this walkthrough on GitHub Pages](https://apoorva87.github.io/learning-playground/tools/llm-viz/play/) · [Local walkthrough](http://127.0.0.1:3002/llm) · [Setup and restart](../../../../../../tools/llm-viz/README.md)
 
 ## What ran
 

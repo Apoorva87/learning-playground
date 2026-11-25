@@ -19,7 +19,7 @@ Start with [the worked guide](assets/field-guide.md). Change one query by hand t
 
 ## Inspect self-attention in 3D
 
-LLM Visualization runs a small letter-sorting model locally. Choose **Self Attention** to follow queries, keys and values in the model. [Open local app](http://127.0.0.1:3002/llm) · [Startup instructions](../../tools/llm-viz/README.md) · [Trial notes](cases/attention-walkthrough/runs/2026-11-24-llm-viz/notes.md)
+LLM Visualization runs a small letter-sorting model locally. Choose **Self Attention** to follow queries, keys and values in the model. [Play the 3D visualization](https://apoorva87.github.io/learning-playground/tools/llm-viz/play/) · [Startup instructions](../../tools/llm-viz/README.md) · [Trial notes](cases/attention-walkthrough/runs/2026-11-24-llm-viz/notes.md)
 
 ## Compare the models in HuggingArch
 

@@ -38,6 +38,9 @@ class Anchors(HTMLParser):
 
 
 def render_markdown(path, text):
+    # Keep the installable skill's YAML in its source file, outside the reader view.
+    if text.startswith("---\n") and "\n---\n" in text[4:]:
+        text = text.split("\n---\n", 1)[1].lstrip()
     title = re.search(r"^# (.+)$", text, re.M)
     name = escape(title[1] if title else path.name)
     heading_ids = {}

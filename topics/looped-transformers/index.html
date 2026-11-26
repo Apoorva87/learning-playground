@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Looped transformers, stage by stage</title>
+<meta name="description" content="Why run the same transformer layers more than once, what each stage computes, and what it costs. Two illustrated articles whose 3D scene moves with the text, with Inkling 2 Mini as the worked example.">
+<link rel="icon" href="data:,"><link rel="stylesheet" href="loop.css">
+</head><body>
+<nav class="top"><a href="../../index.html">← Learning playground</a><a href="../README.md">All topics</a><a href="README.md">README and reproduction</a><a href="notes.md">Notes and feedback</a></nav>
+<main class="landing">
+  <h1>Looped transformers, stage by stage</h1>
+  <p class="lead">What if a model could think longer by running the same layers again? <a href="https://huggingface.co/thinkingmachines/Inkling-2-Mini">Inkling 2 Mini</a> stores 24 layers and runs the middle 12 three times, so every token makes 48 layer visits. These two articles take that idea apart one stage at a time. Each stage has its story, its intuition and its math with real shapes, and a 3D scene beside the text that shows the same stage at the same moment.</p>
+
+  <div class="cards">
+    <a class="card" href="why-loop.html">
+      <span class="kicker">Article A · 18 beats</span>
+      <b>Why loop a transformer?</b>
+      <span>Depth as a chain, two ways to add it, a short history, a toy model that follows one hop per pass, two ways to feed a pass, the message gate with real numbers, why loops blow up, and what the bill is: storage, compute, bandwidth, cache and waiting.</span>
+      <span class="try">Try: open it, press <b>Play</b> and watch the red cube go round the loop three times.</span>
+    </a>
+    <a class="card" href="inside-inkling.html">
+      <span class="kicker">Article B · 15 chapters</span>
+      <b>Inside Inkling 2 Mini</b>
+      <span>Every component from token IDs to logits: attention residuals, a sliding-window and a full-attention layer, the mixture of experts, the loop in full with our recorded gate values, the cache arithmetic, and the drafter.</span>
+      <span class="try">Try: jump to <a href="inside-inkling.html#b-loop-recorded">the recorded run</a> and compare the three tables with what Article A predicted.</span>
+    </a>
+  </div>
+
+  <h2>Three ways to read, one state</h2>
+  <p>Every page has one state, <em>(which beat, how far through it)</em>, and three ways to move it. <b>Scroll</b> reads like an article and the scene follows. <b>Step</b> (the buttons or the arrow keys) jumps beat by beat. <b>Play</b> advances at reading pace. Because all three write the same state, text and scene cannot drift. If you scroll by hand while Step or Play is running, control returns to Scroll at the place you scrolled to. Every beat has its own link, so you can send someone straight to one.</p>
+
+  <h2>What is measured and what is not</h2>
+  <ul>
+    <li><b>The real model.</b> We ran the official checkpoint on an Apple M4 Max CPU, with Transformers dequantising its 4-bit and 8-bit expert weights to BF16. One 43-token prompt, so the recorded gate values, message weights, expert overlap and timings show what the mechanism does there and are not a benchmark.</li>
+    <li><b>The toy.</b> A tiny looped model, trained offline on a pointer-chasing task and ported to JavaScript, runs live in Article A. It is deliberately simplified. Both of its variants learn the task, so it shows the plumbing and cannot say which design is better.</li>
+    <li><b>Citations.</b> Every number and quotation in the prose carries a fact ID, and a checker compares it with its source: the model's config, a committed data file, a line of the Transformers source at the pinned commit, or a published page. Where a figure is second-hand or our own arithmetic, the text says so.</li>
+  </ul>
+  <p class="foot"><a href="README.md">README and how to rerun everything</a> · <a href="notes.md">Notes, limits and feedback</a></p>
+</main>
+</body></html>

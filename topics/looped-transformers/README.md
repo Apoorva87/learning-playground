@@ -2,12 +2,7 @@
 
 Why would a model run the same layers more than once, and what does each stage compute? The worked example is [Inkling 2 Mini](https://huggingface.co/thinkingmachines/Inkling-2-Mini/tree/c9d028302cd0f035fdf8e7e91f089a4ce94d2195) from Thinking Machines, released November 20, 2026. It stores 24 layers and runs layers 6–17 three times, which gives 48 layer visits per token.
 
-**Status, November 26, 2026.** The design is drafted and waiting for the learner's approval: [design](../../docs/superpowers/specs/2026-11-26-looped-transformers-design.md). The real model has been run and measured. The two articles are not built yet:
-
-- *Why loop a transformer?*
-- *Inside Inkling 2 Mini*
-
-Their text and their WebGL scene will move together under scroll, step and play.
+**Status, November 26, 2026.** Built. Open the [landing page](index.html), or go straight to [Why loop a transformer?](why-loop.html) (18 beats) or [Inside Inkling 2 Mini](inside-inkling.html) (15 chapters). The text and a WebGL2 scene move together under Scroll, Step and Play. The design is in [docs/superpowers/specs/2026-11-26-looped-transformers-design.md](../../docs/superpowers/specs/2026-11-26-looped-transformers-design.md), and [notes.md](notes.md) lists the limits and the pending feedback question.
 
 ## What the real model did
 
@@ -15,11 +10,11 @@ We ran the official checkpoint on an Apple M4 Max CPU. Transformers dequantized 
 
 ### Each pass mostly picks different experts
 
-In the same core layer, a prompt token shares on average about 4.8 of its 8 routed experts between passes 1 and 2. It shares about 4.3 between passes 2 and 3 and about 3 across all three. Layer 17, the last core layer, shares almost none. Looping reuses the stored weights, but each pass reads a largely different set of them.
+In the same core layer, a prompt token shares on average about 4.8 of its 8 routed experts between passes 1 and 2. It shares about 4.3 between passes 2 and 3, about 3 across all three, and in layer 17, the last core layer, about 0.7 across all three (3.1 between passes 1 and 2). Looping reuses the stored weights, but each pass reads a largely different set of them.
 
 ### The trained message gates are open
 
-Passes 2 and 3 restart from the prelude output and receive a gated message from the previous pass. The message adds about as much as the restarted state keeps: the norm ratio `‖g⊙m‖ / ‖(1−f)⊙h‖` is about 1.0–1.4 for the query, key and value inputs, and about 0.6 for the MLP input.
+Passes 2 and 3 restart from the prelude output and receive a gated message from the previous pass. The message adds about as much as the restarted state keeps: the norm ratio `‖g⊙m‖ / ‖(1−f)⊙h‖` averaged over the twelve core layers is about 1.0–1.4 for the query, key and value inputs, and about 0.6 for the MLP input. Layer 6 is an outlier at 6–7.
 
 ### More passes, more hops
 
@@ -45,7 +40,11 @@ A 43-token CPU prefill took about 2.1 s in the prelude, about 4.3 s for each cor
 | [inkling-capture.json](assets/inkling-capture.json) | Raw recorded values. |
 | [inkling-capture-summary.json](assets/inkling-capture-summary.json) | Compact figures for the pages, made by [summarize_capture.py](assets/summarize_capture.py). |
 | [probe_hops.py](assets/probe_hops.py) | Scores whole multi-hop answers at each pass count. |
-| [hop-probe.json](assets/hop-probe.json) | The probe's results. |
+| [hop-probe.json](assets/hop-probe.json), [hop-summary.json](assets/hop-summary.json) | The probe's results, and the table the articles quote (made by [summarize_hops.py](assets/summarize_hops.py)). |
+| [toy/](assets/toy/) | The toy looped model: [train_toy.py](assets/toy/train_toy.py), its weights, test vectors, held-out puzzles and accuracy tables. |
+| [facts.json](assets/facts.json) | Every number or quotation in the prose, with its source. |
+| `engine/`, `toy/toy.js`, `beats/` | The shared scene engine (state, layout, WebGL2 and Canvas 2D renderers, drivers, linked terms, charts, recorded tables), the JavaScript toy model, and the beat data for each article. |
+| `tests/` | Unit tests (`node --test`), browser tests (`playwright-core` with system Chrome), and the fact, structure and link checkers. |
 
 ## Reproduce
 
@@ -61,6 +60,19 @@ python topics/looped-transformers/assets/summarize_capture.py .local/inkling2/ca
 
 The capture script checks the weights file against its published SHA-256 before loading. The model's code is the Transformers source in [models/inkling2_loop](https://github.com/huggingface/transformers/tree/b62646bbda836d467060b7e3d64028202079b77d/src/transformers/models/inkling2_loop). The checkpoint is Apache 2.0. The weights stay in the ignored `.local/` directory.
 
+## Check everything
+
+```sh
+cd topics/looped-transformers/tests && npm install      # playwright-core only
+node --test unit/*.test.cjs                              # state, layout, micro scenes, toy parity, facts, arithmetic, charts
+node --test --test-concurrency=1 e2e/*.test.cjs          # needs Google Chrome; set CHROME=... for another path
+node check-article.cjs ../why-loop.html ../inside-inkling.html
+node check-facts.cjs --transformers <site-packages>/transformers ../why-loop.html ../inside-inkling.html
+node check-links.cjs --tracked ../index.html ../why-loop.html ../inside-inkling.html
+```
+
+Retrain the toy with `.local/inkling2/venv/bin/python topics/looped-transformers/assets/toy/train_toy.py` (about 5 minutes on CPU, seeded).
+
 ## Feedback
 
-Pending. Approve or change the design, then read the articles once they are built.
+Pending. See [notes.md](notes.md) for the question to answer after reading.

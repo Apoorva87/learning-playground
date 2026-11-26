@@ -88,6 +88,25 @@ def main(path, out=None):
                                              "m_norm_last", "keep_norm_last", "add_norm_last", "forget_hist", "msg_hist",
                                              "forget_last_first64", "msg_last_first64")} for x in main_run["gates"]]
 
+    # Headline figures quoted in the articles; facts.json points at these.
+    qkv = [r["add_over_keep_last"] for r in S["gates"] if r["role"] in ("q", "k", "v")]
+    mlp = [r["add_over_keep_last"] for r in S["gates"] if r["role"] == "mlp"]
+    S["headline"] = {
+        "overlap_p1p2": round(mean(r["p1p2"] for r in ov), 2), "overlap_p2p3": round(mean(r["p2p3"] for r in ov), 2),
+        "overlap_all3": round(mean(r["all3"] for r in ov), 2),
+        "overlap_all3_layer17": next(round(r["all3"], 2) for r in ov if r["layer"] == 17),
+        "overlap_p1p2_layer17": next(round(r["p1p2"], 2) for r in ov if r["layer"] == 17),
+        "last_token_union_min": min(r["union_last"] for r in ov), "last_token_union_max": max(r["union_last"] for r in ov),
+        "gate_ratio_qkv_min": min(qkv), "gate_ratio_qkv_max": max(qkv), "gate_ratio_mlp_mean": round(mean(mlp), 3),
+        "forget_mean_min": min(r["forget_mean"] for r in S["gates"]),
+        "wall_s_by_passes": [r["wall_s"] for r in S["by_passes"]],
+        "core_pass_s_mean": round(mean(ms for (st, p), ms in stage_ms.items() if st == "core") / 1000, 2),
+        "prelude_s": round(stage_ms[("prelude", None)] / 1000, 2), "coda_s": round(stage_ms[("coda", None)] / 1000, 2),
+    }
+
+    kv = sum(p["bytes"] for row in main_run.get("cache", []) for k, p in row["parts"].items() if k in ("keys", "values"))
+    S["headline"]["kv_bytes_per_token"] = kv / len(meta["tokens"])        # every visit keeps its own keys and values
+
     S["messages"] = main_run["messages"]
     if main_run["messages"]:
         m0 = main_run["messages"][0]

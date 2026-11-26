@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Inside Inkling 2 Mini</title>
+<meta name="description" content="Every component of Inkling 2 Mini, from token IDs to logits, with the real shapes and the real loop. An illustrated article whose 3D scene moves with the text.">
+<link rel="icon" href="data:,"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous"><link rel="stylesheet" href="loop.css">
+</head><body>
+<nav class="top"><a href="../../index.html">← Learning playground</a><a href="index.html">Looped transformers</a><a href="why-loop.html">Article A: Why loop a transformer?</a></nav>
+<div class="layout">
+<article id="article">
+  <h1>Inside Inkling 2 Mini</h1>
+  <p class="byline">Article B · every component, from token IDs to logits · <a href="why-loop.html">Article A</a> explains why anyone would loop</p>
+  <p class="howto">Same controls as Article A: <b>Scroll</b>, <b>Step</b> or <b>Play</b>, and the scene on the right follows the text. Every equation here was written from the model's own source at the pinned Transformers commit, and the sources are cited in line. Shapes use <em>T</em> for the number of tokens in view. Where we recorded a real run of the BF16 model, it is labelled <b>in the recorded run</b>.</p>
+
+  <section class="beat" id="b-map" data-beat="map">
+    <h2>The map</h2>
+    <div class="story">
+      <p>Inkling 2 Mini has <span data-fact="cfg.layers">24</span> layers in four blocks of <span data-fact="cfg.block">6</span>. Most of them, <span data-fact="cfg.local_layers">20</span>, attend only to the last <span data-fact="cfg.window">1,024</span> positions. Four, the <span class="term" data-term="full">full-attention layers</span> 5, 11, 17 and 23, look at everything. The middle two blocks, layers 6 to 17, are the <span class="term" data-term="core">loop</span>: they run three times, so a token makes 48 layer visits on 24 layers of weights.</p>
+      <p>Each layer is the same recipe in two halves: an attention sublayer that mixes information across tokens, and a mixture-of-experts sublayer that transforms each token on its own. What is unusual is the plumbing between them, which the next chapters take in order.</p>
+    </div>
+    <div class="intuition">
+      <p>A building with 24 floors where the middle 12 have a lift that takes you back down to floor 6, twice. The architecture of each floor does not change. What changes is how often you walk through.</p>
+    </div>
+    <div class="math">
+      <p>The layer run at visit \(v\) is \(\ell(v)\):</p>
+      <p>$$\ell(v) = \begin{cases} v & v < 6 \\ 6 + (v - 6) \bmod 12 & 6 \le v < 42 \\ v - 24 & v \ge 42 \end{cases} \qquad h_v \in \mathbb{R}^{[T,\,2304]}$$</p>
+      <p>Every visit takes and returns a state of shape \([T,\ 2304]\), where <span data-fact="cfg.hidden">2304</span> is the hidden size. The model has <span data-fact="cfg.heads">24</span> query heads and <span data-fact="cfg.kv_heads">8</span> key/value heads of dimension <span data-fact="cfg.head_dim">128</span>, in every layer.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-embed" data-beat="embed">
+    <h2>Tokens to vectors</h2>
+    <div class="story">
+      <p>Text is cut into token IDs. Each ID selects one row of an embedding table: <span data-fact="cfg.vocab">201,024</span> rows of 2304 numbers, of which <span data-fact="cfg.vocab_real">200,058</span> are real tokens and the rest padding. The picked rows are then <span data-fact="emb.norm">RMS-normalised</span>, so every token enters the model at the same scale however large its raw embedding is.</p>
+    </div>
+    <div class="intuition">
+      <p>A dictionary that gives each word a point in a 2304-dimensional space, followed by a step that pushes every point onto a sphere of the same radius. Direction carries the meaning, and length is thrown away at the door.</p>
+    </div>
+    <div class="math">
+      <p>$$\begin{aligned}h_0 &= \operatorname{RMSNorm}\big(E[x]\big) \\ \operatorname{RMSNorm}(u) &= \frac{u}{\sqrt{\tfrac{1}{d}\sum_i u_i^2 + \epsilon}} \odot g\end{aligned}$$</p>
+      <p>\(x \in \mathbb{N}^{[T]}\) are the token IDs, \(E \in \mathbb{R}^{[201024,\,2304]}\) is the table, \(h_0 \in \mathbb{R}^{[T,\,2304]}\) the result, \(d = 2304\), \(\epsilon = 10^{-6}\), and \(g\) is a learned per-feature gain.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-attn-res" data-beat="attn-res">
+    <h2>Attention residuals: building each input</h2>
+    <div class="story">
+      <p>In an ordinary transformer, each sublayer reads the running sum of everything so far. Inkling replaces that sum with a choice. Layers are grouped into blocks of six. Within a block the stream still accumulates, but at each block boundary its state is <span data-fact="ar.boundary">appended to a list of block states</span> and the stream <span data-fact="ar.residual">starts over</span>. Every sublayer's input is then built by attention <em>over depth</em>: a learned query looks at the saved <span class="term" data-term="blocks">block states</span> and the current partial sum, and takes a weighted mix. The idea follows the Kimi team's <a href="https://arxiv.org/abs/2603.15031">Attention Residuals</a>, <span data-fact="lin.attnres">learned, input-dependent attention over earlier layers' outputs</span>. Layers read from it before the attention sublayer (<span data-fact="ar.use_attn">attention_input</span>) and before the MLP (<span data-fact="ar.use_mlp">mlp_input</span>), except layer 0, which <span data-fact="sw.first_layer">reads the embedding directly</span>.</p>
+    </div>
+    <div class="intuition">
+      <p>Instead of passing one sheet down a line of workers, each worker gets a stack of earlier drafts and a rule for how much to trust each one. A new worker with a blank rule reads every draft equally. Training teaches the rule.</p>
+    </div>
+    <div class="math">
+      <p>Let \(b_1,\dots,b_n \in \mathbb{R}^{[T,\,2304]}\) be the saved block states and \(p \in \mathbb{R}^{[T,\,2304]}\) the current partial sum. <span data-fact="ar.stack">They are stacked and RMS-normalised</span> into \(S \in \mathbb{R}^{[T,\,n+1,\,2304]}\). With a learned query \(w \in \mathbb{R}^{2304}\):</p>
+      <p>$$a = \operatorname{softmax}_j\!\Big(\frac{S_j \cdot w}{\sqrt{2304}}\Big), \qquad x = \sum_{j} a_j\, S_j \in \mathbb{R}^{[T,\,2304]}$$</p>
+      <p>The scale \(2304^{-1/2}\) is <span data-fact="ar.scale">in the code</span>, and the query <span data-fact="ar.query">starts at zero</span>, so before training every source has the same weight. <b>In the recorded run</b>, the MLP input of layer 0 put weight <span data-fact="rec.res0_a">0.146</span> and <span data-fact="rec.res0_b">0.854</span> on its two sources at the last prompt token, far from uniform.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-sliding-layer" data-beat="sliding-layer">
+    <h2>A sliding-window layer, step by step</h2>
+    <div class="story">
+      <p>Twenty of the 24 layers use windowed attention, and their attention sublayer has more parts than the textbook one. In the order the code runs them: the depth attention builds the input, an RMSNorm tidies it, then queries, keys and values are made. <span class="term" data-term="q">Queries</span> are rescaled per feature and <span data-fact="sw.l2clip">clipped to a maximum length</span>. <span class="term" data-term="k">Keys</span> and <span class="term" data-term="v">values</span> pass through a depthwise <em>short convolution</em> of kernel <span data-fact="cfg.sconv">4</span> that mixes each token with the three before it. Keys are then <span data-fact="sw.key_clip">L2-clipped</span> too, and values <span data-fact="sw.value_norm">get an unweighted RMS norm</span>. Eight key/value heads serve 24 query heads, <span data-fact="sw.gqa">three queries per key/value head</span>.</p>
+      <p>Positions are not rotated into the vectors. Instead the layer adds a learned <span class="term" data-term="rel">relative-position bias</span> to the scores, and that bias depends on the token. A projection of the layer input gives each token and head a small vector of <span data-fact="cfg.d_rel">16</span> numbers (clipped, with threshold <span data-fact="cfg.rel_clip">8</span>), which selects a mix from a trained bank of bias-versus-distance profiles. After the softmax, the layer <span data-fact="sw.gate">multiplies the result by a sigmoid gate</span> computed from the layer input, applies the output matrix, and finishes with <span data-fact="sw.postconv">another short convolution</span>.</p>
+    </div>
+    <div class="intuition">
+      <p>Think of each head as asking "which earlier tokens matter to me?" Distance gets a say through the bias. A sink lets the head spend probability on nothing at all. The output gate lets the layer decide per feature whether the attention result is worth keeping. We read the clips as guard rails that keep the scores bounded, and that is our reading. The source states what they compute, not why.</p>
+    </div>
+    <div class="math">
+      <p>$$\begin{aligned}q &= \operatorname{clip}(\gamma_q \odot W_q x) \in \mathbb{R}^{[T,\,24,\,128]} \\ k &= \operatorname{clip}\big(\operatorname{conv}(W_k x)\big) \in \mathbb{R}^{[T,\,8,\,128]} \\ v &= \operatorname{rms}\big(\operatorname{conv}(W_v x)\big) \in \mathbb{R}^{[T,\,8,\,128]}\end{aligned}$$</p>
+      <p>$$\begin{aligned}s_{t,u} &= \frac{q_t \cdot k_u}{\sqrt{128}} + \underbrace{\big(r_t P\big)[t-u]}_{\text{bias},\ r_t \in \mathbb{R}^{16},\ P \in \mathbb{R}^{[16,\,1024]}} \\ a_t &= \operatorname{softmax}\big([\,s_{t,\cdot}\,;\ \sigma_t\,]\big)_{\text{without the last}}\end{aligned}$$</p>
+      <p>The scores are <span data-fact="sw.scaling">scaled by \(128^{-1/2}\)</span>, the <span data-fact="sw.rel">bias comes from \(r_t P\)</span> and is <span data-fact="sw.bias_added">added to them</span>. The sink logit \(\sigma_t\) is <span data-fact="sw.sink">projected from the layer input</span>, one per head, and <span data-fact="sw.sink_softmax">joins the softmax as one extra logit</span> that carries a zero value, so it only absorbs probability. The output is \(\big(a\,v\big)\odot \operatorname{sigmoid}(W_g x)\), then \(W_o\), then the convolution, which returns \(\big(\operatorname{conv}(u) + u\big)/\sqrt{5}\) (<span data-fact="sw.conv">the code divides by \(\sqrt{\text{kernel}+1}\)</span>). Shapes: scores \([24,\,T,\,S]\) with \(S \le 1024\), and the layer output \([T,\,2304]\).</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-full-layer" data-beat="full-layer">
+    <h2>A full-attention layer: what changes</h2>
+    <div class="story">
+      <p>Layers 5, 11, 17 and 23 are the ones that see the whole context. Their attention is the same machine with five changes. There is no window. Depth attention makes <span data-fact="fa.three_mixes">three separate mixes</span> instead of one, one each for queries, keys and values, and <span data-fact="fa.qnorm">each has its own input norm</span>. The short convolution on keys and values is <em>dynamic</em>: its taps are <span data-fact="fa.dynconv">static weights plus per-token weights</span> projected from the layer input, shared inside each key/value head. And queries are scaled by a factor that grows with position.</p>
+    </div>
+    <div class="intuition">
+      <p>The local layers are a reading lamp, and these four are the floodlights. They are rare because they are expensive. In the cache chapter, you will see that these are the only visits whose keys and values keep growing with the context.</p>
+    </div>
+    <div class="math">
+      <p>$$\tau(n) = 1 + 0.1\,\ln\!\Big(\max\!\big(\tfrac{n+1}{8192},\ 1\big)\Big), \qquad q \leftarrow \tau(n)\cdot q$$</p>
+      <p><span data-fact="fa.logscale">The code defines it as</span> \(\tau = 1 + \alpha \ln\max\big((n+1)/n_0,\,1\big)\) with \(\alpha = \)<span data-fact="cfg.log_alpha">0.1</span> and \(n_0 = \)<span data-fact="cfg.log_floor">8192</span>, for position \(n\). Because the maximum is 1 below 8,192 tokens, \(\tau = 1\) for every position in a short prompt like ours, and the factor only starts to bite in long contexts. Scores, queries and keys keep the shapes \([T,\,24,\,128]\), \([T,\,8,\,128]\) and \([24,\,T,\,S]\), now with \(S = T\).</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-moe" data-beat="moe">
+    <h2>The mixture of experts</h2>
+    <div class="story">
+      <p>The second half of every layer is a feed-forward block, built from <span data-fact="cfg.experts">128</span> small experts of which each token uses <span data-fact="cfg.topk">8</span>. A <span class="term" data-term="router">router</span> scores all experts for the token with a <span data-fact="moe.score">sigmoid</span>, picks the <span data-fact="moe.topk">top eight by score plus a bias</span>, <span data-fact="moe.norm">normalises their scores to sum to one</span>, and <span data-fact="moe.scale">multiplies them by</span> <span data-fact="cfg.route_scale">8</span>. There is no shared expert (<span data-fact="cfg.shared">0</span>). Each <span class="term" data-term="expert">expert</span> is a gated feed-forward network of width <span data-fact="cfg.ff">1,152</span>, and its activation is a softcapped SwiGLU. The block ends with <span data-fact="moe.postconv">one more short convolution</span>.</p>
+      <p>The 128 are the survivors of a larger set. Thinking Machines writes that <span data-fact="tm.prune">at one point in midtraining they pruned two-thirds of the experts, keeping the 128 most used in each layer</span>.</p>
+    </div>
+    <div class="intuition">
+      <p>A panel of 128 specialists, of whom the router calls eight for each token. The bias in the selection is an adjustable thumb on the scale. It decides who gets called, while the unbiased scores decide how loudly each is heard.</p>
+    </div>
+    <div class="math">
+      <p>$$\begin{aligned}z &= W_r\,x \in \mathbb{R}^{128}, \qquad s = \sigma(z) \\ \mathcal{E} &= \operatorname{top\text{-}8}(s + \beta), \qquad w_e = 8\cdot\frac{s_e}{\sum_{e'\in\mathcal{E}} s_{e'}}\end{aligned}$$</p>
+      <p>$$y = \sum_{e\in\mathcal{E}} w_e\; W^{\text{down}}_e\Big(\operatorname{cap}_{4}(g)\cdot\sigma(g)\cdot\operatorname{cap}_{25}(u)\Big),\quad [g;u] = W^{\text{gate-up}}_e\,x$$</p>
+      <p>The activation is <span data-fact="moe.swiglu">exactly</span> a capped gate times the sigmoid of the raw gate times a capped up-projection, where a <span data-fact="moe.cap">softcap</span> is \(c\tanh(u/c)\) with \(c = \)<span data-fact="cfg.gate_softcap">4</span> for the gate and <span data-fact="cfg.up_softcap">25</span> for the up-projection. Shapes: \(x \in \mathbb{R}^{[T,\,2304]}\), \(W^{\text{gate-up}}_e\) maps \(\mathbb{R}^{2304} \to \mathbb{R}^{2\times1152}\), \(W^{\text{down}}_e\) maps \(\mathbb{R}^{1152} \to \mathbb{R}^{2304}\), output \([T,\,2304]\).</p>
+    </div>
+  </section>
+  <section class="beat" id="b-prelude" data-beat="prelude">
+    <h2>The prelude: layers 0 to 5</h2>
+    <div class="story">
+      <p>The <span class="term" data-term="prelude">first six layers</span> run once, and they do the work that every later pass will rely on. Layer 0 starts the first block by saving the embedding as block state 0. Layer 5, the first full-attention layer, closes the block. At layer 6 the stream is saved again and restarts. When the prelude finishes, the model keeps two things: the final hidden state \(h^{\text{pre}}\) and the list of block states \(B^{\text{pre}}\). Both will be reused.</p>
+    </div>
+    <div class="intuition">
+      <p>The prelude is the setup of a workbench. You lay out the tools once, photograph the layout, and every later attempt starts from that photograph.</p>
+    </div>
+    <div class="math">
+      <p>$$\big(h^{\text{pre}},\ B^{\text{pre}}\big) \;=\; \operatorname{Layers}_{0\ldots5}\big(h_0\big), \qquad h^{\text{pre}} \in \mathbb{R}^{[T,\,2304]},\quad B^{\text{pre}} \in \mathbb{R}^{[T,\,n,\,2304]}$$</p>
+      <p>\(n\) is the number of block states saved so far. <b>In the recorded run</b>, the prelude took <span data-fact="cap.prelude_s">2.12 s</span> for our 43-token prompt on CPU, about half of one pass over the core.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-loop-full" data-beat="loop-full">
+    <h2>The loop, in full</h2>
+    <div class="story">
+      <p>Pass 1 over layers 6 to 17 is <span data-fact="loop.first_pass">an ordinary run</span>, continuing from the prelude's state. Passes 2 and 3 are different. Each of them <span data-fact="src.restart_comment">restarts from the pre-loop states and receives messages from the previous pass</span>, by literally <span data-fact="src.restart">resetting the hidden and block states to their pre-loop values</span>. For each loop layer, <span data-fact="src.message_input">a call to <code>message_input</code></span> builds the messages from the previous pass. Article A told this story as a toy. Here it is the real thing.</p>
+      <p>Each pass also gets <span data-fact="src.own_cache">its own copy of the cache</span>, made by <span data-fact="src.deepcopy">deep-copying</span> the first pass's layers, so a later pass cannot overwrite what an earlier one remembers.</p>
+    </div>
+    <div class="intuition">
+      <p>Pass 1 climbs the stairs. Passes 2 and 3 are sent back to the ground floor with the photograph of the prelude and a sealed envelope from the climber before them, and each climbs again with its own notebook. See <a href="why-loop.html#b-restart-message">Article A, way two</a> for the toy version.</p>
+    </div>
+    <div class="math">
+      <p>$$\begin{aligned}&\text{for } t = 2, 3: \quad (h,\,B) \leftarrow (h^{\text{pre}},\,B^{\text{pre}}) \\ &\quad \text{for } j = 6,\dots,17: \\ &\qquad m_j^{(t)} = \operatorname{Msg}\big(w_j;\ B^{(t-1)},\,h^{(t-1)}\big) \\ &\qquad h \leftarrow \operatorname{Layer}_j\big(h,\,B,\,m_j^{(t)}\big)\end{aligned}$$</p>
+      <p>\(h, m \in \mathbb{R}^{[T,\,2304]}\). \(B^{(t-1)}\) and \(h^{(t-1)}\) are the loop's saved block state and final hidden state from the previous pass. The learned queries \(w_j\) number <span data-fact="loop.query_shape">four per loop layer: 12 × 4 × 2304 values</span>, one for each of the query, key, value and MLP inputs.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-loop-messages" data-beat="loop-messages">
+    <h2>Messages: what the next pass hears</h2>
+    <div class="story">
+      <p>What a message reads is small. After pass \(t-1\), the loop leaves behind two <span class="term" data-term="sources">states</span> per token: the block state saved at the middle of the loop (layer 12) and the final hidden state after layer 17. For each loop layer and each of the four inputs, a learned <span class="term" data-term="queries">query</span> takes a weighted mix of those two. That gives four <span class="term" data-term="messages">messages</span> per loop layer, each \([T,\ 2304]\), and 48 per pass.</p>
+    </div>
+    <div class="intuition">
+      <p>Four different sticky notes per floor, each worded by asking the previous climber one question. The question is fixed in advance and learned in training. The answer is a blend of "what you had at the half-way landing" and "what you had at the top".</p>
+    </div>
+    <div class="math">
+      <p>$$\begin{aligned}S &= \big[\operatorname{rms}(b_{\text{mid}});\ \operatorname{rms}(h_{\text{final}})\big] \in \mathbb{R}^{[T,\,2,\,2304]} \\ m_{j,r} &= \sum_{i=1}^{2} \operatorname{softmax}_i\!\Big(\tfrac{S_i \cdot w_{j,r}}{\sqrt{2304}}\Big) S_i \in \mathbb{R}^{[T,\,2304]}, \quad r \in \{q,k,v,\text{mlp}\}\end{aligned}$$</p>
+      <p>This is the same depth attention as in the attention-residual chapter, with the previous pass's states as sources and four queries per layer. The queries begin at zero, so a fresh model would read both sources equally. <b>In the recorded run</b> the trained queries lean hard on the final state, as the table in the last chapter of the loop shows.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-loop-gates" data-beat="loop-gates">
+    <h2>The four gates, with Inkling's sizes</h2>
+    <div class="story">
+      <p>A message does not simply get added. In the passes after the first, each of the four inputs of a loop layer goes through a <span class="term" data-term="gate">message gate</span> that mixes the state that came out of depth attention, \(h\), with the message \(m\). The query, key and value inputs each have their own gate, and the MLP input has <span data-fact="loop.mlp_gate">one more</span>. Each gate reads both, squeezes them to a rank-<span data-fact="cfg.gate_rank">64</span> summary and produces a <span class="term" data-term="forget">forget value</span> and a <span class="term" data-term="mgate">message gate</span>. Article A showed this on the toy's numbers; the shapes here are the real ones.</p>
+    </div>
+    <div class="intuition">
+      <p>One dimmer fades the old value. The other lets the message in. Both are tanh, so each is a number between −1 and 1 per feature, and "fade" can go negative, which amplifies.</p>
+    </div>
+    <div class="math">
+      <p>$$\begin{aligned}z &= W_{\text{down}}\big[\operatorname{rms}(h);\ \operatorname{rms}(m)\big] \\ f = \tanh(W_f z),\quad g &= \tanh(W_m z) \\ \text{out} &= (1-f)\odot h + g\odot m\end{aligned}$$</p>
+      <p>\(h, m, f, g, \text{out} \in \mathbb{R}^{[T,\,2304]}\) and \(z \in \mathbb{R}^{[T,\,64]}\). <span data-fact="src.gate_formula">The mixing line</span> and <span data-fact="src.gate_tanh">the tanh gates</span> are in the source. By our count of the config, one gate has \(2\cdot 2304\cdot 64 + 2\cdot 64\cdot 2304 = 589{,}824\) parameters. Four gates on each of twelve loop layers come to 28,311,552, and the queries add 110,592. The whole machinery of looping is about 28.4M parameters, roughly a tenth of a percent of the <span data-fact="mc.params_total">26.4B</span>.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-loop-recorded" data-beat="loop-recorded">
+    <h2>In the recorded run</h2>
+    <div class="story">
+      <p>We ran the real checkpoint on a 43-token prompt, a three-hop question about a passport, and recorded what the loop did. Three findings, each with its table. How we ran it matters: we loaded the official weights with Transformers, which dequantised the 4-bit and 8-bit expert weights to BF16 on a CPU, so these are the numbers of a BF16 copy of the shipped model, from one prompt. They show what the mechanism does here. They are not a benchmark.</p>
+      <p><b>The gates are open.</b> The message adds about as much as the state keeps: between <span data-fact="cap.ratio_min">1.01</span> and <span data-fact="cap.ratio_max">1.37</span> times for the query, key and value inputs, averaged over the twelve core layers, and about <span data-fact="cap.ratio_mlp">0.59</span> for the MLP input. Layers differ a lot: layer 6 is an outlier at 6 to 7 times, as the table shows. The mean forget value falls to <span data-fact="cap.forget_min">−0.75</span>, so \(1-f\) reaches 1.75 and the old state is amplified. The "gate starts closed" story is about initialisation. The released weights have moved a long way from it.</p>
+    </div>
+    <div data-recorded="gate-ratio" class="recorded">Loading the recorded run…</div>
+    <div class="story">
+      <p><b>Messages read mostly the final state.</b> The previous pass's last state gets most of the weight, as the next table shows. In the first read, the query, key and value messages of layer 6 put <span data-fact="rec.msg6_q">0.90</span>, <span data-fact="rec.msg6_k">0.89</span> and <span data-fact="rec.msg6_v">0.98</span> there.</p>
+    </div>
+    <div data-recorded="messages" class="recorded"></div>
+    <div class="story">
+      <p><b>Each pass picks mostly different experts.</b> In the same core layer a prompt token shares about <span data-fact="cap.overlap12">4.78</span> of its 8 experts between passes 1 and 2 and about <span data-fact="cap.overlap23">4.3</span> between passes 2 and 3. Across all three it keeps only <span data-fact="cap.overlap3">2.97</span>, and in layer 17 just <span data-fact="cap.overlap3_l17">0.7</span>. The last token touched <span data-fact="cap.union_min">13</span> to <span data-fact="cap.union_max">20</span> distinct experts per core layer over the three passes. Looping reuses stored weights, but each pass reads a largely different part of them.</p>
+    </div>
+    <div data-recorded="overlap" class="recorded"></div>
+    <div data-recorded="timing" class="recorded"></div>
+    <p>The loop passes took roughly equal time, about <span data-fact="cap.core_s">4.34 s</span> each against <span data-fact="cap.prelude_s">2.12 s</span> for the prelude and <span data-fact="cap.coda_s">2.11 s</span> for the coda. The totals for one, two and three passes were <span data-fact="cap.wall1">7.94 s</span>, <span data-fact="cap.wall2">11.8 s</span> and <span data-fact="cap.wall3">17.3 s</span>.</p>
+  </section>
+
+  <section class="beat" id="b-coda-head" data-beat="coda-head">
+    <h2>The coda and the head</h2>
+    <div class="story">
+      <p>After the loop, the last six layers, 18 to 23, the coda, run once and are followed by a final depth attention: <span data-fact="head.final">a last mix over the saved block states</span>. Then a final RMSNorm, and the language-model head projects 2304 features onto the <span data-fact="head.lm">real vocabulary</span>. A last <span data-fact="head.softcap">softcap</span> keeps the logits bounded to \((-30,\,30)\). <b>In the recorded run</b>, the final mix puts <span data-fact="rec.final_4">0.82</span> of its weight on the current state and the rest on earlier block states, with <span data-fact="rec.final_3">0.11</span> on the latest saved one.</p>
+    </div>
+    <div class="intuition">
+      <p>The coda is the editing pass. It turns the working representation back into something that can be said, and the softcap is a limiter on the volume knob so that no single word can shout.</p>
+    </div>
+    <div class="math">
+      <p>$$\text{logits} = 30\cdot\tanh\!\Big(\tfrac{1}{30}\,W_{\text{vocab}}\operatorname{RMSNorm}(x)\Big)$$</p>
+      <p>Shapes: \(x \in \mathbb{R}^{[T,\,2304]}\), \(W_{\text{vocab}} \in \mathbb{R}^{[2304,\,200058]}\), logits \(\in \mathbb{R}^{[T,\,200058]}\). The cap is <span data-fact="cfg.softcap">30</span>. Only the last position's row is needed to choose the next token.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-bytes" data-beat="bytes">
+    <h2>Memory and bytes</h2>
+    <div class="story">
+      <p>Two kinds of memory matter: the weights and the cache. The weights are stored in low precision. The experts of layers 0 to 19 use 4-bit NVFP4, and those of the last four layers use 8-bit MXFP8, <span data-fact="tm.quant">as Thinking Machines describes</span>. NVFP4 keeps one scale per block of <span data-fact="q.nvfp4_block">16 weights</span>, and MXFP8 one per <span data-fact="q.mxfp8_block">32 × 32 block</span>. The experts dominate the model: one expert has \(3 \times 2304 \times 1152 = 7{,}962{,}624\) parameters, 128 of them make 1.02B per layer, and 24 layers make 24.46B of the 26.4B. That is our arithmetic from the config.</p>
+      <p>The cache is where looping shows. Every visit keeps its own keys and values, so a token adds \(48 \times 2 \times 8 \times 128 \times 2\) bytes, which is <span data-fact="cap.kv_bytes">196,608</span>. The sliding-window visits stop growing at <span data-fact="cfg.window">1,024</span> positions, so past that only the 8 full-attention visits (layers 5 and 23 once, 11 and 17 three times) keep growing, at 32,768 bytes per token.</p>
+    </div>
+    <div class="intuition">
+      <p>The weights are a library: one copy, however many people read. The cache is a notebook that every reader starts afresh, and a model that reads the same chapters three times fills three notebooks.</p>
+    </div>
+    <div class="math">
+      <p>$$\underbrace{40 \times 4096 \times 1024}_{\text{sliding visits, capped}} \;+\; \underbrace{8 \times 4096 \times n}_{\text{full-attention visits}} \quad\text{bytes}$$ with \(4096 = 2 \times 8 \times 128 \times 2\) bytes per visit per token.</p>
+      <p>At the full context of <span data-fact="cfg.max_len">1,048,576</span> tokens this is 167,772,160 + 34,359,738,368 bytes, about 34.5 GB of keys and values, and the full-attention visits are 99.5% of it. Every key and value block has shape \([T,\,8,\,128]\) per visit. As a check on Thinking Machines' count of about <span data-fact="mc.params_extra_pass">1.0B</span> extra active parameters per pass, our count from the config is 12 layers × (8 experts × 7.96M + 25.95M of attention weights + 0.29M of router) ≈ 1.08B. We did not count the small tensors, so the two agree as far as we can tell.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-drafter" data-beat="drafter">
+    <h2>The drafter</h2>
+    <p>Inkling 2 comes with a small draft model for speculative decoding. <span data-fact="hf.drafter">A three-layer draft proposes tokens for the main model to verify, and reads the inputs to decoder visits 5, 23 and 41 plus the final normalised state at index 48.</span> The config agrees: <span data-fact="cfg.mtp_layers">3</span> layers, reading <span data-fact="cfg.mtp_targets">visits 5, 23, 41 and 48</span>. Visits 5, 23 and 41 are, by our mapping, layer 5 (the end of the prelude), layer 11 on pass 2 and layer 17 on pass 3, all full-attention layers, so the drafter taps the model at points spread across the loop. How it combines the four states is in its own code, which we did not open.</p>
+  </section>
+
+  <section class="beat" id="b-vision" data-beat="vision">
+    <h2>One sentence on vision</h2>
+    <p>The model also reads images through a separate vision transformer of <span data-fact="cfg.vit_layers">23</span> layers and width <span data-fact="cfg.vit_width">1,024</span>, whose outputs are projected into the same 2304-wide space as text. This tour leaves it out.</p>
+    <p>That is the whole text model. The <a href="why-loop.html">first article</a> asks why you would loop one, and the <a href="README.md">topic README</a> lists how to rerun every measurement.</p>
+  </section>
+</article>
+<aside id="stage" aria-label="Scene that follows the text">
+  <div class="stage-box"><canvas id="scene" role="img" aria-label="3D scene of the transformer layers"></canvas><div id="labels" aria-hidden="true"></div><div class="stage-title" id="beat-title"></div></div>
+  <div class="controls" id="controls">
+    <fieldset id="mode"><legend class="sr">How the text and scene move</legend>
+      <label><input type="radio" name="mode" id="mode-scroll" value="scroll" checked> Scroll</label>
+      <label><input type="radio" name="mode" id="mode-step" value="step"> Step</label>
+      <label><input type="radio" name="mode" id="mode-play" value="play"> Play</label>
+    </fieldset>
+    <button id="prev" type="button" aria-label="Previous beat">← Prev</button><button id="next" type="button" aria-label="Next beat">Next →</button>
+    <label>Speed <select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+  </div>
+</aside>
+</div>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script src="engine/state.js"></script><script src="engine/layout.js"></script><script src="engine/micro.js"></script><script src="engine/gl.js"></script><script src="engine/canvas2d.js"></script><script src="engine/scene.js"></script><script src="engine/recorded.js"></script><script src="engine/terms.js"></script><script src="engine/drivers.js"></script><script src="engine/boot.js"></script><script src="beats/beats-b.js"></script>
+<script>LoopArticle.start({ beats: window.LOOP_BEATS_B });</script>
+</body></html>

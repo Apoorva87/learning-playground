@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Why loop a transformer?</title>
+<meta name="description" content="Why run the same transformer layers more than once, what each pass computes, and what it costs. An illustrated article whose 3D scene moves with the text.">
+<link rel="icon" href="data:,"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous"><link rel="stylesheet" href="loop.css">
+</head><body>
+<nav class="top"><a href="../../index.html">← Learning playground</a><a href="index.html">Looped transformers</a><a href="inside-inkling.html">Article B: Inside Inkling 2 Mini</a></nav>
+<div class="layout">
+<article id="article">
+  <h1>Why loop a transformer?</h1>
+  <p class="byline">Article A · the general idea, with Inkling 2 Mini as the worked example · <a href="inside-inkling.html">Article B</a> opens the whole model up</p>
+  <p class="howto">The scene on the right follows the text. <b>Scroll</b> to read normally, press <b>Step</b> (or the arrow keys) to jump beat by beat, or <b>Play</b> to let it run at reading pace. Underlined words are linked to the scene: point at one and its part lights up.</p>
+
+  <section class="beat" id="b-hook" data-beat="hook">
+    <h2>Think before you write</h2>
+    <p>Ask a language model a question that takes three steps. <em>Mira keeps her passport in the blue box. The blue box is in the oak chest. The oak chest is in the attic. Where is the passport?</em> The model has two ways to spend effort on it.</p>
+    <p>It can think <em>out loud</em>: write the steps down, one token at a time, and read them back. Or it can think <em>inside</em>: send each token's vector through more layers before it has to choose the next word. This article is about the second way, in its simplest form: <b>run the same layers again</b>.</p>
+    <p>Our worked example is Inkling 2 Mini. It stores <span data-fact="cfg.layers">24</span> layers and runs layers <span data-fact="cfg.core_start">6</span> to 17 three times, so every token makes <span class="term" data-term="visits">48 layer visits</span> (6 + 3 × 12 + 6). Watch the red cube. It follows one <span class="term" data-term="token">token</span> through the model, and the orange middle section, the <span class="term" data-term="core">core</span>, is where it goes round three times.</p>
+  </section>
+
+  <section class="beat" id="b-serial-depth" data-beat="serial-depth">
+    <h2>Depth is a chain</h2>
+    <div class="story">
+      <p>A transformer builds its answer layer by layer. A <span class="term" data-term="layer">layer</span> takes the token's vector from the layer below, reads what it needs from the other tokens, and adds a correction. The next layer cannot start until this one has finished, because its input <em>is</em> this one's output.</p>
+      <p>Inside a layer there is plenty of parallel work: every token, every head, every row of a matrix multiply. Between layers there is none. That is the shape we found in the <a href="../qwen-forward-pass/claude-graph/index.html">whole-pass dependency graph</a> for Qwen: the <span class="term" data-term="chain">chain of layers</span> is the critical path, and nothing you add to a chip shortens it.</p>
+    </div>
+    <div class="intuition">
+      <p>An assembly line. Many cars move through at once, which is the parallelism across tokens. But every car must visit station 1 before station 2, so a line with <em>L</em> stations has a minimum time per car, however many cars you build.</p>
+    </div>
+    <div class="math">
+      <p>$$h_{\ell+1} \;=\; h_\ell + F_\ell(h_\ell), \qquad h_\ell \in \mathbb{R}^{[T,\,2304]}$$</p>
+      <p>\(T\) is the number of tokens in view and <span data-fact="cfg.hidden">2304</span> is Inkling's hidden width. One layer is one application of \(F_\ell\); <em>L</em> layers are <em>L</em> applications in a row. A question whose answer needs <em>k</em> dependent lookups, each using the result of the one before, has to fit those <em>k</em> steps into the <em>L</em> that exist. Whether a given model spends exactly one layer per lookup is an empirical question. Later in this article we measure it on the real model.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-two-depths" data-beat="two-depths">
+    <h2>Two ways to add depth</h2>
+    <div class="story">
+      <p>If the chain is too short for the problem, you can lengthen it in two ways. Add layers with <em>new</em> weights: more parameters to train, store and load. Or apply layers you already have <em>again</em>.</p>
+      <p>The second is a loop. Inkling does not loop everything: it ties only the <span class="term" data-term="core">middle layers</span>, and the arrow on the scene is the <span class="term" data-term="loopback">return path</span> from layer 17 back to layer 6. The three passes over it share one set of <span class="term" data-term="tied">tied</span> weights, which is why the scene piles them behind each other.</p>
+    </div>
+    <div class="intuition">
+      <p>Re-reading a hard paragraph versus handing it to a second reader. The second reader brings fresh eyes and costs a salary. The re-read brings nothing new except more time with the same understanding, and costs only time.</p>
+    </div>
+    <div class="math">
+      <p>$$\begin{aligned}\text{new layers:}\quad & h_{k+1} = h_k + F_k(h_k) \\ \text{same layers again:}\quad & h_{k+1} = h_k + F(h_k)\end{aligned}$$</p>
+      <p>Both take and return \(h \in \mathbb{R}^{[T,\,2304]}\). With \(P\) parameters in one layer, \(K\) steps of the first cost \(K \cdot P\) stored weights and the second cost \(P\). The compute is the same: \(K\) applications either way. Inkling 2 Mini stores <span data-fact="mc.params_total">26.4B</span> parameters. Only <span data-fact="mc.params_active_1">3.4B</span> are active for a token in one pass, because it is a mixture of experts. Each extra pass through the looped layers adds about <span data-fact="mc.params_extra_pass">1.0B effective active parameters</span>, so with three passes a token meets <span data-fact="mc.params_active_3">5.4B</span>. Stored weights did not grow. Work per token did.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-lineage" data-beat="lineage">
+    <h2>An old idea, rediscovered</h2>
+    <p>Reusing layers is not new. It returns whenever people notice how much a model can do with few distinct weights. The list below is short on purpose, and every entry links to the paper's own page.</p>
+    <ol class="timeline">
+      <li><b>2018 · <a href="https://arxiv.org/abs/1807.03819">Universal Transformers</a></b> (Dehghani et al.). One transformer layer applied repeatedly, with a <span data-fact="lin.ut">dynamic per-position halting mechanism</span> that decides, token by token, when to stop.</li>
+      <li><b>2019 · <a href="https://arxiv.org/abs/1909.11942">ALBERT</a></b> (Lan et al.). Shrinks BERT with <span data-fact="lin.albert">two parameter-reduction techniques</span>, one of them sharing weights across layers. It saves stored parameters, not work: every layer still runs.</li>
+      <li><b>2023 · <a href="https://arxiv.org/abs/2301.13196">Looped Transformers as Programmable Computers</a></b> (Giannou et al.). <span data-fact="lin.loopcomp">A few hand-set layers run in a loop can act as a general-purpose computer.</span></li>
+      <li><b>2024 · <a href="https://arxiv.org/abs/2409.15647">Looped Transformers for Length Generalization</a></b> (Fan et al.). <span data-fact="lin.lengthgen">Looping a variable number of times helps on inputs longer than those seen in training</span>, for tasks that have iterative solutions.</li>
+      <li><b>2025 · <a href="https://arxiv.org/abs/2502.05171">Huginn</a></b> (Geiping et al.). A recurrent block iterated at inference, <span data-fact="lin.huginn">in latent space instead of in written chain-of-thought</span>, so more thinking costs compute, not tokens.</li>
+      <li><b>2025 · <a href="https://arxiv.org/abs/2510.25741">Ouro</a></b> (Zhu et al.). Looped models trained from scratch. <span data-fact="lin.ouro">The 1.4B and 2.6B models are reported to match models up to 12B</span>, which the authors attribute to better knowledge manipulation and not more capacity.</li>
+      <li><b>2025 · <a href="https://arxiv.org/abs/2507.10524">Mixture-of-Recursions</a></b> (Bae et al.). <span data-fact="lin.mor">Learned routers give each token its own recursion depth.</span></li>
+      <li><b>2025 · HRM and TRM</b> (<a href="https://arxiv.org/abs/2506.21734">Wang et al.</a>, <a href="https://arxiv.org/abs/2510.04871">Jolicoeur-Martineau</a>). Tiny recursive networks for puzzles: <span data-fact="lin.hrm">27M parameters</span> in the first, <span data-fact="lin.trm">about 7M</span> in the second.</li>
+      <li><b>2026 · <a href="https://arxiv.org/abs/2604.12946">Parcae</a></b> (Prairie et al.). <span data-fact="lin.parcae">Instability in looped models comes from large spectral norms in their injection parameters</span>, and a constrained parameterization fixes it. We return to this in the stability beat.</li>
+      <li><b>2026 · <a href="https://arxiv.org/abs/2604.21106">How Much Is One Recurrence Worth?</a></b> (Schwethelm et al.). <span data-fact="lin.isodepth">A recurrence-equivalence exponent of 0.46</span>: at matched training compute, a repeated pass is worth less than the same depth in unique parameters.</li>
+      <li><b>2026 · Inkling 2 Mini</b> (Thinking Machines). A 26.4B-parameter mixture-of-experts model that loops its middle 12 layers three times. It is the example for the rest of this article.</li>
+    </ol>
+    <p>Two things changed along the way. Loops moved from toy tasks into large pretrained models, and the hard question became how each pass should be fed. Weight sharing is easy. Deciding what a second pass <em>sees</em> is where the designs differ, and that is the next part of the story.</p>
+  </section>
+
+  <section class="beat" id="b-prelude-core-coda" data-beat="prelude-core-coda">
+    <h2>Prelude, core, coda</h2>
+    <div class="story">
+      <p>Why not loop all 24 layers? Inkling splits them into three jobs. The <span class="term" data-term="prelude">prelude</span> (layers 0–5) runs once. The <span class="term" data-term="core">core</span> (layers 6–17) runs three times. The <span class="term" data-term="coda">coda</span> (layers 18–23) runs once and hands its result to the output head.</p>
+    </div>
+    <div class="intuition">
+      <p>Thinking Machines' own intuition, which they present as intuition and not as a theorem: early layers translate raw token embeddings into a working representation, late layers translate the working representation back into word predictions, and the middle does the abstract work that benefits from a second and third look. Their experiments back it only partly: looping the middle 12 layers beat looping the last 12 on <span data-fact="mc.mid_vs_last">27 of 28 evaluations</span>. Fine for a design choice, not a proof of what each layer does.</p>
+    </div>
+    <div class="math">
+      <p>$$y \;=\; \text{Coda}\Big(\text{Core}^{\,3}\big(\text{Prelude}(x)\big)\Big), \qquad x,\,y \in \mathbb{R}^{[T,\,2304]}$$</p>
+      <p>Layer visits: \(6 + 3 \times 12 + 6 = 48\). Layers stored: \(6 + 12 + 6 = 24\). The superscript means the same twelve layers, applied three times; how each pass gets its input is the subject of the next beats.</p>
+    </div>
+  </section>
+  <section class="beat" id="b-toy-hops" data-beat="toy-hops">
+    <h2>One hop per pass</h2>
+    <div class="story">
+      <p>To see looping do something, we shrank the problem until a model fits in this page. There are eight nodes, A to H. Each node has exactly one arrow leaving it. The model is shown all eight <span class="term" data-term="pairs">arrows</span> and a start node, and has to say where you end up after following the arrows a given number of times. One hop is a lookup. Three hops are three lookups, each using the answer of the last, which is the shape of the passport question: blue box, oak chest, attic.</p>
+      <p>The toy has one prelude layer, two core layers and a readout. It was trained so that after pass <em>t</em> the <span class="term" data-term="readout">readout</span> is hop <em>t</em>. That one-hop-per-pass pattern is therefore by construction. What is not by construction is <em>how</em> it does it, and the <span class="term" data-term="heatmap">heat map</span> shows it: in each pass, the first core layer's attention lands on the one arrow that starts at the node the model currently holds. Pass 1 finds the arrow out of the start node. Pass 2 finds the arrow out of where pass 1 arrived.</p>
+    </div>
+    <div class="intuition">
+      <p>Tracing a route on a map with your finger. Each look at the map takes you one step. Ask for the third stop and you need three looks, however good your eyes are. A loop gives the model more looks.</p>
+    </div>
+    <div class="math">
+      <p>An idealised reading of one pass. Let \(p_{t-1}\) be the node held after pass \(t-1\), and \(\mathrm{src}_i,\ \mathrm{dst}_i\) the source and destination of arrow \(i\):</p>
+      <p>$$\begin{aligned}\alpha_{t,i} &= \operatorname{softmax}_i\!\big(\mathrm{src}_i \cdot p_{t-1}\big) \\ p_t &= \sum_i \alpha_{t,i}\,\mathrm{dst}_i = f(p_{t-1})\end{aligned}$$</p>
+      <p>The states are \(h \in \mathbb{R}^{[T,\,16]}\) with \(T = 9\) positions (eight arrows and the query). In Inkling the same slot is \([T,\ 2304]\). The heat map is the real \(\alpha_{t,\cdot}\) from the trained model, taken from its first core layer's first head.</p>
+    </div>
+    <div class="toy" id="toy">
+      <div class="toy-row"><span>Loop count</span>
+        <span role="group" aria-label="Loop count"><button type="button" data-toy-passes="1">1</button><button type="button" data-toy-passes="2">2</button><button type="button" data-toy-passes="3" aria-pressed="true">3</button><button type="button" data-toy-passes="4">4</button><button type="button" data-toy-passes="5">5</button><button type="button" data-toy-passes="6">6</button></span>
+        <label>Model <select id="toy-variant"><option value="inkling">restart + message (Inkling-style)</option><option value="carry">carry the state</option></select></label>
+        <button type="button" id="toy-new">New puzzle</button></div>
+      <p id="toy-readout" aria-live="polite">Loading the toy model…</p>
+      <div id="toy-table"></div>
+      <p class="toy-note">Both versions learn the task. After <em>p</em> passes the readout is the <em>p</em>-th hop, which is the bright diagonal. The real model answers differently: its accuracy rises as passes are added, as the cost section will show.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-carry-state" data-beat="carry-state">
+    <h2>Way one: carry the state</h2>
+    <div class="story">
+      <p>Tying weights is the easy half. The hard half is what pass 2 <em>takes as input</em>. The first answer is the most natural one: whatever pass 1 produced goes straight into pass 2. Recurrent-depth models such as <a href="https://arxiv.org/abs/2502.05171">Huginn</a> work this way: a recurrent block is iterated on its own state. A common refinement is to feed the original input \(e\) in again at every step, so the loop does not forget the question.</p>
+    </div>
+    <div class="intuition">
+      <p>Keep writing on the same sheet of paper. Each pass adds to the working, and nothing is ever thrown away. That is powerful, and it is also how a mistake can compound: a smudge on line 3 is still there on line 30.</p>
+    </div>
+    <div class="math">
+      <p>$$s_t \;=\; R\big(e,\; s_{t-1}\big), \qquad s_t,\ e \in \mathbb{R}^{[T,\,2304]}$$</p>
+      <p>In our toy the version used is \(s_t = \mathrm{Core}(s_{t-1} + e)\), with \(e\) the prelude output and \([T, 16]\) in place of \([T, 2304]\). The scene lays out the data flow. Pass \(t\) starts from where pass \(t-1\) stopped.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-restart-message" data-beat="restart-message">
+    <h2>Way two: restart, and leave a note</h2>
+    <div class="story">
+      <p>Inkling does something less obvious. Every pass after the first <span data-fact="src.restart_comment">restarts from the prelude's output</span>, <em>not</em> from where the last pass ended. What carries over is a <span class="term" data-term="message">message</span>: for each core layer, a small summary of the previous pass is built by attention over that pass's states (<span data-fact="src.message_input">the call is <code>message_input</code></span>), then mixed into the layer's input through a gate. Inkling forms four messages per core layer, for the query, key, value and MLP inputs. The toy forms one.</p>
+    </div>
+    <div class="intuition">
+      <p>Start every attempt from a clean copy of the original problem, and leave yourself a sticky note from the last attempt. You decide, note by note, how much to read. The clean copy cannot be smudged by the previous attempt, and the note still carries what was learnt.</p>
+    </div>
+    <div class="math">
+      <p>$$\begin{aligned}h^{(t)}_{0} &= e \\ m_j^{(t)} &= \operatorname{Attn}\big(w_j;\ \text{states of pass } t-1\big) \\ h^{(t)}_{j} &\leftarrow \operatorname{Layer}_j\!\Big((1-f_j)\odot h^{(t)}_{j-1} + g_j \odot m_j^{(t)}\Big)\end{aligned}$$</p>
+      <p>Everything has shape \([T,\,2304]\) in Inkling and \([T,\,16]\) in the toy. \(w_j\) is a learned query, \(f_j, g_j\) are the gates of the next beat. A side effect worth knowing: each pass keeps <span data-fact="src.own_cache">its own copy of the cache</span>, so the key-value cache grows as if the model had 48 layers.</p>
+      <p>On the toy, both ways reach essentially 100% on the held-out puzzles, and keep it at passes 5 and 6, which they never trained on. So the toy can show you the plumbing but cannot tell you which design is better. That needs the real model and far more compute than a browser has.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-gate-math" data-beat="gate-math">
+    <h2>The gate, with real numbers</h2>
+    <div class="story">
+      <p>The gate has to answer two questions for every feature: how much of the restarted state \(h\) to keep, and how much of the message \(m\) to let in. It looks at both (a norm of each, joined and squeezed to a rank-<span data-fact="cfg.gate_rank">64</span> summary \(z\)) and produces two numbers per feature between \(-1\) and \(1\): the <span class="term" data-term="forget">forget</span> value \(f\) and the <span class="term" data-term="mgate">message gate</span> \(g\). The scene shows the toy's actual vectors for <span id="toy-gate-pass">pass 3</span>, set by the loop count above. Bright cells are large values, and red means negative.</p>
+    </div>
+    <div class="intuition">
+      <p>Two dimmers per feature. One fades the old value, one lets in the new. If \(f = 0\) the old value passes unchanged, and if \(f\) is negative the old value is even <em>amplified</em>.</p>
+    </div>
+    <div class="math">
+      <p>$$\begin{aligned}z &= W_{\text{down}}\big[\operatorname{rms}(h);\ \operatorname{rms}(m)\big] \\ f = \tanh(W_f z),\quad g &= \tanh(W_m z) \\ \text{out} &= (1-f)\odot h + g \odot m\end{aligned}$$</p>
+      <p>Shapes: \(h, m, f, g, \text{out} \in \mathbb{R}^{[T,\,2304]}\) and \(z \in \mathbb{R}^{[T,\,64]}\) in Inkling (<span data-fact="src.gate_formula">the last line of the gate's forward pass</span>, with the <span data-fact="src.gate_tanh">tanh gates</span> just above it), and \([T, 16]\) and \([T, 4]\) in the toy. The scene shows the last position, a single row of 16 numbers each.</p>
+      <p>Thinking Machines writes that this gate is learned and <span data-fact="mc.gate_blocks">initially blocks the entire message</span>, so a looped model starts out behaving like an unlooped one. Our toy does the same: its gate weights start at zero. That describes training at the start, and the released weights moved far from it. On our recorded prompt, the message's norm, averaged over the twelve core layers, is between <span data-fact="cap.ratio_min">1.01</span> and <span data-fact="cap.ratio_max">1.37</span> times the norm of what is kept for the query, key and value inputs, and about <span data-fact="cap.ratio_mlp">0.59</span> for the MLP input. The mean forget value reaches <span data-fact="cap.forget_min">−0.75</span>, so \(1-f\) is as large as 1.75. The gates are open.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-stability" data-beat="stability">
+    <h2>Why loops can blow up</h2>
+    <div class="story">
+      <p>Why go to the trouble of restarts and gates, instead of just carrying the state? Because a loop that feeds on its own output can run away. If each pass scales the state by a factor above 1, the errors multiply. The Parcae paper traces instability in looped models to <span data-fact="lin.parcae">large spectral norms in their injection parameters</span> and fixes it by constraining the parameterization.</p>
+      <p>Our reading of Inkling's design, which is ours and not a claim from Thinking Machines: every pass starts again from the same prelude output, so nothing compounds across passes through repeated multiplication, and the message comes in through factors bounded by tanh. It is a plausible reason the loop trains steadily. We have not tested it.</p>
+    </div>
+    <div class="intuition">
+      <p>A microphone too close to its speaker. Each trip through the loop makes the squeal louder if the gain is above 1, and fades if it is below.</p>
+    </div>
+    <div class="math">
+      <p>A linear picture of a carried state, with \(A \in \mathbb{R}^{[2304,\,2304]}\) standing in for one pass: $$\begin{aligned}s_t &= A\,s_{t-1} + B\,e \\ \Longrightarrow\quad s_t &= \sum_{k&lt;t} A^k B\,e\end{aligned}$$ The sum settles exactly when the spectral radius \(\rho(A) < 1\). The scene shows the one-dimensional case \(s_t = a\,s_{t-1} + 1\): with \(a = 0.6\) it settles near 2.5, and with \(a = 1.2\) it grows without bound, past 16 by pass 8.</p>
+    </div>
+  </section>
+  <section class="beat" id="b-costs-stored" data-beat="costs-stored">
+    <h2>What a loop costs: storage</h2>
+    <div class="story">
+      <p>Now the bill. There are five ways to charge for depth, and a loop pays them differently. The first is what you <em>store</em>. Inkling keeps one copy of each of its <span data-fact="cfg.layers">24</span> layers, and the <span class="term" data-term="passes">second and third pass</span> over the core reuse the first pass's weights. The pile behind the front layers is the same weights seen again. That is the loop's real saving: no extra weights to train, download or keep in memory.</p>
+    </div>
+    <div class="intuition">
+      <p>A recipe book with 24 recipes in which twelve are cooked three times each. The book does not get thicker. The kitchen does get busier.</p>
+    </div>
+    <div class="math">
+      <p>$$\begin{aligned}\text{layers stored} &= 6 + 12 + 6 = 24 \\ \text{layer visits} &= 6 + 3 \times 12 + 6 = 48\end{aligned}$$</p>
+      <p>Stored parameters: <span data-fact="mc.params_total">26.4B</span>, unchanged by looping. Each visit reads and writes \(h \in \mathbb{R}^{[T,\,2304]}\). What changes is not the storage but everything that scales with <em>visits</em>, which are the next four.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-costs-compute" data-beat="costs-compute">
+    <h2>What a loop costs: compute</h2>
+    <div class="story">
+      <p>Compute counts visits, not stored layers. As the scene pulls the stack apart into the <span class="term" data-term="row">row of visits</span> it really executes, the extra work becomes visible: twelve layers, then twelve more, then twelve more. A rule of thumb for a forward pass is about two floating-point operations per active parameter per token. Inkling's active parameters go from <span data-fact="mc.params_active_1">3.4B</span> in one pass to <span data-fact="mc.params_active_3">5.4B</span> with three, because only part of the model loops.</p>
+    </div>
+    <div class="intuition">
+      <p>Same twelve stations on the line, visited three times. The factory floor did not grow, but the car now takes three laps and the electricity bill reflects it.</p>
+    </div>
+    <div class="math">
+      <p>$$\text{FLOPs per token} \;\approx\; 2 \times N_{\text{active}}, \qquad 2 \times 3.4\text{B} \to 2 \times 5.4\text{B}\ \ (\times 1.59)$$</p>
+      <p>Every visit maps \(h \in \mathbb{R}^{[T,\,2304]}\) to a new \(h\) of the same shape, so a visit costs about the same wherever it sits in the row. This ignores the attention scores, which also grow with context. Our CPU run agrees in spirit: a 43-token prefill took <span data-fact="cap.wall1">7.94 s</span> with one pass, <span data-fact="cap.wall2">11.8 s</span> with two and <span data-fact="cap.wall3">17.3 s</span> with three. That is roughly 24, 36 and 48 layer visits. Mini was trained with three passes, so the one- and two-pass runs are outside its training and are shown only to measure cost.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-costs-bandwidth" data-beat="costs-bandwidth">
+    <h2>What a loop costs: weights read</h2>
+    <div class="story">
+      <p>The common pitch is that looping gives you more compute for free memory traffic, because the weights are the same. In Inkling that is only half true. Its feed-forward layers are a <em>mixture of experts</em>: for every token, a router picks 8 of <span data-fact="cfg.experts">128</span> experts. On a repeat pass the router chooses again, from a different state, and often chooses differently.</p>
+      <p>We recorded this on the real model. In the same core layer, a prompt token shares on average <span data-fact="cap.overlap12">4.78</span> of its 8 experts between passes 1 and 2, <span data-fact="cap.overlap23">4.3</span> between passes 2 and 3, and <span data-fact="cap.overlap3">2.97</span> across all three. In the last core layer, layer 17, it shares <span data-fact="cap.overlap3_l17">0.7</span> across all three. The last token of our prompt touched between <span data-fact="cap.union_min">13</span> and <span data-fact="cap.union_max">20</span> distinct experts per core layer over the three passes, against 8 for one pass.</p>
+    </div>
+    <div class="intuition">
+      <p>You reopen the same book, but at a different page each time. The book is one object on the shelf. The pages you have to fetch are not.</p>
+    </div>
+    <div class="math">
+      <p>$$\begin{aligned}\text{expert bytes per token, per core layer} &\approx \big|E_1 \cup E_2 \cup E_3\big| \cdot b \\ 8 &\le |E_1 \cup E_2 \cup E_3| \le 24\end{aligned}$$</p>
+      <p>Here \(E_t\) is the set of 8 experts the router picked in pass \(t\), and \(b\) is the bytes of one expert (two matrices of \([2304,\ 1152]\) and one of \([1152,\ 2304]\) per expert in a SwiGLU feed-forward, before the quantisation described in Article B). One prompt and one model is a small sample, so read the numbers as a measurement and not a law. They still show that the usual line, <em>same weights, more compute</em>, describes storage. It does not describe bandwidth here.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-costs-kv" data-beat="costs-kv">
+    <h2>What a loop costs: the cache</h2>
+    <div class="story">
+      <p>Autoregressive models remember earlier tokens by keeping their keys and values. A pass cannot share that cache with the one before, because the later pass computes different keys and values from a different state. In the code each pass <span data-fact="src.own_cache">uses its own copies of the loop cache layers</span>, made with <span data-fact="src.deepcopy">a deep copy</span>. So the cache grows as if the model had 48 layers.</p>
+    </div>
+    <div class="intuition">
+      <p>Every lap of the factory floor needs its own clipboard of notes. Three laps, three clipboards, even though the stations are the same.</p>
+    </div>
+    <div class="math">
+      <p>$$\underbrace{48}_{\text{visits}} \times \underbrace{2}_{K,\,V} \times \underbrace{8}_{\text{KV heads}} \times \underbrace{128}_{\text{head dim}} \times \underbrace{2\ \text{B}}_{\text{BF16}} \;=\; \text{196,608 B per token}$$</p>
+      <p>Per visit the keys are \(K \in \mathbb{R}^{[T,\,8,\,128]}\), and so are the values. We measured exactly this figure on the real model: <span data-fact="cap.kv_bytes">196,608 bytes per token</span>. It is not quite the whole story. Of the 48 visits, 40 use sliding-window attention and stop growing at <span data-fact="cfg.window">1,024</span> positions. Only the 8 full-attention visits (layers 5 and 23 once, layers 11 and 17 three times each) keep growing, at \(8 \times 2 \times 8 \times 128 \times 2 = 32{,}768\) bytes per token. We worked that second number out from the config. We did not record it.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-costs-latency" data-beat="costs-latency">
+    <h2>What a loop costs: waiting</h2>
+    <div class="story">
+      <p>The last cost is the one the first section warned about. Depth is a chain, and a loop makes the chain longer. The <span class="term" data-term="token">token</span> now makes 48 dependent steps and not 24. On the same CPU, the prelude took <span data-fact="cap.prelude_s">2.12 s</span>, each core pass about <span data-fact="cap.core_s">4.34 s</span> and the coda <span data-fact="cap.coda_s">2.11 s</span>. No amount of parallel hardware shortens a chain, so this is the cost that hurts most when you want fast answers.</p>
+    </div>
+    <div class="intuition">
+      <p>You can hire more cooks for a banquet, but not for a soufflé that must rise for twenty minutes, then be folded, then rise again. Looping adds rises.</p>
+    </div>
+    <div class="math">
+      <p>$$\begin{aligned}t_{\text{token}} &\approx t_{\text{prelude}} + n_{\text{passes}} \cdot t_{\text{core}} + t_{\text{coda}} \\ &= 2.12 + 3 \times 4.34 + 2.11\ \text{s} \approx 17.3\ \text{s}\end{aligned}$$</p>
+      <p>These are seconds of CPU time for a 43-token prefill, with activations in \([T,\ 2304]\) with \(T = 43\). They show how time grows, not how fast a GPU would be. <b>In one sentence: looping saves what you store. It does not save what you compute, read, cache or wait for.</b> The next beat is why people accept that bill.</p>
+    </div>
+  </section>
+  <section class="beat" id="b-benefits" data-beat="benefits">
+    <h2>What the bill buys</h2>
+    <div class="story">
+      <p>Why pay it? Because some problems get better with more passes, and others do not. Thinking Machines also released a research model that can be run for 1 to 5 passes, so its model card shows the effect of the loop count directly. <span data-fact="vl.caution">They caution against comparing it with Inkling 2 Mini</span>, so treat the left three panels as evidence about looping in general and not about Mini.</p>
+      <p>Two panels are tasks made of steps. In the coding benchmark DeepSWE the score goes from <span data-fact="vl.deepswe">0.7% at one pass to 47.4% at three</span>, and flattens. In GraphWalks, which asks the model to walk a graph, <span data-fact="vl.graphwalks">it climbs from 21.1 to 63.2 at three passes</span>. The third panel is a test of memorised facts, SimpleQA Verified, and <span data-fact="vl.simpleqa">it barely moves</span>. The orange panel is our own measurement on the real Mini, from the passport and ring puzzles of the next paragraph.</p>
+    </div>
+    <div class="viz">
+      <div class="viz-grid">
+        <figure class="chart" data-chart='{"id":"deepswe","title":"DeepSWE v1.1, agentic coding","kind":"line","x":[1,2,3,4,5],"y":[0.7,28.3,47.4,46.9,48.2],"ymax":100,"ticks":[0,50,100],"unit":"%"}'></figure>
+        <figure class="chart" data-chart='{"id":"graphwalks","title":"GraphWalks BFS 256K","kind":"line","x":[1,2,3,4,5],"y":[21.1,54.5,63.2,64.3,64.9],"ymax":100,"ticks":[0,50,100],"unit":"%"}'></figure>
+        <figure class="chart" data-chart='{"id":"simpleqa","title":"SimpleQA Verified, recalling facts","kind":"line","x":[1,2,3,4,5],"y":[6.3,6.5,7.3,6.8,6.7],"ymax":100,"ticks":[0,50,100],"unit":"%"}'></figure>
+        <figure class="chart mini" data-chart='{"id":"hops","title":"Inkling 2 Mini: hops answered (ours)","kind":"col","x":[1,2,3],"y":[2,5,8],"ymax":9,"ticks":[0,4,8],"unit":" of 8","note":["share of the right answer among the candidates: 0.36","share of the right answer among the candidates: 0.6","share of the right answer among the candidates: 0.99"]}'></figure>
+      </div>
+      <details class="viewtable"><summary>Table view of the same numbers</summary>
+        <table><thead><tr><th>passes</th><th>DeepSWE %</th><th>GraphWalks %</th><th>SimpleQA %</th><th>Mini: correct of 8</th></tr></thead><tbody>
+          <tr><td>1</td><td>0.7</td><td>21.1</td><td>6.3</td><td>2</td></tr>
+          <tr><td>2</td><td>28.3</td><td>54.5</td><td>6.5</td><td>5</td></tr>
+          <tr><td>3</td><td>47.4</td><td>63.2</td><td>7.3</td><td>8</td></tr>
+          <tr><td>4</td><td>46.9</td><td>64.3</td><td>6.8</td><td></td></tr>
+          <tr><td>5</td><td>48.2</td><td>64.9</td><td>6.7</td><td></td></tr></tbody></table></details>
+      <p class="cap">Blue: the research model with a variable loop count, from its model card. Orange: Inkling 2 Mini, our probe. The two are different models and are not on one scale.</p>
+    </div>
+    <div class="intuition">
+      <p>More passes help when the answer needs <em>steps</em> and do little when it needs a <em>fact</em>. That is a pattern across these four panels, not a proof, and the toy model is the cleanest picture of the steps half: each extra look is one more hop.</p>
+    </div>
+    <div class="math">
+      <p>An idealised rule, in the spirit of the toy: a question needing \(h\) dependent lookups is answerable when the model has at least \(h\) passes to spend, $$\operatorname{answerable}(h,\,k) \;\approx\; [\,k \ge h\,]$$ Each pass maps \(h \in \mathbb{R}^{[T,\,2304]}\) to a new state of the same shape. On the real model the pattern is softer, and what we measured is below. Two stories (Mira's passport and a ring), each with two- and three-hop questions told forwards and in reverse, scored over whole candidate answers. Of the eight two- and three-hop prompts, <span data-fact="hop.correct1">2</span> were answered correctly with one pass, <span data-fact="hop.correct2">5</span> with two and <span data-fact="hop.correct3">8</span> with three. The right answer's average share among the candidate containers rose from <span data-fact="hop.share1">0.36</span> to <span data-fact="hop.share2">0.60</span> to <span data-fact="hop.share3">0.99</span>.</p>
+      <p>Three caveats. Mini was trained with three passes, so one and two passes are outside what it was built for. Eight prompts are a small sample. And one three-hop story succeeds at every pass count, because "garage" is the only place-like answer among its candidates, so the model can guess it without following the chain.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-monitorability" data-beat="monitorability">
+    <h2>Think more, write less</h2>
+    <p>There is a catch that has nothing to do with cost. A model that thinks in its layers needs to write fewer thoughts down, and written thoughts are the part people can read. Thinking Machines measured it: <span data-fact="mc.reasoning_tokens">at five passes the research model's reasoning averaged 1,661 tokens against 3,703 at one pass</span>. Less visible reasoning is the price of thinking inside.</p>
+    <p>On whether that makes models harder to watch, they report that <span data-fact="mc.monitor">at this scale they do not see a meaningful reduction in monitorability</span>. Mira Murati's reported reaction, as quoted by <a href="https://theinference.org/article/mira-murati-s-thinking-machines-ships-a-26-billion-parameter-model-that-runs-offline-on-a-macbook">The Inference</a>, <span data-fact="mc.murati">is that this "may not stay the case"</span>. We could not open her original post, so that wording is second-hand.</p>
+    <p>A student who solves a problem in their head and writes only the answer is harder to grade than one who shows their work. Looping is a way of getting better at the head.</p>
+  </section>
+
+  <section class="beat" id="b-bridge" data-beat="bridge">
+    <h2>Now open the model</h2>
+    <p>You now have the whole idea: a loop reuses stored layers, costs visits, and needs a careful answer to what each pass is fed. Article B takes Inkling 2 Mini apart, one component at a time, with the same scene and the same three ways to read it.</p>
+    <ul>
+      <li>The <a href="inside-inkling.html#b-loop-full">loop in full</a>, with our recorded gate values and message weights from the real model.</li>
+      <li>The <a href="inside-inkling.html#b-attn-res">depth-wise attention residuals</a> that build each sublayer's input.</li>
+      <li>The <a href="inside-inkling.html#b-bytes">memory and bytes</a> chapter, which redoes this article's cost arithmetic from the config.</li>
+    </ul>
+  </section>
+</article>
+<aside id="stage" aria-label="Scene that follows the text">
+  <div class="stage-box"><canvas id="scene" role="img" aria-label="3D scene of the transformer layers"></canvas><div id="labels" aria-hidden="true"></div><div class="stage-title" id="beat-title"></div></div>
+  <div class="controls" id="controls">
+    <fieldset id="mode"><legend class="sr">How the text and scene move</legend>
+      <label><input type="radio" name="mode" id="mode-scroll" value="scroll" checked> Scroll</label>
+      <label><input type="radio" name="mode" id="mode-step" value="step"> Step</label>
+      <label><input type="radio" name="mode" id="mode-play" value="play"> Play</label>
+    </fieldset>
+    <button id="prev" type="button" aria-label="Previous beat">← Prev</button><button id="next" type="button" aria-label="Next beat">Next →</button>
+    <label>Speed <select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+  </div>
+</aside>
+</div>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script src="engine/state.js"></script><script src="engine/layout.js"></script><script src="engine/micro.js"></script><script src="engine/gl.js"></script><script src="engine/canvas2d.js"></script><script src="engine/scene.js"></script><script src="toy/toy.js"></script><script src="engine/toywidget.js"></script><script src="engine/charts.js"></script><script src="engine/terms.js"></script><script src="engine/drivers.js"></script><script src="engine/boot.js"></script><script src="beats/beats-a.js"></script>
+<script>LoopArticle.start({ beats: window.LOOP_BEATS_A });</script>
+</body></html>

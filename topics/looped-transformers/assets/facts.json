@@ -1,0 +1,1469 @@
+{
+ "cfg.hidden": {
+  "claim": "Hidden size is 2304",
+  "value": 2304,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.hidden_size",
+   "expected": 2304
+  }
+ },
+ "cfg.layers": {
+  "claim": "24 physical layers",
+  "value": 24,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.num_hidden_layers",
+   "expected": 24
+  }
+ },
+ "cfg.vocab": {
+  "claim": "Vocabulary table has 201,024 rows",
+  "value": 201024,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.vocab_size",
+   "expected": 201024
+  }
+ },
+ "cfg.vocab_real": {
+  "claim": "200,058 of them are real tokens",
+  "value": 200058,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.unpadded_vocab_size",
+   "expected": 200058
+  }
+ },
+ "cfg.heads": {
+  "claim": "24 query heads",
+  "value": 24,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.num_attention_heads",
+   "expected": 24
+  }
+ },
+ "cfg.kv_heads": {
+  "claim": "8 key/value heads",
+  "value": 8,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.num_key_value_heads",
+   "expected": 8
+  }
+ },
+ "cfg.head_dim": {
+  "claim": "Head dimension 128",
+  "value": 128,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.head_dim",
+   "expected": 128
+  }
+ },
+ "cfg.d_rel": {
+  "claim": "Relative-position logits use d_rel = 16",
+  "value": 16,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.d_rel",
+   "expected": 16
+  }
+ },
+ "cfg.rel_extent": {
+  "claim": "Relative-position extent 1024",
+  "value": 1024,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.rel_extent",
+   "expected": 1024
+  }
+ },
+ "cfg.window": {
+  "claim": "Sliding window 1024",
+  "value": 1024,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.sliding_window_size",
+   "expected": 1024
+  }
+ },
+ "cfg.sconv": {
+  "claim": "Short convolution kernel 4",
+  "value": 4,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.sconv_kernel_size",
+   "expected": 4
+  }
+ },
+ "cfg.softcap": {
+  "claim": "Final logit softcap 30",
+  "value": 30.0,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.final_logit_softcapping",
+   "expected": 30.0
+  }
+ },
+ "cfg.experts": {
+  "claim": "128 routed experts",
+  "value": 128,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.n_routed_experts",
+   "expected": 128
+  }
+ },
+ "cfg.topk": {
+  "claim": "8 experts per token",
+  "value": 8,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.num_experts_per_tok",
+   "expected": 8
+  }
+ },
+ "cfg.shared": {
+  "claim": "No shared expert",
+  "value": 0,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.n_shared_experts",
+   "expected": 0
+  }
+ },
+ "cfg.ff": {
+  "claim": "Expert intermediate size 1152",
+  "value": 1152,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.intermediate_size",
+   "expected": 1152
+  }
+ },
+ "cfg.route_scale": {
+  "claim": "Router weights are scaled by 8",
+  "value": 8.0,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.route_scale",
+   "expected": 8.0
+  }
+ },
+ "cfg.gate_softcap": {
+  "claim": "Expert gate softcap 4",
+  "value": 4.0,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.mlp_gate_softcap",
+   "expected": 4.0
+  }
+ },
+ "cfg.up_softcap": {
+  "claim": "Expert up softcap 25",
+  "value": 25.0,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.mlp_up_softcap",
+   "expected": 25.0
+  }
+ },
+ "cfg.block": {
+  "claim": "6 layers per attention-residual block",
+  "value": 6,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.n_layers_per_attn_res_block",
+   "expected": 6
+  }
+ },
+ "cfg.max_len": {
+  "claim": "Maximum context 1,048,576 tokens",
+  "value": 1048576,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.model_max_length",
+   "expected": 1048576
+  }
+ },
+ "cfg.core_start": {
+  "claim": "The loop starts at layer 6",
+  "value": 6,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.loop_config.core_start",
+   "expected": 6
+  }
+ },
+ "cfg.core_end": {
+  "claim": "The loop ends before layer 18",
+  "value": 18,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.loop_config.core_end",
+   "expected": 18
+  }
+ },
+ "cfg.passes": {
+  "claim": "Three passes",
+  "value": 3,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.loop_config.num_passes",
+   "expected": 3
+  }
+ },
+ "cfg.gate_rank": {
+  "claim": "Message gate rank 64",
+  "value": 64,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.loop_config.gate_rank",
+   "expected": 64
+  }
+ },
+ "cap.load_s": {
+  "claim": "BF16 load took 82.2 s on the M4 Max CPU",
+  "value": 82.2,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "meta.load_s",
+   "expected": 82.2
+  }
+ },
+ "cap.wall1": {
+  "claim": "One-pass prefill took 7.94 s",
+  "value": 7.94,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "by_passes.0.wall_s",
+   "expected": 7.94
+  }
+ },
+ "cap.wall2": {
+  "claim": "Two-pass prefill took 11.8 s",
+  "value": 11.8,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "by_passes.1.wall_s",
+   "expected": 11.8
+  }
+ },
+ "cap.wall3": {
+  "claim": "Three-pass prefill took 17.3 s",
+  "value": 17.3,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "by_passes.2.wall_s",
+   "expected": 17.3
+  }
+ },
+ "cap.prelude_s": {
+  "claim": "Prelude took 2.12 s",
+  "value": 2.12,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.prelude_s",
+   "expected": 2.12
+  }
+ },
+ "cap.core_s": {
+  "claim": "Each core pass took about 4.34 s",
+  "value": 4.34,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.core_pass_s_mean",
+   "expected": 4.34
+  }
+ },
+ "cap.coda_s": {
+  "claim": "Coda took 2.11 s",
+  "value": 2.11,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.coda_s",
+   "expected": 2.11
+  }
+ },
+ "cap.overlap12": {
+  "claim": "About 4.78 of 8 experts shared between passes 1 and 2",
+  "value": 4.78,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.overlap_p1p2",
+   "expected": 4.78
+  }
+ },
+ "cap.overlap23": {
+  "claim": "About 4.3 of 8 shared between passes 2 and 3",
+  "value": 4.3,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.overlap_p2p3",
+   "expected": 4.3
+  }
+ },
+ "cap.overlap3": {
+  "claim": "About 2.97 of 8 shared across all three passes",
+  "value": 2.97,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.overlap_all3",
+   "expected": 2.97
+  }
+ },
+ "cap.overlap3_l17": {
+  "claim": "About 0.7 of 8 shared across all three passes in layer 17",
+  "value": 0.7,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.overlap_all3_layer17",
+   "expected": 0.7
+  }
+ },
+ "cap.overlap12_l17": {
+  "claim": "About 3.14 of 8 shared between passes 1 and 2 in layer 17",
+  "value": 3.14,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.overlap_p1p2_layer17",
+   "expected": 3.14
+  }
+ },
+ "cap.union_min": {
+  "claim": "The last token touches at least 13 distinct experts per core layer over three passes",
+  "value": 13,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.last_token_union_min",
+   "expected": 13
+  }
+ },
+ "cap.union_max": {
+  "claim": "and at most 20",
+  "value": 20,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.last_token_union_max",
+   "expected": 20
+  }
+ },
+ "cap.ratio_min": {
+  "claim": "Message-to-kept-state norm ratio for q/k/v is at least 1.01",
+  "value": 1.0133,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.gate_ratio_qkv_min",
+   "expected": 1.0133
+  }
+ },
+ "cap.ratio_max": {
+  "claim": "and at most 1.37",
+  "value": 1.3688,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.gate_ratio_qkv_max",
+   "expected": 1.3688
+  }
+ },
+ "cap.ratio_mlp": {
+  "claim": "about 0.59 for the MLP input",
+  "value": 0.592,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.gate_ratio_mlp_mean",
+   "expected": 0.592
+  }
+ },
+ "cap.forget_min": {
+  "claim": "The mean forget value reaches -0.75",
+  "value": -0.7504,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.forget_mean_min",
+   "expected": -0.7504
+  }
+ },
+ "cap.kv_bytes": {
+  "claim": "Keys and values grow by 196,608 bytes per token",
+  "value": 196608.0,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.kv_bytes_per_token",
+   "expected": 196608.0
+  }
+ },
+ "hop.correct1": {
+  "claim": "2 of 8 two- and three-hop prompts answered correctly at 1 pass(es)",
+  "value": 2,
+  "source": {
+   "kind": "json",
+   "file": "assets/hop-summary.json",
+   "path": "by_passes.0.correct",
+   "expected": 2
+  }
+ },
+ "hop.share1": {
+  "claim": "Right answer's mean share among candidates at 1 pass(es) is 0.36",
+  "value": 0.36,
+  "source": {
+   "kind": "json",
+   "file": "assets/hop-summary.json",
+   "path": "by_passes.0.mean_p_among",
+   "expected": 0.36
+  }
+ },
+ "hop.correct2": {
+  "claim": "5 of 8 two- and three-hop prompts answered correctly at 2 pass(es)",
+  "value": 5,
+  "source": {
+   "kind": "json",
+   "file": "assets/hop-summary.json",
+   "path": "by_passes.1.correct",
+   "expected": 5
+  }
+ },
+ "hop.share2": {
+  "claim": "Right answer's mean share among candidates at 2 pass(es) is 0.6",
+  "value": 0.6,
+  "source": {
+   "kind": "json",
+   "file": "assets/hop-summary.json",
+   "path": "by_passes.1.mean_p_among",
+   "expected": 0.6
+  }
+ },
+ "hop.correct3": {
+  "claim": "8 of 8 two- and three-hop prompts answered correctly at 3 pass(es)",
+  "value": 8,
+  "source": {
+   "kind": "json",
+   "file": "assets/hop-summary.json",
+   "path": "by_passes.2.correct",
+   "expected": 8
+  }
+ },
+ "hop.share3": {
+  "claim": "Right answer's mean share among candidates at 3 pass(es) is 0.99",
+  "value": 0.99,
+  "source": {
+   "kind": "json",
+   "file": "assets/hop-summary.json",
+   "path": "by_passes.2.mean_p_among",
+   "expected": 0.99
+  }
+ },
+ "mc.params_total": {
+  "claim": "26.4B total parameters",
+  "source": {
+   "kind": "url",
+   "url": "https://thinkingmachines.ai/news/inkling-2-mini/",
+   "section": "Introduction (parameter counts)"
+  }
+ },
+ "mc.params_active_1": {
+  "claim": "3.4B active parameters",
+  "source": {
+   "kind": "url",
+   "url": "https://huggingface.co/thinkingmachines/Inkling-2-Mini",
+   "section": "3. Model Properties > Parameters"
+  }
+ },
+ "mc.params_extra_pass": {
+  "claim": "Each extra pass through the looped layers adds about 1.0B effective active parameters",
+  "source": {
+   "kind": "url",
+   "url": "https://huggingface.co/thinkingmachines/Inkling-2-Mini",
+   "section": "3. Model Properties > Parameters"
+  }
+ },
+ "mc.params_active_3": {
+  "claim": "5.4B effective active parameters per token with three passes",
+  "source": {
+   "kind": "url",
+   "url": "https://huggingface.co/thinkingmachines/Inkling-2-Mini",
+   "section": "3. Model Properties > Parameters"
+  }
+ },
+ "mc.mid_vs_last": {
+  "claim": "Looping the middle 12 layers beat looping the last 12 on 27 of 28 evaluations",
+  "source": {
+   "kind": "url",
+   "url": "https://thinkingmachines.ai/news/inkling-2-mini/",
+   "section": "Architecture and training > Looping design"
+  }
+ },
+ "mc.gate_blocks": {
+  "claim": "The message gate is learned during training and initially blocks the entire message",
+  "source": {
+   "kind": "url",
+   "url": "https://thinkingmachines.ai/news/inkling-2-mini/",
+   "section": "Architecture and training > Looping design"
+  }
+ },
+ "mc.middle_intuition": {
+  "claim": "Thinking Machines: the middle layers carry more abstract reasoning; the first and last translate between embeddings and internal representations",
+  "source": {
+   "kind": "url",
+   "url": "https://thinkingmachines.ai/news/inkling-2-mini/",
+   "section": "Architecture and training > Looping design"
+  }
+ },
+ "mc.monitor": {
+  "claim": "At this scale Thinking Machines does not see a meaningful reduction in monitorability",
+  "source": {
+   "kind": "url",
+   "url": "https://thinkingmachines.ai/news/inkling-2-mini/",
+   "section": "Monitorability of looped transformers"
+  }
+ },
+ "mc.reasoning_tokens": {
+  "claim": "Reasoning at 5 passes averaged 1,661 tokens versus 3,703 at 1 pass",
+  "source": {
+   "kind": "url",
+   "url": "https://thinkingmachines.ai/news/inkling-2-mini/",
+   "section": "CoT monitorability > Compression and legibility"
+  }
+ },
+ "mc.murati": {
+  "claim": "Murati wrote that observers can currently follow the model's reasoning at this size, adding 'this may not stay the case' (reported secondhand)",
+  "source": {
+   "kind": "url",
+   "url": "https://theinference.org/article/mira-murati-s-thinking-machines-ships-a-26-billion-parameter-model-that-runs-offline-on-a-macbook",
+   "section": "The fence versus the free copy"
+  }
+ },
+ "mc.nhop": {
+  "claim": "N-hop lookup keeps improving out to ten loops",
+  "source": {
+   "kind": "url",
+   "url": "https://thinkingmachines.ai/news/inkling-2-mini/",
+   "section": "No-CoT capabilities"
+  }
+ },
+ "vl.deepswe": {
+  "claim": "DeepSWE v1.1 at 1-5 passes: 0.7, 28.3, 47.4, 46.9, 48.2 percent",
+  "source": {
+   "kind": "url",
+   "url": "https://huggingface.co/thinkingmachines/TML-d24-varloop-research",
+   "section": "Agentic Coding results"
+  }
+ },
+ "vl.graphwalks": {
+  "claim": "GraphWalks BFS 256K at 1-5 passes: 21.1, 54.5, 63.2, 64.3, 64.9",
+  "source": {
+   "kind": "url",
+   "url": "https://huggingface.co/thinkingmachines/TML-d24-varloop-research",
+   "section": "Reasoning, Knowledge, and Epistemics results"
+  }
+ },
+ "vl.simpleqa": {
+  "claim": "SimpleQA Verified at 1-5 passes: 6.3, 6.5, 7.3, 6.8, 6.7 percent",
+  "source": {
+   "kind": "url",
+   "url": "https://huggingface.co/thinkingmachines/TML-d24-varloop-research",
+   "section": "Reasoning, Knowledge, and Epistemics results"
+  }
+ },
+ "vl.caution": {
+  "claim": "Thinking Machines cautions against comparing the research model directly to Inkling 2 Mini",
+  "source": {
+   "kind": "url",
+   "url": "https://huggingface.co/thinkingmachines/TML-d24-varloop-research",
+   "section": "4. Training"
+  }
+ },
+ "lin.ut": {
+  "claim": "Universal Transformers (Dehghani et al., 2018): a recurrent transformer with a dynamic per-position halting mechanism",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1807.03819",
+   "section": "Abstract"
+  }
+ },
+ "lin.albert": {
+  "claim": "ALBERT (Lan et al., 2019): parameter reduction for BERT",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1909.11942",
+   "section": "Abstract"
+  }
+ },
+ "lin.loopcomp": {
+  "claim": "Looped Transformers as Programmable Computers (Giannou et al., 2023)",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2301.13196",
+   "section": "Abstract"
+  }
+ },
+ "lin.lengthgen": {
+  "claim": "Looped Transformers for Length Generalization (Fan et al., 2024)",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2409.15647",
+   "section": "Abstract"
+  }
+ },
+ "lin.huginn": {
+  "claim": "Scaling up Test-Time Compute with Latent Reasoning: A Recurrent Depth Approach (Geiping et al., 2025), 3.5B parameters",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2502.05171",
+   "section": "Abstract"
+  }
+ },
+ "lin.ouro": {
+  "claim": "Scaling Latent Reasoning via Looped Language Models (Zhu et al., 2025): 1.4B and 2.6B models matching models up to 12B",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2510.25741",
+   "section": "Abstract"
+  }
+ },
+ "lin.mor": {
+  "claim": "Mixture-of-Recursions (Bae et al., 2025): per-token recursion depth",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2507.10524",
+   "section": "Abstract"
+  }
+ },
+ "lin.hrm": {
+  "claim": "Hierarchical Reasoning Model (Wang et al., 2025): 27M parameters",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2506.21734",
+   "section": "Abstract"
+  }
+ },
+ "lin.trm": {
+  "claim": "Less is More: Recursive Reasoning with Tiny Networks (Jolicoeur-Martineau, 2025): about 7M parameters",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2510.04871",
+   "section": "Abstract"
+  }
+ },
+ "lin.parcae": {
+  "claim": "Parcae (Prairie et al., 2026): instability from large spectral norms of injection parameters",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2604.12946",
+   "section": "Abstract"
+  }
+ },
+ "lin.isodepth": {
+  "claim": "How Much Is One Recurrence Worth? Iso-Depth Scaling Laws for Looped Language Models (Schwethelm et al., 2026): recurrence-equivalence exponent 0.46",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2604.21106",
+   "section": "Abstract"
+  }
+ },
+ "lin.attnres": {
+  "claim": "Attention Residuals (Kimi Team, 2026): learned attention over earlier layers' outputs",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2603.15031",
+   "section": "Abstract"
+  }
+ },
+ "src.gate_formula": {
+  "claim": "The message gate mixes state and message as (1 - forget_gate) * hidden_states + message_gate * message",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 98,
+   "quote": "return (1 - forget_gate) * hidden_states + message_gate * message"
+  }
+ },
+ "src.gate_tanh": {
+  "claim": "The forget gate is tanh of a projection of the rank-64 gate state",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 96,
+   "quote": "forget_gate = torch.tanh"
+  }
+ },
+ "src.restart_comment": {
+  "claim": "Remaining passes restart from the pre-loop states and receive messages from the previous pass",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 1440,
+   "quote": "# Remaining passes restart from the pre loop states"
+  }
+ },
+ "src.restart": {
+  "claim": "Each later pass resets hidden and block states to the pre-loop values",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 1445,
+   "quote": "hidden_states, block_states = pre_loop_hidden_states, pre_loop_block_states"
+  }
+ },
+ "src.deepcopy": {
+  "claim": "Extra cache layers for the loop are deep copies of the first pass's",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 1400,
+   "quote": "cache.layers += [copy.deepcopy"
+  }
+ },
+ "src.own_cache": {
+  "claim": "Each pass uses its own copies of the loop cache layers",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 1447,
+   "quote": "# Each pass uses its own copies"
+  }
+ },
+ "src.message_input": {
+  "claim": "Messages for each loop layer come from message_input over the previous pass's block states and final hidden state",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 1450,
+   "quote": "messages = self.message_input"
+  }
+ },
+ "ar.query": {
+  "claim": "Depth-attention queries start at zero",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 875,
+   "quote": "self.query = nn.Parameter(torch.zeros(*shape, dtype=torch.float32))"
+  }
+ },
+ "ar.stack": {
+  "claim": "The sources are the block states plus the current partial sum, stacked then RMS-normalised",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 882,
+   "quote": "stacked_states = torch.cat([block_states, partial_block_states.unsqueeze(-2)], dim=-2).float()"
+  }
+ },
+ "ar.scale": {
+  "claim": "Attention over depth is scaled by hidden_size to the power -0.5",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 894,
+   "quote": "scaling=hidden_size**-0.5"
+  }
+ },
+ "ar.use_attn": {
+  "claim": "The attention sublayer's input comes from attention_input",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 932,
+   "quote": "hidden_states = self.attention_input(block_states, hidden_states)[0]"
+  }
+ },
+ "ar.use_mlp": {
+  "claim": "The MLP sublayer's input comes from mlp_input",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 950,
+   "quote": "hidden_states = self.mlp_input(block_states, hidden_states)[0]"
+  }
+ },
+ "ar.boundary": {
+  "claim": "At a block boundary the stream's state is appended to block_states",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 946,
+   "quote": "block_states = torch.cat([block_states, block_residual.unsqueeze(-2)], dim=-2)"
+  }
+ },
+ "ar.residual": {
+  "claim": "Inside a block the residual accumulates",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 948,
+   "quote": "residual = hidden_states = block_residual.float() + hidden_states"
+  }
+ },
+ "emb.norm": {
+  "claim": "The embedding is RMS-normalised",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 1289,
+   "quote": "return self.embed_norm(super().forward(input_ids))"
+  }
+ },
+ "sw.gqa": {
+  "claim": "Query heads per key/value head",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 599,
+   "quote": "self.num_key_value_groups = self.num_heads // self.num_key_value_heads"
+  }
+ },
+ "sw.sink": {
+  "claim": "The sink logit is a projection of the layer input, one per head",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 663,
+   "quote": "sinks = self.sink_proj(hidden_states).transpose(1, 2).unsqueeze(-1)"
+  }
+ },
+ "sw.sink_softmax": {
+  "claim": "The sink is one extra logit in the softmax",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 136,
+   "quote": "combined_logits = torch.cat([attn_weights, sinks], dim=-1).float()"
+  }
+ },
+ "sw.gate": {
+  "claim": "The attention output is gated by a sigmoid of a projection of the layer input",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 585,
+   "quote": "gate = torch.sigmoid(self.gate_proj(hidden_states).float())"
+  }
+ },
+ "sw.l2clip": {
+  "claim": "L2 clip rescales vectors longer than a threshold",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 189,
+   "quote": "return (hidden_states * (self.threshold / (norm + 1e-6)).clamp(max=1.0)).to(input_dtype)"
+  }
+ },
+ "sw.conv": {
+  "claim": "Short convolution output is (conv + input) divided by sqrt(kernel + 1)",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 436,
+   "quote": "hidden_states = (hidden_states + residual) / math.sqrt(self.conv_kernel_size + 1)"
+  }
+ },
+ "sw.rel": {
+  "claim": "Relative-position logits are relative_states times a bank of profiles",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 269,
+   "quote": "rel_logits = (relative_states @ self.proj).transpose(1, 2)"
+  }
+ },
+ "sw.bias_added": {
+  "claim": "The bias is added to the scaled scores",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 130,
+   "quote": "attn_weights = attn_weights + position_bias"
+  }
+ },
+ "sw.scaling": {
+  "claim": "Scores are scaled by head_dim to the power -0.5",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 602,
+   "quote": "self.scaling = self.head_dim**-0.5"
+  }
+ },
+ "sw.postconv": {
+  "claim": "A short convolution follows the attention output",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 942,
+   "quote": "hidden_states = self.post_attention_convolution(hidden_states, cache=cache, conv_mask=conv_mask, **kwargs)"
+  }
+ },
+ "sw.key_clip": {
+  "claim": "Keys are L2-clipped",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 554,
+   "quote": "Inkling2LoopL2Clip(config.qk_l2_clip_threshold)"
+  }
+ },
+ "sw.value_norm": {
+  "claim": "Values get an unweighted RMS norm",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 556,
+   "quote": "else Inkling2LoopUnweightedRMSNorm(eps=config.rms_norm_eps)"
+  }
+ },
+ "fa.logscale": {
+  "claim": "Full-attention queries are scaled by a log-length factor",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 209,
+   "quote": "Scales the per-head states by `tau = 1 + log_scaling_alpha * log(max((position + 1) / log_scaling_n_floor, 1))`."
+  }
+ },
+ "fa.dynamic": {
+  "claim": "Full-attention keys use the dynamic short convolution",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 700,
+   "quote": "config, self.num_key_value_heads, self.head_dim, layer_idx, conv_idx=0, is_key=True, dynamic=True"
+  }
+ },
+ "fa.dynconv": {
+  "claim": "Dynamic convolution taps are static weights plus per-token weights",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 476,
+   "quote": "weights = self.static_weight.float().T.view(self.num_heads, -1, self.conv_kernel_size) + dynamic_weights"
+  }
+ },
+ "moe.score": {
+  "claim": "Router scores are a sigmoid of the logits",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 1211,
+   "quote": "scores = self.score_fn(logits)"
+  }
+ },
+ "moe.topk": {
+  "claim": "The top 8 are chosen by score plus a bias",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 1212,
+   "quote": "indices = torch.topk(scores + self.e_score_correction_bias, self.top_k, dim=-1, sorted=False).indices"
+  }
+ },
+ "moe.norm": {
+  "claim": "The chosen scores are normalised to sum to one",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 1214,
+   "quote": "weights = weights / (weights.sum(dim=-1, keepdim=True) + 1e-20)"
+  }
+ },
+ "moe.scale": {
+  "claim": "and multiplied by the route scale",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 1215,
+   "quote": "return logits, weights * self.routed_scaling_factor, indices"
+  }
+ },
+ "moe.swiglu": {
+  "claim": "Softcapped SwiGLU: capped gate times sigmoid(gate) times capped up",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 814,
+   "quote": "return (self.gate_softcap(gate) * torch.sigmoid(gate) * self.up_softcap(up)).to(input_dtype)"
+  }
+ },
+ "moe.cap": {
+  "claim": "A softcap is tanh(x / c) * c",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 800,
+   "quote": "return torch.tanh(hidden_states / self.softcap) * self.softcap"
+  }
+ },
+ "moe.postconv": {
+  "claim": "A short convolution follows the MLP output",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 952,
+   "quote": "hidden_states = self.post_mlp_convolution(hidden_states, cache=cache, conv_mask=conv_mask, **kwargs)"
+  }
+ },
+ "loop.query_shape": {
+  "claim": "Each loop layer has four learned message queries",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 153,
+   "quote": "shape = (config.loop_layer_index_end - config.loop_layer_index_start, 4, config.hidden_size)"
+  }
+ },
+ "loop.mlp_gate": {
+  "claim": "There is a message gate for the MLP input as well as for q, k and v",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 977,
+   "quote": "self.mlp_message_gate = Inkling2LoopMessageGate(config)"
+  }
+ },
+ "loop.first_pass": {
+  "claim": "The first pass over the loop layers runs normally",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 1424,
+   "quote": "# First pass over loop layers"
+  }
+ },
+ "head.final": {
+  "claim": "The final input is a depth attention over block states",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 1485,
+   "quote": "hidden_states = self.final_input(block_states, hidden_states)[0]"
+  }
+ },
+ "head.norm": {
+  "claim": "Then the final RMSNorm",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 1486,
+   "quote": "hidden_states = self.norm(hidden_states).to(inputs_embeds.dtype)"
+  }
+ },
+ "head.lm": {
+  "claim": "The LM head maps 2304 to the real vocabulary",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 1520,
+   "quote": "self.lm_head = nn.Linear(config.hidden_size, config.unpadded_vocab_size, bias=False)"
+  }
+ },
+ "head.softcap": {
+  "claim": "Logits go through the softcap",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 1578,
+   "quote": "logits = self.logit_softcap(logits)"
+  }
+ },
+ "cfg.mtp_layers": {
+  "claim": "The drafter has 3 layers",
+  "value": 3,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "mtp_config.num_hidden_layers",
+   "expected": 3
+  }
+ },
+ "cfg.mtp_targets": {
+  "claim": "The drafter reads visits 5, 23, 41 and the final state 48",
+  "value": [
+   5,
+   23,
+   41,
+   48
+  ],
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "mtp_config.target_layer_ids",
+   "expected": [
+    5,
+    23,
+    41,
+    48
+   ]
+  }
+ },
+ "cfg.vit_layers": {
+  "claim": "The vision tower has 23 layers",
+  "value": 23,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "vision_config.num_hidden_layers",
+   "expected": 23
+  }
+ },
+ "cfg.vit_width": {
+  "claim": "with hidden size 1024",
+  "value": 1024,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "vision_config.hidden_size",
+   "expected": 1024
+  }
+ },
+ "tm.prune": {
+  "claim": "At one point in midtraining two-thirds of the experts were pruned, leaving the 128 most used in each layer",
+  "source": {
+   "kind": "url",
+   "url": "https://thinkingmachines.ai/news/inkling-2-mini/",
+   "section": "Pruning and healing"
+  }
+ },
+ "tm.quant": {
+  "claim": "4-bit NVFP4 in the expert layers; the final 4 layers' forward passes ran in 8-bit MXFP8 (20 layers NVFP4, 4 MXFP8)",
+  "source": {
+   "kind": "url",
+   "url": "https://thinkingmachines.ai/news/inkling-2-mini/",
+   "section": "NVFP4 and low-bit quantization"
+  }
+ },
+ "hf.drafter": {
+  "claim": "A three-layer DSpark draft proposes tokens for the target to verify; it reads the inputs to decoder visits 5, 23 and 41 plus the final normalized state at index 48",
+  "source": {
+   "kind": "url",
+   "url": "https://huggingface.co/blog/inkling2mini",
+   "section": "Speculative decoding"
+  }
+ },
+ "fa.three_mixes": {
+  "claim": "In a full-attention layer depth attention makes three mixes, for q, k and v",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 1049,
+   "quote": "self.attention_input = Inkling2LoopBlockAttentionResidual(config, num_queries=3) if layer_idx > 0 else None"
+  }
+ },
+ "fa.qnorm": {
+  "claim": "and each has its own input RMSNorm",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 1053,
+   "quote": "self.q_input_layernorm = Inkling2LoopRMSNorm(config.hidden_size, config.rms_norm_eps)"
+  }
+ },
+ "sw.first_layer": {
+  "claim": "The first layer has no attention_input: it reads the embedding directly",
+  "source": {
+   "kind": "source",
+   "file": "models/inkling2_loop/modeling_inkling2_loop.py",
+   "line": 905,
+   "quote": "self.attention_input = Inkling2LoopBlockAttentionResidual(config) if layer_idx > 0 else None"
+  }
+ },
+ "cfg.log_alpha": {
+  "claim": "log_scaling_alpha is 0.1",
+  "value": 0.1,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.log_scaling_alpha",
+   "expected": 0.1
+  }
+ },
+ "cfg.log_floor": {
+  "claim": "log_scaling_n_floor is 8192",
+  "value": 8192,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.log_scaling_n_floor",
+   "expected": 8192
+  }
+ },
+ "cfg.local_layers": {
+  "claim": "The 20 sliding-window layers",
+  "value": [
+   0,
+   1,
+   2,
+   3,
+   4,
+   6,
+   7,
+   8,
+   9,
+   10,
+   12,
+   13,
+   14,
+   15,
+   16,
+   18,
+   19,
+   20,
+   21,
+   22
+  ],
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.local_layer_ids",
+   "expected": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    6,
+    7,
+    8,
+    9,
+    10,
+    12,
+    13,
+    14,
+    15,
+    16,
+    18,
+    19,
+    20,
+    21,
+    22
+   ]
+  }
+ },
+ "cfg.rms_eps": {
+  "claim": "RMSNorm epsilon is 1e-6",
+  "value": 1e-06,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.rms_norm_eps",
+   "expected": 1e-06
+  }
+ },
+ "cfg.qk_clip": {
+  "claim": "Query/key L2-clip threshold is 22.63 (16 times the square root of 2)",
+  "value": 22.627416997969522,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.qk_l2_clip_threshold",
+   "expected": 22.627416997969522
+  }
+ },
+ "cfg.rel_clip": {
+  "claim": "Relative-state L2-clip threshold is 8",
+  "value": 8.0,
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/config.json",
+   "path": "text_config.rel_l2_clip_threshold",
+   "expected": 8.0
+  }
+ },
+ "rec.res0_a": {
+  "claim": "At layer 0 the mlp_input depth attention put weight 0.1463 on its first source at the last token",
+  "value": 0.1463,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "residual.0.w_last.0",
+   "expected": 0.1463
+  }
+ },
+ "rec.res0_b": {
+  "claim": "and 0.8537 on its second",
+  "value": 0.8537,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "residual.0.w_last.1",
+   "expected": 0.8537
+  }
+ },
+ "q.nvfp4_dtype": {
+  "claim": "Experts in layers 0-19 compute in NVFP4",
+  "value": "nvfp4",
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/hf_quant_config.json",
+   "path": "model.parameter_groups.2.compute_dtype",
+   "expected": "nvfp4"
+  }
+ },
+ "q.nvfp4_block": {
+  "claim": "NVFP4 weights carry one scale per block of 16",
+  "value": [
+   1,
+   16
+  ],
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/hf_quant_config.json",
+   "path": "model.parameter_groups.2.weight_block_shape",
+   "expected": [
+    1,
+    16
+   ]
+  }
+ },
+ "q.mxfp8_dtype": {
+  "claim": "Experts in layers 20-23 compute in MXFP8",
+  "value": "mxfp8",
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/hf_quant_config.json",
+   "path": "model.parameter_groups.3.compute_dtype",
+   "expected": "mxfp8"
+  }
+ },
+ "q.mxfp8_block": {
+  "claim": "MXFP8 weights carry one scale per 32 x 32 block",
+  "value": [
+   32,
+   32
+  ],
+  "source": {
+   "kind": "config",
+   "file": ".local/inkling2/checkpoint/hf_quant_config.json",
+   "path": "model.parameter_groups.3.weight_block_shape",
+   "expected": [
+    32,
+    32
+   ]
+  }
+ },
+ "rec.final_0": {
+  "claim": "The final depth attention put weight 0.0484 on its source 1 (first block state) at the last token",
+  "value": 0.0484,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "residual.95.w_last.0",
+   "expected": 0.0484
+  }
+ },
+ "rec.final_1": {
+  "claim": "The final depth attention put weight 0.0137 on its source 2 (second) at the last token",
+  "value": 0.0137,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "residual.95.w_last.1",
+   "expected": 0.0137
+  }
+ },
+ "rec.final_2": {
+  "claim": "The final depth attention put weight 0.0025 on its source 3 (third) at the last token",
+  "value": 0.0025,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "residual.95.w_last.2",
+   "expected": 0.0025
+  }
+ },
+ "rec.final_3": {
+  "claim": "The final depth attention put weight 0.1138 on its source 4 (fourth) at the last token",
+  "value": 0.1138,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "residual.95.w_last.3",
+   "expected": 0.1138
+  }
+ },
+ "rec.final_4": {
+  "claim": "The final depth attention put weight 0.8216 on its source 5 (partial sum) at the last token",
+  "value": 0.8216,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "residual.95.w_last.4",
+   "expected": 0.8216
+  }
+ },
+ "rec.msg6_q": {
+  "claim": "Layer 6's q message put 0.898 on the previous pass's final state at the last token",
+  "value": 0.898,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "messages.0.w_last.q.1",
+   "expected": 0.898
+  }
+ },
+ "rec.msg6_k": {
+  "claim": "Layer 6's k message put 0.893 on the previous pass's final state at the last token",
+  "value": 0.893,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "messages.0.w_last.k.1",
+   "expected": 0.893
+  }
+ },
+ "rec.msg6_v": {
+  "claim": "Layer 6's v message put 0.9818 on the previous pass's final state at the last token",
+  "value": 0.9818,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "messages.0.w_last.v.1",
+   "expected": 0.9818
+  }
+ }
+}

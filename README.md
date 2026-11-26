@@ -4,7 +4,7 @@ This is my workbench for trying repositories, skills, agents, and other tools on
 
 Read the [public learning site](https://apoorva87.github.io/learning-playground/) or open [index.html](index.html) locally. Each tool has a detailed guide with examples, upstream sources, and a record of what we tried.
 
-**Start learning.** [Qwen3.8-27B in 3D, from code to tensors](https://apoorva87.github.io/learning-playground/topics/qwen-forward-pass/) · [How Transformers Remember](https://apoorva87.github.io/learning-playground/topics/how-transformers-remember/) · [Inside Prism](https://apoorva87.github.io/learning-playground/topics/inside-prism/) · [HuggingArch guide](https://apoorva87.github.io/learning-playground/tools/huggingarch/)
+**Start learning.** [Looped transformers, stage by stage](https://apoorva87.github.io/learning-playground/topics/looped-transformers/) · [Qwen3.8-27B in 3D, from code to tensors](https://apoorva87.github.io/learning-playground/topics/qwen-forward-pass/) · [How Transformers Remember](https://apoorva87.github.io/learning-playground/topics/how-transformers-remember/) · [Inside Prism](https://apoorva87.github.io/learning-playground/topics/inside-prism/) · [HuggingArch guide](https://apoorva87.github.io/learning-playground/tools/huggingarch/)
 
 ## Use the master skill
 

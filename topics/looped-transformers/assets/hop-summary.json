@@ -1,0 +1,264 @@
+{
+ "by_passes": [
+  {
+   "passes": 1,
+   "n": 8,
+   "correct": 2,
+   "mean_p_among": 0.36
+  },
+  {
+   "passes": 2,
+   "n": 8,
+   "correct": 5,
+   "mean_p_among": 0.6
+  },
+  {
+   "passes": 3,
+   "n": 8,
+   "correct": 8,
+   "mean_p_among": 0.99
+  }
+ ],
+ "rows": [
+  {
+   "story": "passport",
+   "hops": 1,
+   "order": "forward",
+   "passes": 1,
+   "correct": true,
+   "p_among": 1.0
+  },
+  {
+   "story": "passport",
+   "hops": 1,
+   "order": "forward",
+   "passes": 2,
+   "correct": true,
+   "p_among": 1.0
+  },
+  {
+   "story": "passport",
+   "hops": 1,
+   "order": "forward",
+   "passes": 3,
+   "correct": true,
+   "p_among": 1.0
+  },
+  {
+   "story": "passport",
+   "hops": 2,
+   "order": "forward",
+   "passes": 1,
+   "correct": false,
+   "p_among": 0.218
+  },
+  {
+   "story": "passport",
+   "hops": 2,
+   "order": "forward",
+   "passes": 2,
+   "correct": true,
+   "p_among": 0.7184
+  },
+  {
+   "story": "passport",
+   "hops": 2,
+   "order": "forward",
+   "passes": 3,
+   "correct": true,
+   "p_among": 0.9951
+  },
+  {
+   "story": "passport",
+   "hops": 2,
+   "order": "reversed",
+   "passes": 1,
+   "correct": false,
+   "p_among": 0.3808
+  },
+  {
+   "story": "passport",
+   "hops": 2,
+   "order": "reversed",
+   "passes": 2,
+   "correct": true,
+   "p_among": 0.6528
+  },
+  {
+   "story": "passport",
+   "hops": 2,
+   "order": "reversed",
+   "passes": 3,
+   "correct": true,
+   "p_among": 0.9914
+  },
+  {
+   "story": "passport",
+   "hops": 3,
+   "order": "forward",
+   "passes": 1,
+   "correct": false,
+   "p_among": 0.1462
+  },
+  {
+   "story": "passport",
+   "hops": 3,
+   "order": "forward",
+   "passes": 2,
+   "correct": false,
+   "p_among": 0.058
+  },
+  {
+   "story": "passport",
+   "hops": 3,
+   "order": "forward",
+   "passes": 3,
+   "correct": true,
+   "p_among": 0.9992
+  },
+  {
+   "story": "passport",
+   "hops": 3,
+   "order": "reversed",
+   "passes": 1,
+   "correct": false,
+   "p_among": 0.0914
+  },
+  {
+   "story": "passport",
+   "hops": 3,
+   "order": "reversed",
+   "passes": 2,
+   "correct": false,
+   "p_among": 0.3097
+  },
+  {
+   "story": "passport",
+   "hops": 3,
+   "order": "reversed",
+   "passes": 3,
+   "correct": true,
+   "p_among": 0.9904
+  },
+  {
+   "story": "ring",
+   "hops": 1,
+   "order": "forward",
+   "passes": 1,
+   "correct": true,
+   "p_among": 1.0
+  },
+  {
+   "story": "ring",
+   "hops": 1,
+   "order": "forward",
+   "passes": 2,
+   "correct": true,
+   "p_among": 1.0
+  },
+  {
+   "story": "ring",
+   "hops": 1,
+   "order": "forward",
+   "passes": 3,
+   "correct": true,
+   "p_among": 1.0
+  },
+  {
+   "story": "ring",
+   "hops": 2,
+   "order": "forward",
+   "passes": 1,
+   "correct": false,
+   "p_among": 0.2042
+  },
+  {
+   "story": "ring",
+   "hops": 2,
+   "order": "forward",
+   "passes": 2,
+   "correct": false,
+   "p_among": 0.4655
+  },
+  {
+   "story": "ring",
+   "hops": 2,
+   "order": "forward",
+   "passes": 3,
+   "correct": true,
+   "p_among": 0.9724
+  },
+  {
+   "story": "ring",
+   "hops": 2,
+   "order": "reversed",
+   "passes": 1,
+   "correct": false,
+   "p_among": 0.2418
+  },
+  {
+   "story": "ring",
+   "hops": 2,
+   "order": "reversed",
+   "passes": 2,
+   "correct": true,
+   "p_among": 0.8418
+  },
+  {
+   "story": "ring",
+   "hops": 2,
+   "order": "reversed",
+   "passes": 3,
+   "correct": true,
+   "p_among": 0.9987
+  },
+  {
+   "story": "ring",
+   "hops": 3,
+   "order": "forward",
+   "passes": 1,
+   "correct": true,
+   "p_among": 0.7115
+  },
+  {
+   "story": "ring",
+   "hops": 3,
+   "order": "forward",
+   "passes": 2,
+   "correct": true,
+   "p_among": 0.7958
+  },
+  {
+   "story": "ring",
+   "hops": 3,
+   "order": "forward",
+   "passes": 3,
+   "correct": true,
+   "p_among": 0.9756
+  },
+  {
+   "story": "ring",
+   "hops": 3,
+   "order": "reversed",
+   "passes": 1,
+   "correct": true,
+   "p_among": 0.9047
+  },
+  {
+   "story": "ring",
+   "hops": 3,
+   "order": "reversed",
+   "passes": 2,
+   "correct": true,
+   "p_among": 0.941
+  },
+  {
+   "story": "ring",
+   "hops": 3,
+   "order": "reversed",
+   "passes": 3,
+   "correct": true,
+   "p_among": 0.9857
+  }
+ ]
+}

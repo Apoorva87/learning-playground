@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Micro scene gallery</title>
+<link rel="icon" href="data:,"><link rel="stylesheet" href="../../loop.css"></head><body>
+<div class="layout"><article id="article">
+<section class="beat" id="b-toy-core" data-beat="toy-core"><h2>toy-core</h2><p>Micro scene toy-core.</p></section>
+<section class="beat" id="b-message-gate" data-beat="message-gate"><h2>message-gate</h2><p>Micro scene message-gate.</p></section>
+<section class="beat" id="b-depth-attn" data-beat="depth-attn"><h2>depth-attn</h2><p>Micro scene depth-attn.</p></section>
+<section class="beat" id="b-sliding-layer" data-beat="sliding-layer"><h2>sliding-layer</h2><p>Micro scene sliding-layer.</p></section>
+<section class="beat" id="b-full-layer" data-beat="full-layer"><h2>full-layer</h2><p>Micro scene full-layer.</p></section>
+<section class="beat" id="b-moe" data-beat="moe"><h2>moe</h2><p>Micro scene moe.</p></section>
+</article>
+<aside id="stage"><div class="stage-box"><canvas id="scene"></canvas><div id="labels"></div><div class="stage-title" id="beat-title"></div></div>
+<div class="controls"><fieldset><label><input type="radio" id="mode-scroll" checked> Scroll</label><label><input type="radio" id="mode-step"> Step</label><label><input type="radio" id="mode-play"> Play</label></fieldset><button id="prev">Prev</button><button id="next">Next</button><select id="speed"><option value="1">1</option></select></div></aside></div>
+<script src="../../engine/state.js"></script><script src="../../engine/layout.js"></script><script src="../../engine/micro.js"></script><script src="../../engine/gl.js"></script><script src="../../engine/canvas2d.js"></script><script src="../../engine/scene.js"></script><script src="../../engine/terms.js"></script><script src="../../engine/drivers.js"></script><script src="../../engine/boot.js"></script>
+<script>
+const names = ['toy-core', 'message-gate', 'depth-attn', 'sliding-layer', 'full-layer', 'moe'];
+const beats = names.map(n => ({ id: n, title: n, kind: 'interlude', scene: { level: 'micro', micro: n, fold: 0, pass: 0, camera: LoopLayout.microCamera(n), lit: [], flow: { kind: 'none' } }, terms: {} }));
+LoopArticle.start({ beats });
+</script></body></html>

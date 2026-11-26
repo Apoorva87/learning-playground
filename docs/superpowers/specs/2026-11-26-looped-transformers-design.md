@@ -1,6 +1,6 @@
 # Looped transformers, stage by stage — design
 
-Date: November 26, 2026 · Status: draft for the learner's approval
+Date: November 26, 2026 · Status: approved by the learner on November 26, 2026; built (see `docs/superpowers/plans/2026-11-26-looped-transformers.md` and `topics/looped-transformers/notes.md`)
 
 ## Intent
 
@@ -167,7 +167,7 @@ The text and the scene always show the same beat, because there is exactly one `
   - **Where files go.** Large files (checkpoint, environment, raw captures) stay in the ignored `.local/inkling2/`. A small summarised capture JSON is committed with the topic.
   - **If the capture fails,** the articles fall back to the toy model and config shapes. Record the failure in the notes.
   - **Capture result (November 26, done).** The model loaded in BF16 in 82 s, with a peak memory footprint of 51 GB. See `topics/looped-transformers/assets/` for the scripts, `inkling-capture.json` and its summary, and `hop-probe.json`. Findings the articles must use:
-    - **Each pass mostly picks different experts.** In the same core layer, a token shares about 4.8 of its 8 experts between passes 1 and 2, about 4.3 between passes 2 and 3, and only about 3 across all three. In layer 17, the last core layer, it shares about 0.7. For the last prompt token, the three passes together touch 13–20 distinct experts. So the cost beat must **not** say that looping re-reads the same weights. For a single token, the core's expert bytes grow with the number of distinct experts, not with one shared set.
+    - **Each pass mostly picks different experts.** In the same core layer, a token shares about 4.8 of its 8 experts between passes 1 and 2, about 4.3 between passes 2 and 3, and only about 3 across all three. In layer 17, the last core layer, it shares about 0.7 across all three passes (3.1 between passes 1 and 2). For the last prompt token, the three passes together touch 13–20 distinct experts. So the cost beat must **not** say that looping re-reads the same weights. For a single token, the core's expert bytes grow with the number of distinct experts, not with one shared set.
     - **The trained gates are open.** Across layers, the message's norm matches the kept state's norm (`‖g⊙m‖ / ‖(1−f)⊙h‖` is about 1.0–1.4 for the query, key and value inputs, and about 0.6 for the MLP). The mean forget value is negative (down to −0.75 on the MLP input), so `1−f` amplifies the restarted state rather than shrinking it. The "starts closed" story describes training at initialisation, not the released weights.
     - **Each message reads 2 sources from the previous pass:** its middle block boundary and its final state. For example, the first read gives about 0.9 of the weight to the final state.
     - **Time grows with the number of visits.** For a 43-token CPU prefill: prelude 2.1 s, each core pass about 4.3 s, coda 2.1 s. The totals were 7.9, 11.8 and 17.3 s for 1, 2 and 3 passes.

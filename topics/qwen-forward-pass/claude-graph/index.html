@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Qwen3.8-27B dependency graph · Claude implementation</title>
+<meta name="description" content="Every operation in one Qwen3.8-27B forward pass as a dependency graph. Node size shows FLOPs, bytes or arithmetic intensity, colour shows the transformer stage, and the layout shows what is serial and what can run in parallel.">
+<link rel="stylesheet" href="graph.css">
+<script defer src="data.js"></script><script defer src="model.js"></script><script defer src="graph2d.js"></script>
+</head><body><div class="wrap">
+<nav class="top"><div><a href="../../../index.html">← Learning playground</a><a href="../profile.html">Execution timeline</a><a href="../index.html">Architecture walkthrough</a></div><div><a href="../compare/index.html">Five-tool comparison</a><a href="3d.html">Open the 3D WebGL view →</a></div></nav>
+<header><p class="model">Qwen3.8-27B / one forward pass / Claude implementation</p>
+<h1>How serial is a forward pass?</h1>
+<p class="lead" id="lead"><b>Loading…</b></p></header>
+
+<div class="cards" id="cards" aria-live="polite"></div>
+
+<div class="controls">
+  <div class="grp"><span>Pass</span><div class="seg" id="phase"><button data-v="decode" aria-pressed="true">Decode · 1 token</button><button data-v="prefill" aria-pressed="false">Prefill · 16 tokens</button></div></div>
+  <div class="grp"><span>Node size = </span><div class="seg" id="metric"><button data-v="flops" aria-pressed="true">FLOPs</button><button data-v="bytes" aria-pressed="false">Bytes moved</button><button data-v="ai" aria-pressed="false">FLOPs / byte</button></div></div>
+  <div class="grp"><label for="machine">Machine model</label><select id="machine"></select></div>
+  <div class="grp"><label for="ovh">Launch overhead</label><input id="ovh" type="number" min="0" max="100" value="0" step="1"> µs/op</div>
+  <div class="grp"><label><input type="checkbox" id="crit" checked> Highlight critical path</label></div>
+</div>
+
+<section class="stage" aria-label="Dependency graph">
+  <div class="stage-head"><span id="stripTitle">Work at each dependency step</span><label>Overview shows <select id="stripMetric"><option value="flops">FLOPs per step</option><option value="bytes">Bytes per step</option><option value="ops">Ops per step</option></select></label></div>
+  <div class="zoombar" id="zoom"><span>Zoom to</span><div class="seg"><button data-v="all">Whole pass</button><button data-v="four">First 4 blocks</button><button data-v="b0">A recurrent block</button><button data-v="b3">A full-attention block</button></div></div>
+  <canvas id="strip" role="img" aria-label="Overview of work per dependency step, stacked by stage. Click to move the graph."></canvas>
+  <canvas id="main" tabindex="0" role="application" aria-label="Dependency graph. Drag to pan, scroll to zoom, arrow keys to move one step, click a node for details."></canvas>
+  <div class="key" id="key"></div>
+  <div class="wave"><button class="plain" id="play" aria-pressed="false">▶ Play the dataflow</button><label for="step">Step</label><input type="range" id="step" min="1" max="100" value="100"><button class="plain" id="reset">Show all</button><output id="stepOut"></output></div>
+  <p class="hint">Drag to pan. Scroll to zoom. Click a node to follow its inputs and outputs. Columns are dependency steps: every op in a column could start at the same moment, so a tall column is parallel work and a long single-node run is serial work.</p>
+</section>
+
+<div class="below">
+  <section class="panel"><h3>Where the work sits, by stage <small style="font-weight:400;color:var(--ink2)">(click a row to isolate it)</small></h3>
+    <table id="stageTable"><thead><tr><th>Stage</th><th>Ops</th><th>FLOPs</th><th>Bytes</th><th>Modeled time</th><th>On critical path</th></tr></thead><tbody></tbody></table></section>
+  <section class="panel" id="detail"><h3>Selected op</h3><p style="color:var(--ink2)">Click a node, or press Enter on the graph, to see its shapes, cost and neighbours.</p></section>
+</div>
+
+<details><summary>How these numbers are made, and what they cannot tell you</summary>
+<p><b>Graph.</b> The nodes and edges are the 17,469 operation records TorchLens captured for one 16-token prefill and one cached decode of the real Qwen3.8-27B architecture ( <a href="../torchlens/notes.md">notes</a> ). Metadata-only ops (views, slices, transposes, no-op casts) are drawn as edges, and operations that depend only on weights or constants are left out, so the picture holds only the work that depends on the token. The unit counts appear under the cards.</p>
+<p><b>Cost.</b> FLOPs and bytes come from tensor shapes alone. A linear layer is 2·tokens·K·N FLOPs and reads its K·N weights once. Every other op reads all of its inputs and writes its output once, as if nothing were fused or cached. They are logical counts, not hardware counters. Elementwise ops count one FLOP per element and exp, sigmoid, silu, rsqrt and similar count four.</p>
+<p><b>Column = dependency step.</b> A node's step is one more than the latest of its inputs, which is the earliest it could start with unlimited hardware. The time readout comes from a roofline: each op takes the larger of FLOPs ÷ peak compute and bytes ÷ peak bandwidth, plus an optional launch overhead. The peaks are vendor numbers, not measurements of this run. Pick a machine, or set the overhead, to see how the critical path moves.</p>
+<p><b>What a column cannot show.</b> A big matrix multiply is a single node, but inside it millions of multiply-adds are independent. The graph shows parallelism <i>between</i> operations. Node size shows how much work hides <i>inside</i> each one. Both matter for hardware: the first is limited by the model's structure and the second by the chip.</p>
+<p><b>Why no measured time?</b> The reference run on a CPU spent 18.8 of its 19.1 decode seconds inside the reference convolution and recurrent implementations of the recurrent layers, which says more about that implementation than about the model. This view stays independent of any one kernel.</p></details>
+<footer><p><b>The story so far.</b> <a href="../index.html">One decoder block in 3D</a> → <a href="../profile.html">where a real run spent its time</a> → <a href="../compare/index.html">five tools on one attention core</a> → <b>the whole pass as a dependency graph (you are here)</b>. Each step zooms out from the one before.</p>Built by <code>build.py</code> from <a href="../torchlens/text-topology.json.gz">text-topology.json.gz</a>. Same data, a different view: <a href="../torchlens/index.html">TorchLens structure browser</a>, <a href="../profile.html">measured CPU timeline</a>.</footer>
+</div><div id="tip" role="tooltip"></div></body></html>

@@ -4,6 +4,8 @@ Start with the [3D architecture and code walkthrough](index.html) or [read all 1
 
 [Download the five diagrams as one image](assets/five-views.png).
 
+A separate whole-model view, built by Claude from the saved TorchLens topology, plots every operation of both passes as a dependency graph sized by cost: [2D graph](claude-graph/index.html), [3D WebGL coil](claude-graph/3d.html), [notes and critique](claude-graph/notes.md).
+
 ## Reproduce the architecture walkthrough
 
 The walkthrough contains short Python adaptations and line-checked expressions from the tested Transformers source. It follows the text path through blocks 0 and 3, the two residual additions, the gated MLP and the vocabulary head. The bundled WebGL view uses the actual tensor shapes and the last-query attention rows from both phases. Selected cell values and intermediate checks are saved in the [architecture capture](walkthrough/observed.json). The browser can open the walkthrough directly from this checkout.

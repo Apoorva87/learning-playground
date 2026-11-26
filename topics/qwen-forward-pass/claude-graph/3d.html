@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Qwen3.8-27B 3D dependency coil · Claude implementation</title>
+<meta name="description" content="The Qwen3.8-27B forward pass as a 3D WebGL graph. One turn per decoder block; node size shows cost and colour shows the transformer stage.">
+<link rel="stylesheet" href="graph.css">
+<style>
+.glwrap { position: relative; background: var(--surface); }
+#gl { height: min(640px, 70vh); cursor: grab; } #gl:active { cursor: grabbing; }
+#label { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 14px; border-top: 1px solid var(--grid); }
+.chip { display: inline-flex; align-items: center; font: inherit; font-size: 12.5px; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--axis); background: transparent; color: var(--ink); cursor: pointer; }
+.chip.off { opacity: .4; }
+#fallback { padding: 24px; }
+.side { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 12px; } @media (max-width: 880px) { .side { grid-template-columns: 1fr; } }
+</style>
+<script defer src="data.js"></script><script defer src="model.js"></script><script defer src="graph3d.js"></script>
+</head><body><div class="wrap">
+<nav class="top"><div><a href="../../../index.html">← Learning playground</a><a href="../profile.html">Execution timeline</a><a href="../index.html">Architecture walkthrough</a></div><div><a href="../compare/index.html">Five-tool comparison</a><a href="index.html">← 2D dependency graph</a></div></nav>
+<header><p class="model">Qwen3.8-27B / one forward pass / Claude implementation · WebGL</p>
+<h1>The forward pass as a 3D coil</h1>
+<p class="lead" id="lead"></p></header>
+<div class="controls">
+  <div class="grp"><span>Pass</span><div class="seg" id="phase"><button data-v="decode" aria-pressed="true">Decode · 1 token</button><button data-v="prefill" aria-pressed="false">Prefill · 16 tokens</button></div></div>
+  <div class="grp"><span>Node size = </span><div class="seg" id="metric"><button data-v="flops" aria-pressed="true">FLOPs</button><button data-v="bytes" aria-pressed="false">Bytes moved</button><button data-v="ai" aria-pressed="false">FLOPs / byte</button></div></div>
+  <div class="grp"><label for="machine">Machine model</label><select id="machine"></select></div>
+  <div class="grp"><label><input type="checkbox" id="crit" checked> Critical path</label></div>
+  <div class="grp"><span>View</span><div class="seg" id="views"><button data-v="whole">Whole coil</button><button data-v="iso">Angle</button><button data-v="side">Side</button><button data-v="top">Top</button><button data-v="block">Close-up</button><button data-v="spin" aria-pressed="false">Spin</button></div></div>
+</div>
+<section class="stage">
+  <div class="glwrap"><canvas id="gl" tabindex="0" role="application" aria-label="3D dependency graph. Drag to orbit, shift-drag to pan, scroll to zoom, click a sphere for details."></canvas><canvas id="label" aria-hidden="true"></canvas><p id="fallback" hidden></p></div>
+  <div class="chips" id="legend" aria-label="Stage colours. Click to isolate."></div>
+  <div class="wave"><button class="plain" id="play">▶ Play the pass</button><label for="step">Step</label><input type="range" id="step" min="1" max="100" value="100"><button class="plain" id="showall">Show all</button><output id="readout"></output></div>
+  <p class="hint">Drag to orbit. Shift-drag or right-drag to pan. Scroll to zoom. Click a sphere to inspect it. Labels give the block number and R (recurrent) or F (full attention). Winding the chain into a coil changes only where nodes are drawn: the same stage sits at the same angle on every turn, and the red path climbs through every turn in order.</p>
+</section>
+<div class="below"><section class="panel" id="detail"></section><section class="panel"><h3>Reading the picture</h3><p style="font-size:13.5px">Going around one turn follows one block's dependency steps; going up is the strict layer-to-layer order. Spheres side by side at one angle (concentric) are ops that could run in parallel. Large spheres are the weight matrices (MLP in orange, attention projections in blue). The long run of small yellow spheres on recurrent turns is the recurrent core: a chain of tiny steps that each wait on the previous one. Counts are shape-derived estimates; see the <a href="index.html">2D page</a> for the method and limits.</p></section></div>
+</div><div id="tip" role="tooltip"></div></body></html>

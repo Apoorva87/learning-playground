@@ -1,6 +1,6 @@
 # Topics
 
-- [Inside one Qwen forward pass](qwen-forward-pass/index.html) — Start with the 3D code walkthrough of the recurrent and full-attention blocks, then explore measured execution, storage and dependencies.
+- [Inside one Qwen forward pass](qwen-forward-pass/index.html) — Start with the 3D code walkthrough of the recurrent and full-attention blocks, then explore measured execution, storage and dependencies, and finish with the [whole-pass dependency graph](qwen-forward-pass/claude-graph/index.html).
 - [How Transformers Remember](how-transformers-remember/README.md) — What is a KV cache, and how did we get from multi-head attention to DeepSeek‑V4.1‑Flash’s 890 bytes of global cache per token?
 - [Inside Prism · From screen to Swift](inside-prism/README.md) — Which Swift creates each visible Apple TV element, and what happens when you use the remote?
 

@@ -94,6 +94,7 @@
       <a class="topic-preview" href="topics/qwen-forward-pass/index.html" aria-label="Open the Qwen 3D code walkthrough"><img src="topics/qwen-forward-pass/walkthrough/tensor-preview.png" width="806" height="365" alt="A Qwen query and its key and value caches feeding the attention calculation in the 3D code walkthrough."></a>
       <ul><li><a href="topics/qwen-forward-pass/index.html">Inside Qwen3.8-27B · 3D code walkthrough</a><span>Start with the model code, tensor shapes, and two ways a decoder block remembers earlier tokens.</span></li>
       <li><a href="topics/qwen-forward-pass/compare/index.html">Compare five visualizations of Qwen</a><span>See the profiler timeline, tensor graph, dataflow maps, compiled kernels and execution dependencies together.</span></li>
+      <li><a href="topics/qwen-forward-pass/claude-graph/index.html">How serial is a Qwen forward pass? · Dependency graph</a><span>Zoom out from one block to all 4,999 operations of a decode step. Size shows cost, colour shows the stage, and the layout shows what can run in parallel. <a href="topics/qwen-forward-pass/claude-graph/3d.html">Open the 3D WebGL coil</a>.</span></li>
       <li><a href="topics/how-transformers-remember/index.html">How Transformers Remember</a><span>Work an attention example and measure what changes as a KV cache grows.</span></li>
       <li><a href="topics/inside-prism/index.html">Inside Prism · From screen to Swift</a><span>Pick an Apple TV interface element and read the Swift that makes it work.</span></li></ul>
     </section>
@@ -269,7 +270,7 @@
       </article>
     </section>
     <section aria-labelledby="tracing"><h2 id="tracing">Profile a forward pass</h2>
-      <p>Use the <a href="topics/qwen-forward-pass/profile.html#timeline">Qwen3.8-27B timeline</a> to compare the five tools on the same inputs.</p>
+      <p>Use the <a href="topics/qwen-forward-pass/profile.html#timeline">Qwen3.8-27B timeline</a> to compare the five tools on the same inputs. Then see <a href="topics/qwen-forward-pass/claude-graph/index.html">the whole pass as one dependency graph</a>, built from the same TorchLens topology, to ask how much of it can run at once.</p>
       <article class="tool" id="pytorch-profiler"><h3><a href="tools/pytorch-profiler/index.html">PyTorch Profiler</a></h3><p>Capture operators, their nested durations and tensor shapes in a real forward pass.</p><p class="links"><a href="topics/qwen-forward-pass/pytorch-profiler/index.html">Explore the recorded CPU timeline for the pinned Qwen checkpoint.</a></p></article>
       <article class="tool" id="torchlens"><h3><a href="tools/torchlens/index.html">TorchLens</a></h3><p>Trace a forward call to inspect which tensor operations produced each value.</p><p class="links"><a href="topics/qwen-forward-pass/torchlens/index.html">Select a tensor in Qwen’s attention core and follow its parents.</a></p></article>
       <article class="tool" id="dace"><h3><a href="tools/dace/index.html">DaCe</a></h3><p>Lower numerical Python into a dataflow graph and inspect the array regions and parallel maps.</p><p class="links"><a href="topics/qwen-forward-pass/dace/index.html">Walk through the cache reads and reductions for one Qwen attention head.</a></p></article>

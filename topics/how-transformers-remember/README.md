@@ -24,3 +24,7 @@ LLM Visualization runs a small letter-sorting model locally. Choose **Self Atten
 ## Compare the models in HuggingArch
 
 Inspect the local CLI’s results for Llama and DeepSeek, and separate the per-token slope from the bounded cache state. [Worked result](cases/huggingarch-cache/runs/2026-11-24-huggingarch/result.html) · [Tool guide](../../tools/huggingarch/index.html)
+
+## From tensor sizes to memory traffic
+
+What does a compiler actually read when two operations share an input? In our PyTorch 2.11 CPU run, the two branches of `(x + 1) * (x - 1)` each produced a logical 16 KiB tensor. The generated loop loaded four floats at a time, used each group for both branches, then stored four results. Across the loop that accounts for 16 KiB of input loads and 16 KiB of output stores. Physical DRAM traffic depends on caching. The script prints the dependency graph and explains how to inspect the generated loop. [Runnable compiler hook](assets/inspect_compiled_graph.py)

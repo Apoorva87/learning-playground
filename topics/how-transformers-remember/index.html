@@ -11,5 +11,6 @@
 </tbody></table></section>
 <section><h2>Inspect a model</h2><p><a href="../../tools/llm-viz/index.html">LLM Visualization</a> shows the query, key and value calculations in a tiny GPT. <a href="https://apoorva87.github.io/learning-playground/tools/llm-viz/play/">Play the 3D visualization</a> and select <strong>Self Attention</strong> to follow one head.</p>
 <p>Then use the <a href="cases/huggingarch-cache/runs/2026-11-24-huggingarch/result.html">HuggingArch cache measurements</a>. Compare the change from position 4,096 to 4,097 with the next step. The <a href="../../tools/huggingarch/index.html">HuggingArch guide</a> explains how to reproduce the calculation.</p></section>
+<section><h2>From tensor sizes to memory traffic</h2><p>Two branches read the same input. Does the CPU have to load it twice? Our <a href="assets/inspect_compiled_graph.py">runnable PyTorch compiler hook</a> prints the tensor sizes and dependencies. On our CPU, the compiler combined both branches into a single loop and loaded each group of four floats once.</p></section>
 <footer><a href="README.md">Trial notes and source material</a> · <a href="../../index.html#feedback">Rate a tool</a></footer>
 </main></body></html>

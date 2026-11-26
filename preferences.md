@@ -6,7 +6,7 @@
 
 **Favorites so far, November 24, 2026.** “i like deep-tutor, teachable-code and openmaic the best so far.” The learner named three favorites together. Individual scores, reasons and the parts they would reuse are still open.
 
-**Workload profiling, November 25, 2026.** PyTorch Profiler and TorchLens both interest the learner. They want to follow a Python program as it runs and connect function calls to the computations they trigger. This is interest ahead of a hands-on comparison.
+**Workload profiling, November 25, 2026.** PyTorch Profiler and TorchLens both interest the learner. They want to connect function calls to the computations they trigger, inspect data sizes and reads, and distinguish dependencies from parallel work that actually ran. They are interested in writing their own compiler hooks for analysis. [Small PyTorch hook example](topics/how-transformers-remember/assets/inspect_compiled_graph.py)
 
 | Date | Learning task | Tool or component | What I would use and why | Trial |
 | --- | --- | --- | --- | --- |

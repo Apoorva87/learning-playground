@@ -48,7 +48,7 @@ test('the loop machinery adds 28,311,552 gate parameters and 110,592 message-que
   assert.equal(gate * 4 * (v('cfg.core_end') - v('cfg.core_start')), 28311552);
   assert.equal((v('cfg.core_end') - v('cfg.core_start')) * 4 * D(), 110592);
 });
-test('an extra pass costs about 1.09B active parameters by our count, against the 1.0B Thinking Machines reports', () => {
+test('an extra pass costs about 1.08B active parameters by our count, against the 1.0B Thinking Machines reports', () => {
   const qDim = v('cfg.heads') * v('cfg.head_dim'), kvDim = v('cfg.kv_heads') * v('cfg.head_dim');
   const attn = D() * qDim * 3 + D() * kvDim * 2;                 // q, output gate and o have q's size; k and v are kv-sized
   const experts = v('cfg.topk') * 3 * D() * FF(), router = v('cfg.experts') * D();

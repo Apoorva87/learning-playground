@@ -24,12 +24,13 @@
       const here = beats[store.get().beat].id;                 // only the words of the beat on screen
       terms.forEach(t => t.classList.toggle('term-active', id !== null && t.closest('section.beat').dataset.beat === here && idsOf(t).includes(id)));
     }
-    canvas().addEventListener('pointermove', e => {
+    const box = canvas().parentElement;                        // the stage box outlives a canvas swapped for the 2D fallback
+    box.addEventListener('pointermove', e => {
       const r = canvas().getBoundingClientRect();
       const id = scene.pick(e.clientX - r.left, e.clientY - r.top);
       if (id !== active) { active = id; mark(id); }
     });
-    canvas().addEventListener('pointerleave', () => { active = null; mark(null); });
+    box.addEventListener('pointerleave', () => { active = null; mark(null); });
     return { idsOf };
   }
   window.LoopTerms = { bind };

@@ -10,14 +10,15 @@ async function launch() {
   return { base, browser, async close() { await browser.close(); await base.close(); } };
 }
 /* A fresh page that records console errors and failed requests. */
-async function open(env, rel, { width = 1400, height = 900, scheme = 'light', reducedMotion = 'no-preference' } = {}) {
-  const ctx = await env.browser.newContext({ viewport: { width, height }, colorScheme: scheme, reducedMotion });
+async function open(env, rel, { width = 1400, height = 900, scheme = 'light', reducedMotion = 'no-preference', hasTouch = false, route = null } = {}) {
+  const ctx = await env.browser.newContext({ viewport: { width, height }, colorScheme: scheme, reducedMotion, hasTouch });
   const page = await ctx.newPage();
   page.errors = [];
   page.on('console', m => { if (m.type() === 'error') page.errors.push(m.text()); });
   page.on('pageerror', e => page.errors.push(String(e)));
   page.on('requestfailed', r => page.errors.push('request failed: ' + r.url()));
-  await page.goto(env.base.url + '/' + rel);
+  if (route) await route(page);
+  await page.goto(env.base.url + '/' + rel, { waitUntil: 'commit' });
   await page.waitForFunction(() => window.LOOP && window.LOOP.ready, null, { timeout: 15000 });
   // Let fonts and KaTeX finish: they change section heights, and tests compare scroll positions.
   await page.evaluate(() => document.fonts.ready);

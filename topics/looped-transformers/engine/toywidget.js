@@ -12,7 +12,7 @@
     const get = n => fetch(`assets/toy/${n}.json`).then(r => r.json());
     const [weights, acc, ev] = await Promise.all([get('toy-weights'), get('toy-accuracy'), get('toy-eval')]);
     const model = window.Toy.load(weights);
-    const T = window.LOOP.toy = { ready: false, passes: 3, variant: 'inkling', seq: 0, tokens: null, argmax: [], gate: null, gatePass: 2 };
+    const T = window.LOOP.toy = { ready: false, passes: 3, variant: el.querySelector('#toy-variant').value || 'inkling', seq: 0, tokens: null, argmax: [], gate: null, gatePass: 2 };
 
     function hops(tokens) {
       const f = {}; for (let i = 0; i < 8; i++) f[tokens[2 * i]] = tokens[2 * i + 1];
@@ -33,7 +33,7 @@
       const said = NODES[run.argmax[k - 1]], want = NODES[truth[k - 1]];
       const verdict = said === want ? `the ${ORD[k]} hop` : `not the ${ORD[k]} hop, which is ${want}`;
       el.querySelector('#toy-readout').textContent =
-        `Arrows: ${pairs}. Start at ${NODES[tokens[16]]}. Following them: ${NODES[tokens[16]]} → ${truth.slice(0, 4).map(n => NODES[n]).join(' → ')}. ` +
+        `Arrows: ${pairs}. Start at ${NODES[tokens[16]]}. Following them: ${NODES[tokens[16]]} → ${truth.slice(0, Math.max(4, k)).map(n => NODES[n]).join(' → ')}. ` +
         `After ${k} pass${k > 1 ? 'es' : ''} the ${T.variant === 'inkling' ? 'restart-and-message' : 'carry-the-state'} model reads out ${said}, ${verdict}.`;
       const gp = document.getElementById('toy-gate-pass'); if (gp) gp.textContent = T.variant === 'inkling' ? `pass ${T.gatePass}` : 'no gate in this variant';
       el.querySelectorAll('[data-toy-passes]').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.toyPasses === k)));

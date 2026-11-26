@@ -6,7 +6,7 @@ Prints a readable report and optionally writes a compact JSON for the pages.
 import json
 import sys
 from collections import defaultdict
-from statistics import mean
+from statistics import mean, median
 
 
 def overlap(routes):
@@ -99,6 +99,13 @@ def main(path, out=None):
         "last_token_union_min": min(r["union_last"] for r in ov), "last_token_union_max": max(r["union_last"] for r in ov),
         "gate_ratio_qkv_min": min(qkv), "gate_ratio_qkv_max": max(qkv), "gate_ratio_mlp_mean": round(mean(mlp), 3),
         "forget_mean_min": min(r["forget_mean"] for r in S["gates"]),
+        # layer 6 (the first loop layer) behaves very differently from the rest, so the means above need the median beside them
+        "gate_ratio_qkv_median": round(median(d["add_norm_last"] / d["keep_norm_last"] for d in S["gate_detail"] if d["role"] in ("q", "k", "v")), 2),
+        "gate_ratio_qkv_layer6_min": round(min(d["add_norm_last"] / d["keep_norm_last"] for d in S["gate_detail"] if d["layer"] == 6 and d["role"] in ("q", "k", "v")), 2),
+        "gate_ratio_qkv_layer6_max": round(max(d["add_norm_last"] / d["keep_norm_last"] for d in S["gate_detail"] if d["layer"] == 6 and d["role"] in ("q", "k", "v")), 2),
+        "forget_layer6_qkv_min": round(min(d["forget_mean"] for d in S["gate_detail"] if d["layer"] == 6 and d["role"] in ("q", "k", "v")), 2),
+        "forget_layer6_qkv_max": round(max(d["forget_mean"] for d in S["gate_detail"] if d["layer"] == 6 and d["role"] in ("q", "k", "v")), 2),
+        "forget_mean_mlp": round(mean(d["forget_mean"] for d in S["gate_detail"] if d["role"] == "mlp"), 2),
         "wall_s_by_passes": [r["wall_s"] for r in S["by_passes"]],
         "core_pass_s_mean": round(mean(ms for (st, p), ms in stage_ms.items() if st == "core") / 1000, 2),
         "prelude_s": round(stage_ms[("prelude", None)] / 1000, 2), "coda_s": round(stage_ms[("coda", None)] / 1000, 2),

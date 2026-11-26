@@ -101,7 +101,7 @@
         <button type="button" id="toy-new">New puzzle</button></div>
       <p id="toy-readout" aria-live="polite">Loading the toy model…</p>
       <div id="toy-table"></div>
-      <p class="toy-note">Both versions learn the task. After <em>p</em> passes the readout is the <em>p</em>-th hop, which is the bright diagonal. The real model answers differently: its accuracy rises as passes are added, as the cost section will show.</p>
+      <p class="toy-note">Both versions learn the task. After <em>p</em> passes the readout is the <em>p</em>-th hop, which is the bright diagonal. The real model answers differently: its accuracy rises as passes are added, as the “What the bill buys” beat will show. Off-diagonal cells above zero are real: the arrows can form a cycle, so two different hops can name the same node.</p>
     </div>
   </section>
 
@@ -125,7 +125,7 @@
       <p>Inkling does something less obvious. Every pass after the first <span data-fact="src.restart_comment">restarts from the prelude's output</span>, <em>not</em> from where the last pass ended. What carries over is a <span class="term" data-term="message">message</span>: for each core layer, a small summary of the previous pass is built by attention over that pass's states (<span data-fact="src.message_input">the call is <code>message_input</code></span>), then mixed into the layer's input through a gate. Inkling forms four messages per core layer, for the query, key, value and MLP inputs. The toy forms one.</p>
     </div>
     <div class="intuition">
-      <p>Start every attempt from a clean copy of the original problem, and leave yourself a sticky note from the last attempt. You decide, note by note, how much to read. The clean copy cannot be smudged by the previous attempt, and the note still carries what was learnt.</p>
+      <p>Start every attempt from a clean copy of the original problem, and leave yourself a sticky note from the last attempt. You decide, note by note, how much to read. That is the design intent: the clean copy cannot be smudged by the previous attempt, and the note still carries what was learnt. The recorded gates in the next beat show how much of it survives.</p>
     </div>
     <div class="math">
       <p>$$\begin{aligned}h^{(t)}_{0} &= e \\ m_j^{(t)} &= \operatorname{Attn}\big(w_j;\ \text{states of pass } t-1\big) \\ h^{(t)}_{j} &\leftarrow \operatorname{Layer}_j\!\Big((1-f_j)\odot h^{(t)}_{j-1} + g_j \odot m_j^{(t)}\Big)\end{aligned}$$</p>
@@ -137,7 +137,7 @@
   <section class="beat" id="b-gate-math" data-beat="gate-math">
     <h2>The gate, with real numbers</h2>
     <div class="story">
-      <p>The gate has to answer two questions for every feature: how much of the restarted state \(h\) to keep, and how much of the message \(m\) to let in. It looks at both (a norm of each, joined and squeezed to a rank-<span data-fact="cfg.gate_rank">64</span> summary \(z\)) and produces two numbers per feature between \(-1\) and \(1\): the <span class="term" data-term="forget">forget</span> value \(f\) and the <span class="term" data-term="mgate">message gate</span> \(g\). The scene shows the toy's actual vectors for <span id="toy-gate-pass">pass 3</span>, set by the loop count above. Bright cells are large values, and red means negative.</p>
+      <p>The gate has to answer two questions for every feature: how much of the restarted state \(h\) to keep, and how much of the message \(m\) to let in. It looks at both (each RMS-normalised, joined and squeezed to a rank-<span data-fact="cfg.gate_rank">64</span> summary \(z\)) and produces two numbers per feature between \(-1\) and \(1\): the <span class="term" data-term="forget">forget</span> value \(f\) and the <span class="term" data-term="mgate">message gate</span> \(g\). The scene shows the toy's actual vectors for <span id="toy-gate-pass">pass 3</span>, set by the loop count above. Bright cells are large values, and red means negative.</p>
     </div>
     <div class="intuition">
       <p>Two dimmers per feature. One fades the old value, one lets in the new. If \(f = 0\) the old value passes unchanged, and if \(f\) is negative the old value is even <em>amplified</em>.</p>
@@ -145,7 +145,7 @@
     <div class="math">
       <p>$$\begin{aligned}z &= W_{\text{down}}\big[\operatorname{rms}(h);\ \operatorname{rms}(m)\big] \\ f = \tanh(W_f z),\quad g &= \tanh(W_m z) \\ \text{out} &= (1-f)\odot h + g \odot m\end{aligned}$$</p>
       <p>Shapes: \(h, m, f, g, \text{out} \in \mathbb{R}^{[T,\,2304]}\) and \(z \in \mathbb{R}^{[T,\,64]}\) in Inkling (<span data-fact="src.gate_formula">the last line of the gate's forward pass</span>, with the <span data-fact="src.gate_tanh">tanh gates</span> just above it), and \([T, 16]\) and \([T, 4]\) in the toy. The scene shows the last position, a single row of 16 numbers each.</p>
-      <p>Thinking Machines writes that this gate is learned and <span data-fact="mc.gate_blocks">initially blocks the entire message</span>, so a looped model starts out behaving like an unlooped one. Our toy does the same: its gate weights start at zero. That describes training at the start, and the released weights moved far from it. On our recorded prompt, the message's norm, averaged over the twelve core layers, is between <span data-fact="cap.ratio_min">1.01</span> and <span data-fact="cap.ratio_max">1.37</span> times the norm of what is kept for the query, key and value inputs, and about <span data-fact="cap.ratio_mlp">0.59</span> for the MLP input. The mean forget value reaches <span data-fact="cap.forget_min">−0.75</span>, so \(1-f\) is as large as 1.75. The gates are open.</p>
+      <p>Thinking Machines writes that this gate is learned and <span data-fact="mc.gate_blocks">initially blocks the entire message</span>, so a looped model starts out behaving like an unlooped one. Our toy does the same: its gate weights start at zero. That describes training at the start, and the released weights moved far from it. On our recorded prompt, the typical core layer has the message at about <span data-fact="cap.ratio_median">0.73</span> times the size of what is kept for the query, key and value inputs, and about <span data-fact="cap.ratio_mlp">0.59</span> for the MLP input, so the message matters but does not dominate. The forget value is negative on average, down to <span data-fact="cap.forget_mlp">−0.75</span> for the MLP input, so \(1-f\) is above 1 and the kept state is amplified. Layer 6, the first loop layer, is the exception. There the forget value on the query, key and value inputs is <span data-fact="cap.l6_forget_min">0.81</span> to <span data-fact="cap.l6_forget_max">0.98</span>, which drops most of the restarted state, and the message is <span data-fact="cap.l6_ratio_min">4.4</span> to <span data-fact="cap.l6_ratio_max">7.3</span> times the size of what is kept. The gates are open, and at the first loop layer they mostly replace the restart with the message.</p>
     </div>
   </section>
 
@@ -153,7 +153,7 @@
     <h2>Why loops can blow up</h2>
     <div class="story">
       <p>Why go to the trouble of restarts and gates, instead of just carrying the state? Because a loop that feeds on its own output can run away. If each pass scales the state by a factor above 1, the errors multiply. The Parcae paper traces instability in looped models to <span data-fact="lin.parcae">large spectral norms in their injection parameters</span> and fixes it by constraining the parameterization.</p>
-      <p>Our reading of Inkling's design, which is ours and not a claim from Thinking Machines: every pass starts again from the same prelude output, so nothing compounds across passes through repeated multiplication, and the message comes in through factors bounded by tanh. It is a plausible reason the loop trains steadily. We have not tested it.</p>
+      <p>Our reading of Inkling's design, which is ours and not a claim from Thinking Machines: every pass starts again from the same prelude output, so nothing compounds across passes through repeated multiplication, and the message comes in through factors bounded by tanh. It is a plausible reason the loop trains steadily. The recorded gates complicate it, because at the first loop layer the gate mostly replaces the restarted state with the message, so the previous pass's output does enter the next pass at full strength there. We have not tested whether the reading holds.</p>
     </div>
     <div class="intuition">
       <p>A microphone too close to its speaker. Each trip through the loop makes the squeal louder if the gain is above 1, and fades if it is below.</p>
@@ -228,7 +228,7 @@
       <p>You can hire more cooks for a banquet, but not for a soufflé that must rise for twenty minutes, then be folded, then rise again. Looping adds rises.</p>
     </div>
     <div class="math">
-      <p>$$\begin{aligned}t_{\text{token}} &\approx t_{\text{prelude}} + n_{\text{passes}} \cdot t_{\text{core}} + t_{\text{coda}} \\ &= 2.12 + 3 \times 4.34 + 2.11\ \text{s} \approx 17.3\ \text{s}\end{aligned}$$</p>
+      <p>$$\begin{aligned}t_{\text{prefill}} &\approx t_{\text{prelude}} + n_{\text{passes}} \cdot t_{\text{core}} + t_{\text{coda}} \\ &= 2.12 + 3 \times 4.34 + 2.11\ \text{s} \approx 17.3\ \text{s}\end{aligned}$$</p>
       <p>These are seconds of CPU time for a 43-token prefill, with activations in \([T,\ 2304]\) with \(T = 43\). They show how time grows, not how fast a GPU would be. <b>In one sentence: looping saves what you store. It does not save what you compute, read, cache or wait for.</b> The next beat is why people accept that bill.</p>
     </div>
   </section>
@@ -259,7 +259,7 @@
     </div>
     <div class="math">
       <p>An idealised rule, in the spirit of the toy: a question needing \(h\) dependent lookups is answerable when the model has at least \(h\) passes to spend, $$\operatorname{answerable}(h,\,k) \;\approx\; [\,k \ge h\,]$$ Each pass maps \(h \in \mathbb{R}^{[T,\,2304]}\) to a new state of the same shape. On the real model the pattern is softer, and what we measured is below. Two stories (Mira's passport and a ring), each with two- and three-hop questions told forwards and in reverse, scored over whole candidate answers. Of the eight two- and three-hop prompts, <span data-fact="hop.correct1">2</span> were answered correctly with one pass, <span data-fact="hop.correct2">5</span> with two and <span data-fact="hop.correct3">8</span> with three. The right answer's average share among the candidate containers rose from <span data-fact="hop.share1">0.36</span> to <span data-fact="hop.share2">0.60</span> to <span data-fact="hop.share3">0.99</span>.</p>
-      <p>Three caveats. Mini was trained with three passes, so one and two passes are outside what it was built for. Eight prompts are a small sample. And one three-hop story succeeds at every pass count, because "garage" is the only place-like answer among its candidates, so the model can guess it without following the chain.</p>
+      <p>Three caveats. Mini was trained with three passes, so one and two passes are outside what it was built for. Eight prompts are a small sample. And the ring story's three-hop prompts succeed at every pass count, because "garage" is the only place-like answer among their candidates, so the model can guess it without following the chain. They are both of the one-pass successes: leaving them out, the counts are 0 of 6, 3 of 6 and 6 of 6.</p>
     </div>
   </section>
 

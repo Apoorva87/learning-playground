@@ -14,7 +14,7 @@ In the same core layer, a prompt token shares on average about 4.8 of its 8 rout
 
 ### The trained message gates are open
 
-Passes 2 and 3 restart from the prelude output and receive a gated message from the previous pass. The message adds about as much as the restarted state keeps: the norm ratio `‖g⊙m‖ / ‖(1−f)⊙h‖` averaged over the twelve core layers is about 1.0–1.4 for the query, key and value inputs, and about 0.6 for the MLP input. Layer 6 is an outlier at 6–7.
+Passes 2 and 3 restart from the prelude output and receive a gated message from the previous pass. The message is of the same order as the restarted state it is mixed with: the norm ratio `‖g⊙m‖ / ‖(1−f)⊙h‖` is about 0.7 for the query, key and value inputs in the typical core layer (a median), and about 0.6 for the MLP input. Layer 6, the first loop layer, is an outlier at 4.4–7.3, with forget values of 0.81–0.98 that drop most of the restarted state.
 
 ### More passes, more hops
 

@@ -22,8 +22,9 @@ Built November 26, 2026. Open [the landing page](index.html).
 - Both toy variants reach essentially 100%, including at passes 5 and 6 which they never trained on, so the toy cannot say which design is better. One hop per pass is by construction of its training target, and which arrow the attention picks is what the toy actually learned.
 - The variable-loop research model's numbers come from its model card and are shown beside, not against, Mini's. Thinking Machines warns against comparing them.
 - Second-hand: Mira Murati's "may not stay the case", quoted from The Inference. The design's figure "1,731 reasoning tokens at three passes" was not found on any page and is not used. Our own arithmetic (parameters per expert, an extra pass at about 1.08B, 34.5 GB of keys and values at 1,048,576 tokens, the gate machinery at about 28.4M) is labelled as ours and pinned by unit tests.
+- Taps and keys on the controls themselves do not take control back from Step or Play, but a click or scroll in the article does.
 - Step and Play cut the scroll instead of animating it, so that text and scene always change in the same moment.
-- Two corrections made on the way: layer 17 shares about 0.7 of its 8 experts across all three passes (3.1 between passes 1 and 2), not "almost none"; and the gates are open in the released weights, not closed.
+- Two corrections made on the way: layer 17 shares about 0.7 of its 8 experts across all three passes (3.1 between passes 1 and 2), not "almost none"; and the gates are open in the released weights, not closed. A review then showed that the first version of that finding (a message about as large as the kept state, 1.0–1.4 times) was a mean pulled up by layer 6: the typical core layer has a median of about 0.7, and layer 6 alone is 4.4–7.3 with forget values of 0.81–0.98. The pages now say both.
 
 ## Feedback
 

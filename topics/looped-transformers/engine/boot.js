@@ -24,7 +24,10 @@
     const store = S.createStore(beats.length);
     const scene = window.LoopScene.create({ canvas: document.getElementById('scene'), labelLayer: document.getElementById('labels'), beats, renderer: config.renderer });
     const reduced = () => reducedQuery.matches;
-    const render = () => { const s = store.get(); scene.show(S.sceneAt(beats, s.beat, s.progress, reduced())); };
+    const render = () => {
+      const s = store.get(); scene.show(S.sceneAt(beats, s.beat, s.progress, reduced()));
+      scene.canvas().setAttribute('aria-label', `3D scene for “${beats[s.beat].title}”`);       // screen readers get the beat the scene is on
+    };
     store.subscribe(render);
     reducedQuery.addEventListener && reducedQuery.addEventListener('change', render);
     render();

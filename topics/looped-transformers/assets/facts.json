@@ -1465,5 +1465,65 @@
    "path": "messages.0.w_last.v.1",
    "expected": 0.9818
   }
+ },
+ "cap.ratio_median": {
+  "claim": "The median message-to-kept ratio over q/k/v gates in all core layers and both passes is 0.73",
+  "value": 0.73,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.gate_ratio_qkv_median",
+   "expected": 0.73
+  }
+ },
+ "cap.l6_ratio_min": {
+  "claim": "At layer 6 the q/k/v message-to-kept ratio is at least 4.39",
+  "value": 4.39,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.gate_ratio_qkv_layer6_min",
+   "expected": 4.39
+  }
+ },
+ "cap.l6_ratio_max": {
+  "claim": "and at most 7.33",
+  "value": 7.33,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.gate_ratio_qkv_layer6_max",
+   "expected": 7.33
+  }
+ },
+ "cap.l6_forget_min": {
+  "claim": "At layer 6 the q/k/v forget value is at least 0.81",
+  "value": 0.81,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.forget_layer6_qkv_min",
+   "expected": 0.81
+  }
+ },
+ "cap.l6_forget_max": {
+  "claim": "and at most 0.98",
+  "value": 0.98,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.forget_layer6_qkv_max",
+   "expected": 0.98
+  }
+ },
+ "cap.forget_mlp": {
+  "claim": "The mean MLP-input forget value over layers and passes is -0.75",
+  "value": -0.75,
+  "source": {
+   "kind": "json",
+   "file": "assets/inkling-capture-summary.json",
+   "path": "headline.forget_mean_mlp",
+   "expected": -0.75
+  }
  }
 }

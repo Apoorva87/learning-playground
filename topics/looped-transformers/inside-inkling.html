@@ -82,7 +82,7 @@
     </div>
     <div class="math">
       <p>$$\tau(n) = 1 + 0.1\,\ln\!\Big(\max\!\big(\tfrac{n+1}{8192},\ 1\big)\Big), \qquad q \leftarrow \tau(n)\cdot q$$</p>
-      <p><span data-fact="fa.logscale">The code defines it as</span> \(\tau = 1 + \alpha \ln\max\big((n+1)/n_0,\,1\big)\) with \(\alpha = \)<span data-fact="cfg.log_alpha">0.1</span> and \(n_0 = \)<span data-fact="cfg.log_floor">8192</span>, for position \(n\). Because the maximum is 1 below 8,192 tokens, \(\tau = 1\) for every position in a short prompt like ours, and the factor only starts to bite in long contexts. Scores, queries and keys keep the shapes \([T,\,24,\,128]\), \([T,\,8,\,128]\) and \([24,\,T,\,S]\), now with \(S = T\).</p>
+      <p><span data-fact="fa.logscale">The code defines it as</span> \(\tau = 1 + \alpha \ln\max\big((n+1)/n_0,\,1\big)\) with \(\alpha = \)<span data-fact="cfg.log_alpha">0.1</span> and \(n_0 = \)<span data-fact="cfg.log_floor">8192</span>, for position \(n\). Because the maximum is 1 below 8,192 tokens, \(\tau = 1\) for every position in a short prompt like ours, and the factor only starts to bite in long contexts. Queries, keys and scores keep the shapes \([T,\,24,\,128]\), \([T,\,8,\,128]\) and \([24,\,T,\,S]\), now with \(S = T\).</p>
     </div>
   </section>
 
@@ -162,7 +162,7 @@
     <h2>In the recorded run</h2>
     <div class="story">
       <p>We ran the real checkpoint on a 43-token prompt, a three-hop question about a passport, and recorded what the loop did. Three findings, each with its table. How we ran it matters: we loaded the official weights with Transformers, which dequantised the 4-bit and 8-bit expert weights to BF16 on a CPU, so these are the numbers of a BF16 copy of the shipped model, from one prompt. They show what the mechanism does here. They are not a benchmark.</p>
-      <p><b>The gates are open.</b> The message adds about as much as the state keeps: between <span data-fact="cap.ratio_min">1.01</span> and <span data-fact="cap.ratio_max">1.37</span> times for the query, key and value inputs, averaged over the twelve core layers, and about <span data-fact="cap.ratio_mlp">0.59</span> for the MLP input. Layers differ a lot: layer 6 is an outlier at 6 to 7 times, as the table shows. The mean forget value falls to <span data-fact="cap.forget_min">−0.75</span>, so \(1-f\) reaches 1.75 and the old state is amplified. The "gate starts closed" story is about initialisation. The released weights have moved a long way from it.</p>
+      <p><b>The gates are open, and layer 6 is different.</b> In the typical core layer the message is about <span data-fact="cap.ratio_median">0.73</span> times the size of what is kept for the query, key and value inputs (a median over layers and both passes) and about <span data-fact="cap.ratio_mlp">0.59</span> for the MLP input. The forget value is negative on average, down to <span data-fact="cap.forget_mlp">−0.75</span> for the MLP input, so \(1-f\) is above 1 and the kept state is amplified. Layer 6, the first loop layer, stands out in the table. Its forget value on the query, key and value inputs is <span data-fact="cap.l6_forget_min">0.81</span> to <span data-fact="cap.l6_forget_max">0.98</span>, which drops most of the restarted state, and its message is <span data-fact="cap.l6_ratio_min">4.4</span> to <span data-fact="cap.l6_ratio_max">7.3</span> times the size of what is kept (4.4 to 5.5 in pass 3, 6.4 to 7.3 in pass 2). The "gate starts closed" story is about initialisation. The released weights have moved a long way from it.</p>
     </div>
     <div data-recorded="gate-ratio" class="recorded">Loading the recorded run…</div>
     <div class="story">
@@ -208,7 +208,7 @@
 
   <section class="beat" id="b-drafter" data-beat="drafter">
     <h2>The drafter</h2>
-    <p>Inkling 2 comes with a small draft model for speculative decoding. <span data-fact="hf.drafter">A three-layer draft proposes tokens for the main model to verify, and reads the inputs to decoder visits 5, 23 and 41 plus the final normalised state at index 48.</span> The config agrees: <span data-fact="cfg.mtp_layers">3</span> layers, reading <span data-fact="cfg.mtp_targets">visits 5, 23, 41 and 48</span>. Visits 5, 23 and 41 are, by our mapping, layer 5 (the end of the prelude), layer 11 on pass 2 and layer 17 on pass 3, all full-attention layers, so the drafter taps the model at points spread across the loop. How it combines the four states is in its own code, which we did not open.</p>
+    <p>Inkling 2 comes with a small draft model for speculative decoding. <span data-fact="hf.drafter">A three-layer draft proposes tokens for the main model to verify, and reads the inputs to decoder visits 5, 23 and 41 plus the final normalised state at index 48.</span> The config agrees: <span data-fact="cfg.mtp_layers">3</span> layers, reading <span data-fact="cfg.mtp_targets">visits 5, 23, 41 and 48</span>. Visits 5, 23 and 41 are, by our mapping, layer 5, layer 11 on pass 2 and layer 17 on pass 3, all full-attention layers. The drafter reads the <em>input</em> to each of those visits, so for the first it sees the state just before layer 5 runs, and it taps the model at points spread across the loop. How it combines the four states is in its own code, which we did not open.</p>
   </section>
 
   <section class="beat" id="b-vision" data-beat="vision">

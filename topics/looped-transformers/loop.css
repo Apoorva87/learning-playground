@@ -23,7 +23,7 @@ html { scroll-behavior: auto; }
 body { margin: 0; background: var(--page); color: var(--ink); font: 17px/1.62 Georgia, "Iowan Old Style", "Times New Roman", serif; overflow-x: hidden; }
 a { color: var(--accent); }
 nav.top { display: flex; gap: 8px 18px; flex-wrap: wrap; padding: 12px 16px; font: 14px system-ui, sans-serif; border-bottom: 1px solid var(--rule); }
-.layout { display: grid; grid-template-columns: minmax(0, 40rem) minmax(0, 1fr); gap: 0 32px; max-width: 1360px; margin: 0 auto; padding: 0 16px; }
+.layout { display: grid; grid-template-columns: minmax(0, 36rem) minmax(0, 1fr); gap: 0 32px; max-width: 1360px; margin: 0 auto; padding: 0 16px; }
 article#article { padding: 24px 0 75vh; }
 article h1 { font: 700 34px/1.15 system-ui, sans-serif; margin: 8px 0 8px; }
 article h2 { font: 650 24px/1.25 system-ui, sans-serif; margin: 0 0 12px; }
@@ -48,7 +48,7 @@ aside#stage { position: sticky; top: 0; height: 100vh; display: flex; flex-direc
 .controls button, .controls select { font: inherit; padding: 4px 10px; border: 1px solid var(--rule); border-radius: 6px; background: var(--surface); color: var(--ink); }
 .controls fieldset { border: 0; padding: 0; margin: 0; display: flex; gap: 10px; }
 .controls label { display: inline-flex; gap: 4px; align-items: center; }
-@media (max-width: 860px) {
+@media (max-width: 1040px) {
   .layout { grid-template-columns: minmax(0, 1fr); padding: 0 12px; }
   aside#stage { order: -1; height: 46vh; z-index: 5; background: var(--page); padding: 8px 0; }
   article#article { padding-top: 12px; }

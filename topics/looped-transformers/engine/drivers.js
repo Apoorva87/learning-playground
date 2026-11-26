@@ -15,10 +15,12 @@
     const $ = id => document.getElementById(id);
     const radios = { scroll: $('mode-scroll'), step: $('mode-step'), play: $('mode-play') };
     const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const narrow = window.matchMedia('(max-width: 860px)');
+    const narrow = window.matchMedia('(max-width: 1040px)');
     const words = sections.map(s => (s.textContent.match(/\S+/g) || []).length);
 
-    const d = { mode: 'scroll', speed: 1 };
+    const d = { mode: 'scroll', speed: parseFloat(($('speed') || {}).value) || 1 };
+    let interacted = false;                                   // set once the reader scrolls, taps or presses keys by hand
+    const isControl = t => !!(t && t.closest && t.closest('#controls, .controls, button, select, input, textarea, a, label, summary'));
     let runId = 0, programmaticUntil = 0, frame = 0, scrollJob = 0, lastSetY = -1;
 
     /* The viewport line that decides which beat is current. On a phone the scene is pinned
@@ -119,21 +121,26 @@
 
     /* ---------- events ---------- */
     addEventListener('scroll', () => {
+      const ours = performance.now() < programmaticUntil || Math.abs(scrollY - lastSetY) < 2;
+      if (!ours) interacted = true;
       if (d.mode !== 'scroll') {
-        if (performance.now() < programmaticUntil || Math.abs(scrollY - lastSetY) < 2) return;      // our own scrolling, even when a slow frame delays its event
+        if (ours) return;                                       // our own scrolling, even when a slow frame delays its event
         setMode('scroll'); return;                              // the reader took over
       }
       if (frame) return;
       frame = requestAnimationFrame(() => { frame = 0; store.set(fromScroll(), 'scroll'); });
     }, { passive: true });
-    for (const type of ['wheel', 'touchstart']) addEventListener(type, () => { if (d.mode !== 'scroll') setMode('scroll'); }, { passive: true });
+    addEventListener('wheel', () => { interacted = true; if (d.mode !== 'scroll') setMode('scroll'); }, { passive: true });
+    addEventListener('touchstart', e => { if (isControl(e.target)) return; interacted = true; if (d.mode !== 'scroll') setMode('scroll'); }, { passive: true });
+    /* A click anywhere in the page except the controls takes over from Play. */
+    addEventListener('pointerdown', e => { if (d.mode === 'play' && !(e.target.closest && e.target.closest('#controls, .controls'))) setMode('scroll'); });
     addEventListener('resize', () => d.resync());
     addEventListener('keydown', e => {
       if (e.target.closest && e.target.closest('input,select,textarea,[contenteditable]')) return;
       if (e.altKey || e.ctrlKey || e.metaKey) return;
       if (e.key === 'ArrowRight') { e.preventDefault(); d.next(); }
       else if (e.key === 'ArrowLeft') { e.preventDefault(); d.prev(); }
-      else if (SCROLL_KEYS.has(e.key) && d.mode !== 'scroll') setMode('scroll');
+      else if (SCROLL_KEYS.has(e.key) && !isControl(e.target)) { interacted = true; if (d.mode !== 'scroll') setMode('scroll'); }
     });
     for (const [mode, el] of Object.entries(radios)) el && el.addEventListener('change', () => el.checked && setMode(mode));
     $('next') && $('next').addEventListener('click', d.next);
@@ -154,7 +161,7 @@
     });
     const m = /^#b-(.+)$/.exec(location.hash);
     if (m) d.goTo(m[1]); else store.set(fromScroll(), 'scroll');
-    addEventListener('load', () => { if (m && d.mode === 'scroll') d.goTo(m[1]); else d.resync(); });
+    addEventListener('load', () => { if (m && d.mode === 'scroll' && !interacted) d.goTo(m[1]); else d.resync(); });   // late layout shifts re-seat a deep link, but never move a reader who has scrolled on
     return d;
   }
   window.LoopDrivers = { create, LAND };

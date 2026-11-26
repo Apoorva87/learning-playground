@@ -82,7 +82,7 @@
       const solid = objs.filter(o => o.kind !== 'marker' && o.alpha > 0.05);
       if (solid.length) {
         const k = Layout.fitCamera(solid, a, c).dist / Layout.fitCamera(solid, REF_ASPECT, c).dist;
-        c.dist *= Math.min(Math.max(k, 0.6), 3);
+        c.dist *= Math.min(Math.max(k, 0.6), 8);
       }
       return c;
     }

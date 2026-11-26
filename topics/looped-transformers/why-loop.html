@@ -28,7 +28,7 @@
       <p>An assembly line. Many cars move through at once, which is the parallelism across tokens. But every car must visit station 1 before station 2, so a line with <em>L</em> stations has a minimum time per car, however many cars you build.</p>
     </div>
     <div class="math">
-      <p>$$h_{\ell+1} \;=\; h_\ell + F_\ell(h_\ell), \qquad h_\ell \in \mathbb{R}^{[T,\,2304]}$$</p>
+      <p><span class="eq" data-speak="Each layer adds a correction to its input: the next state equals the current state plus the layer&#x27;s output on it. The state is a table with T rows, one per token, of 2304 numbers each.">$$h_{\ell+1} \;=\; h_\ell + F_\ell(h_\ell), \qquad h_\ell \in \mathbb{R}^{[T,\,2304]}$$</span></p>
       <p>\(T\) is the number of tokens in view and <span data-fact="cfg.hidden">2304</span> is Inkling's hidden width. One layer is one application of \(F_\ell\); <em>L</em> layers are <em>L</em> applications in a row. A question whose answer needs <em>k</em> dependent lookups, each using the result of the one before, has to fit those <em>k</em> steps into the <em>L</em> that exist. Whether a given model spends exactly one layer per lookup is an empirical question. Later in this article we measure it on the real model.</p>
     </div>
   </section>
@@ -43,7 +43,7 @@
       <p>Re-reading a hard paragraph versus handing it to a second reader. The second reader brings fresh eyes and costs a salary. The re-read brings nothing new except more time with the same understanding, and costs only time.</p>
     </div>
     <div class="math">
-      <p>$$\begin{aligned}\text{new layers:}\quad & h_{k+1} = h_k + F_k(h_k) \\ \text{same layers again:}\quad & h_{k+1} = h_k + F(h_k)\end{aligned}$$</p>
+      <p><span class="eq" data-speak="With new layers, step k uses its own function F sub k. With the same layers again, every step uses one shared function F. Either way the state keeps its shape.">$$\begin{aligned}\text{new layers:}\quad & h_{k+1} = h_k + F_k(h_k) \\ \text{same layers again:}\quad & h_{k+1} = h_k + F(h_k)\end{aligned}$$</span></p>
       <p>Both take and return \(h \in \mathbb{R}^{[T,\,2304]}\). With \(P\) parameters in one layer, \(K\) steps of the first cost \(K \cdot P\) stored weights and the second cost \(P\). The compute is the same: \(K\) applications either way. Inkling 2 Mini stores <span data-fact="mc.params_total">26.4B</span> parameters. Only <span data-fact="mc.params_active_1">3.4B</span> are active for a token in one pass, because it is a mixture of experts. Each extra pass through the looped layers adds about <span data-fact="mc.params_extra_pass">1.0B effective active parameters</span>, so with three passes a token meets <span data-fact="mc.params_active_3">5.4B</span>. Stored weights did not grow. Work per token did.</p>
     </div>
   </section>
@@ -76,7 +76,7 @@
       <p>Thinking Machines' own intuition, which they present as intuition and not as a theorem: early layers translate raw token embeddings into a working representation, late layers translate the working representation back into word predictions, and the middle does the abstract work that benefits from a second and third look. Their experiments back it only partly: looping the middle 12 layers beat looping the last 12 on <span data-fact="mc.mid_vs_last">27 of 28 evaluations</span>. Fine for a design choice, not a proof of what each layer does.</p>
     </div>
     <div class="math">
-      <p>$$y \;=\; \text{Coda}\Big(\text{Core}^{\,3}\big(\text{Prelude}(x)\big)\Big), \qquad x,\,y \in \mathbb{R}^{[T,\,2304]}$$</p>
+      <p><span class="eq" data-speak="The output y is the coda applied to the core applied three times to the prelude of the input x. Input and output are both T by 2304.">$$y \;=\; \text{Coda}\Big(\text{Core}^{\,3}\big(\text{Prelude}(x)\big)\Big), \qquad x,\,y \in \mathbb{R}^{[T,\,2304]}$$</span></p>
       <p>Layer visits: \(6 + 3 \times 12 + 6 = 48\). Layers stored: \(6 + 12 + 6 = 24\). The superscript means the same twelve layers, applied three times; how each pass gets its input is the subject of the next beats.</p>
     </div>
   </section>
@@ -91,7 +91,7 @@
     </div>
     <div class="math">
       <p>An idealised reading of one pass. Let \(p_{t-1}\) be the node held after pass \(t-1\), and \(\mathrm{src}_i,\ \mathrm{dst}_i\) the source and destination of arrow \(i\):</p>
-      <p>$$\begin{aligned}\alpha_{t,i} &= \operatorname{softmax}_i\!\big(\mathrm{src}_i \cdot p_{t-1}\big) \\ p_t &= \sum_i \alpha_{t,i}\,\mathrm{dst}_i = f(p_{t-1})\end{aligned}$$</p>
+      <p><span class="eq" data-speak="In pass t, the attention weights alpha are a softmax over the arrows of how well each arrow&#x27;s source matches the node held after the last pass. The new node p t is the attention-weighted sum of the arrows&#x27; destinations, which equals f of the previous node.">$$\begin{aligned}\alpha_{t,i} &= \operatorname{softmax}_i\!\big(\mathrm{src}_i \cdot p_{t-1}\big) \\ p_t &= \sum_i \alpha_{t,i}\,\mathrm{dst}_i = f(p_{t-1})\end{aligned}$$</span></p>
       <p>The states are \(h \in \mathbb{R}^{[T,\,16]}\) with \(T = 9\) positions (eight arrows and the query). In Inkling the same slot is \([T,\ 2304]\). The heat map is the real \(\alpha_{t,\cdot}\) from the trained model, taken from its first core layer's first head.</p>
     </div>
     <div class="toy" id="toy">
@@ -114,7 +114,7 @@
       <p>Keep writing on the same sheet of paper. Each pass adds to the working, and nothing is ever thrown away. That is powerful, and it is also how a mistake can compound: a smudge on line 3 is still there on line 30.</p>
     </div>
     <div class="math">
-      <p>$$s_t \;=\; R\big(e,\; s_{t-1}\big), \qquad s_t,\ e \in \mathbb{R}^{[T,\,2304]}$$</p>
+      <p><span class="eq" data-speak="In the carry version, the state after pass t is a function R of the embedding e and the state after pass t minus one. Both are T by 2304.">$$s_t \;=\; R\big(e,\; s_{t-1}\big), \qquad s_t,\ e \in \mathbb{R}^{[T,\,2304]}$$</span></p>
       <p>In our toy the version used is \(s_t = \mathrm{Core}(s_{t-1} + e)\), with \(e\) the prelude output and \([T, 16]\) in place of \([T, 2304]\). The scene lays out the data flow. Pass \(t\) starts from where pass \(t-1\) stopped.</p>
     </div>
   </section>
@@ -128,7 +128,7 @@
       <p>Start every attempt from a clean copy of the original problem, and leave yourself a sticky note from the last attempt. You decide, note by note, how much to read. That is the design intent: the clean copy cannot be smudged by the previous attempt, and the note still carries what was learnt. The recorded gates in the next beat show how much of it survives.</p>
     </div>
     <div class="math">
-      <p>$$\begin{aligned}h^{(t)}_{0} &= e \\ m_j^{(t)} &= \operatorname{Attn}\big(w_j;\ \text{states of pass } t-1\big) \\ h^{(t)}_{j} &\leftarrow \operatorname{Layer}_j\!\Big((1-f_j)\odot h^{(t)}_{j-1} + g_j \odot m_j^{(t)}\Big)\end{aligned}$$</p>
+      <p><span class="eq" data-speak="In the restart version, every pass starts from e. For each core layer a message is built by attention, with a learned query, over the states of the previous pass. The layer then receives its state mixed with that message through the gates f and g.">$$\begin{aligned}h^{(t)}_{0} &= e \\ m_j^{(t)} &= \operatorname{Attn}\big(w_j;\ \text{states of pass } t-1\big) \\ h^{(t)}_{j} &\leftarrow \operatorname{Layer}_j\!\Big((1-f_j)\odot h^{(t)}_{j-1} + g_j \odot m_j^{(t)}\Big)\end{aligned}$$</span></p>
       <p>Everything has shape \([T,\,2304]\) in Inkling and \([T,\,16]\) in the toy. \(w_j\) is a learned query, \(f_j, g_j\) are the gates of the next beat. A side effect worth knowing: each pass keeps <span data-fact="src.own_cache">its own copy of the cache</span>, so the key-value cache grows as if the model had 48 layers.</p>
       <p>On the toy, both ways reach essentially 100% on the held-out puzzles, and keep it at passes 5 and 6, which they never trained on. So the toy can show you the plumbing but cannot tell you which design is better. That needs the real model and far more compute than a browser has.</p>
     </div>
@@ -143,7 +143,7 @@
       <p>Two dimmers per feature. One fades the old value, one lets in the new. If \(f = 0\) the old value passes unchanged, and if \(f\) is negative the old value is even <em>amplified</em>.</p>
     </div>
     <div class="math">
-      <p>$$\begin{aligned}z &= W_{\text{down}}\big[\operatorname{rms}(h);\ \operatorname{rms}(m)\big] \\ f = \tanh(W_f z),\quad g &= \tanh(W_m z) \\ \text{out} &= (1-f)\odot h + g \odot m\end{aligned}$$</p>
+      <p><span class="eq" data-speak="The gate looks at both the state and the message, each normalised, and squeezes them into a short summary z. From z it makes two numbers per feature between minus one and one: f, the forget value, and g, the message gate. The output is one minus f times the state, plus g times the message.">$$\begin{aligned}z &= W_{\text{down}}\big[\operatorname{rms}(h);\ \operatorname{rms}(m)\big] \\ f = \tanh(W_f z),\quad g &= \tanh(W_m z) \\ \text{out} &= (1-f)\odot h + g \odot m\end{aligned}$$</span></p>
       <p>Shapes: \(h, m, f, g, \text{out} \in \mathbb{R}^{[T,\,2304]}\) and \(z \in \mathbb{R}^{[T,\,64]}\) in Inkling (<span data-fact="src.gate_formula">the last line of the gate's forward pass</span>, with the <span data-fact="src.gate_tanh">tanh gates</span> just above it), and \([T, 16]\) and \([T, 4]\) in the toy. The scene shows the last position, a single row of 16 numbers each.</p>
       <p>Thinking Machines writes that this gate is learned and <span data-fact="mc.gate_blocks">initially blocks the entire message</span>, so a looped model starts out behaving like an unlooped one. Our toy does the same: its gate weights start at zero. That describes training at the start, and the released weights moved far from it. On our recorded prompt, the typical core layer has the message at about <span data-fact="cap.ratio_median">0.73</span> times the size of what is kept for the query, key and value inputs, and about <span data-fact="cap.ratio_mlp">0.59</span> for the MLP input, so the message matters but does not dominate. The forget value is negative on average, down to <span data-fact="cap.forget_mlp">−0.75</span> for the MLP input, so \(1-f\) is above 1 and the kept state is amplified. Layer 6, the first loop layer, is the exception. There the forget value on the query, key and value inputs is <span data-fact="cap.l6_forget_min">0.81</span> to <span data-fact="cap.l6_forget_max">0.98</span>, which drops most of the restarted state, and the message is <span data-fact="cap.l6_ratio_min">4.4</span> to <span data-fact="cap.l6_ratio_max">7.3</span> times the size of what is kept. The gates are open, and at the first loop layer they mostly replace the restart with the message.</p>
     </div>
@@ -159,7 +159,7 @@
       <p>A microphone too close to its speaker. Each trip through the loop makes the squeal louder if the gain is above 1, and fades if it is below.</p>
     </div>
     <div class="math">
-      <p>A linear picture of a carried state, with \(A \in \mathbb{R}^{[2304,\,2304]}\) standing in for one pass: $$\begin{aligned}s_t &= A\,s_{t-1} + B\,e \\ \Longrightarrow\quad s_t &= \sum_{k&lt;t} A^k B\,e\end{aligned}$$ The sum settles exactly when the spectral radius \(\rho(A) < 1\). The scene shows the one-dimensional case \(s_t = a\,s_{t-1} + 1\): with \(a = 0.6\) it settles near 2.5, and with \(a = 1.2\) it grows without bound, past 16 by pass 8.</p>
+      <p>A linear picture of a carried state, with \(A \in \mathbb{R}^{[2304,\,2304]}\) standing in for one pass: <span class="eq" data-speak="A carried state obeys s t equals A times the last state plus B e, so the state is a sum of powers of A applied to B e. That sum settles when the spectral radius of A is below one.">$$\begin{aligned}s_t &= A\,s_{t-1} + B\,e \\ \Longrightarrow\quad s_t &= \sum_{k&lt;t} A^k B\,e\end{aligned}$$</span> The sum settles exactly when the spectral radius \(\rho(A) < 1\). The scene shows the one-dimensional case \(s_t = a\,s_{t-1} + 1\): with \(a = 0.6\) it settles near 2.5, and with \(a = 1.2\) it grows without bound, past 16 by pass 8.</p>
     </div>
   </section>
   <section class="beat" id="b-costs-stored" data-beat="costs-stored">
@@ -171,7 +171,7 @@
       <p>A recipe book with 24 recipes in which twelve are cooked three times each. The book does not get thicker. The kitchen does get busier.</p>
     </div>
     <div class="math">
-      <p>$$\begin{aligned}\text{layers stored} &= 6 + 12 + 6 = 24 \\ \text{layer visits} &= 6 + 3 \times 12 + 6 = 48\end{aligned}$$</p>
+      <p><span class="eq" data-speak="Layers stored: six plus twelve plus six, which is twenty-four. Layer visits: six plus three times twelve plus six, which is forty-eight.">$$\begin{aligned}\text{layers stored} &= 6 + 12 + 6 = 24 \\ \text{layer visits} &= 6 + 3 \times 12 + 6 = 48\end{aligned}$$</span></p>
       <p>Stored parameters: <span data-fact="mc.params_total">26.4B</span>, unchanged by looping. Each visit reads and writes \(h \in \mathbb{R}^{[T,\,2304]}\). What changes is not the storage but everything that scales with <em>visits</em>, which are the next four.</p>
     </div>
   </section>
@@ -185,7 +185,7 @@
       <p>Same twelve stations on the line, visited three times. The factory floor did not grow, but the car now takes three laps and the electricity bill reflects it.</p>
     </div>
     <div class="math">
-      <p>$$\text{FLOPs per token} \;\approx\; 2 \times N_{\text{active}}, \qquad 2 \times 3.4\text{B} \to 2 \times 5.4\text{B}\ \ (\times 1.59)$$</p>
+      <p><span class="eq" data-speak="Floating-point operations per token are about two times the active parameters. Going from three point four billion to five point four billion active parameters multiplies it by about one point five nine.">$$\text{FLOPs per token} \;\approx\; 2 \times N_{\text{active}}, \qquad 2 \times 3.4\text{B} \to 2 \times 5.4\text{B}\ \ (\times 1.59)$$</span></p>
       <p>Every visit maps \(h \in \mathbb{R}^{[T,\,2304]}\) to a new \(h\) of the same shape, so a visit costs about the same wherever it sits in the row. This ignores the attention scores, which also grow with context. Our CPU run agrees in spirit: a 43-token prefill took <span data-fact="cap.wall1">7.94 s</span> with one pass, <span data-fact="cap.wall2">11.8 s</span> with two and <span data-fact="cap.wall3">17.3 s</span> with three. That is roughly 24, 36 and 48 layer visits. Mini was trained with three passes, so the one- and two-pass runs are outside its training and are shown only to measure cost.</p>
     </div>
   </section>
@@ -200,7 +200,7 @@
       <p>You reopen the same book, but at a different page each time. The book is one object on the shelf. The pages you have to fetch are not.</p>
     </div>
     <div class="math">
-      <p>$$\begin{aligned}\text{expert bytes per token, per core layer} &\approx \big|E_1 \cup E_2 \cup E_3\big| \cdot b \\ 8 &\le |E_1 \cup E_2 \cup E_3| \le 24\end{aligned}$$</p>
+      <p><span class="eq" data-speak="Expert bytes read per token in a core layer are about the number of distinct experts used across the three passes, times the bytes of one expert. That number is between eight and twenty-four.">$$\begin{aligned}\text{expert bytes per token, per core layer} &\approx \big|E_1 \cup E_2 \cup E_3\big| \cdot b \\ 8 &\le |E_1 \cup E_2 \cup E_3| \le 24\end{aligned}$$</span></p>
       <p>Here \(E_t\) is the set of 8 experts the router picked in pass \(t\), and \(b\) is the bytes of one expert (two matrices of \([2304,\ 1152]\) and one of \([1152,\ 2304]\) per expert in a SwiGLU feed-forward, before the quantisation described in Article B). One prompt and one model is a small sample, so read the numbers as a measurement and not a law. They still show that the usual line, <em>same weights, more compute</em>, describes storage. It does not describe bandwidth here.</p>
     </div>
   </section>
@@ -214,7 +214,7 @@
       <p>Every lap of the factory floor needs its own clipboard of notes. Three laps, three clipboards, even though the stations are the same.</p>
     </div>
     <div class="math">
-      <p>$$\underbrace{48}_{\text{visits}} \times \underbrace{2}_{K,\,V} \times \underbrace{8}_{\text{KV heads}} \times \underbrace{128}_{\text{head dim}} \times \underbrace{2\ \text{B}}_{\text{BF16}} \;=\; \text{196,608 B per token}$$</p>
+      <p><span class="eq" data-speak="Forty-eight visits, times two for keys and values, times eight key-value heads, times one hundred twenty-eight per head, times two bytes in BF16, is one hundred ninety-six thousand, six hundred eight bytes per token.">$$\underbrace{48}_{\text{visits}} \times \underbrace{2}_{K,\,V} \times \underbrace{8}_{\text{KV heads}} \times \underbrace{128}_{\text{head dim}} \times \underbrace{2\ \text{B}}_{\text{BF16}} \;=\; \text{196,608 B per token}$$</span></p>
       <p>Per visit the keys are \(K \in \mathbb{R}^{[T,\,8,\,128]}\), and so are the values. We measured exactly this figure on the real model: <span data-fact="cap.kv_bytes">196,608 bytes per token</span>. It is not quite the whole story. Of the 48 visits, 40 use sliding-window attention and stop growing at <span data-fact="cfg.window">1,024</span> positions. Only the 8 full-attention visits (layers 5 and 23 once, layers 11 and 17 three times each) keep growing, at \(8 \times 2 \times 8 \times 128 \times 2 = 32{,}768\) bytes per token. We worked that second number out from the config. We did not record it.</p>
     </div>
   </section>
@@ -228,7 +228,7 @@
       <p>You can hire more cooks for a banquet, but not for a soufflé that must rise for twenty minutes, then be folded, then rise again. Looping adds rises.</p>
     </div>
     <div class="math">
-      <p>$$\begin{aligned}t_{\text{prefill}} &\approx t_{\text{prelude}} + n_{\text{passes}} \cdot t_{\text{core}} + t_{\text{coda}} \\ &= 2.12 + 3 \times 4.34 + 2.11\ \text{s} \approx 17.3\ \text{s}\end{aligned}$$</p>
+      <p><span class="eq" data-speak="Time for the prefill is about the prelude time, plus the number of passes times the time of one core pass, plus the coda time. That is two point one two, plus three times four point three four, plus two point one one, about seventeen point three seconds.">$$\begin{aligned}t_{\text{prefill}} &\approx t_{\text{prelude}} + n_{\text{passes}} \cdot t_{\text{core}} + t_{\text{coda}} \\ &= 2.12 + 3 \times 4.34 + 2.11\ \text{s} \approx 17.3\ \text{s}\end{aligned}$$</span></p>
       <p>These are seconds of CPU time for a 43-token prefill, with activations in \([T,\ 2304]\) with \(T = 43\). They show how time grows, not how fast a GPU would be. <b>In one sentence: looping saves what you store. It does not save what you compute, read, cache or wait for.</b> The next beat is why people accept that bill.</p>
     </div>
   </section>
@@ -258,7 +258,7 @@
       <p>More passes help when the answer needs <em>steps</em> and do little when it needs a <em>fact</em>. That is a pattern across these four panels, not a proof, and the toy model is the cleanest picture of the steps half: each extra look is one more hop.</p>
     </div>
     <div class="math">
-      <p>An idealised rule, in the spirit of the toy: a question needing \(h\) dependent lookups is answerable when the model has at least \(h\) passes to spend, $$\operatorname{answerable}(h,\,k) \;\approx\; [\,k \ge h\,]$$ Each pass maps \(h \in \mathbb{R}^{[T,\,2304]}\) to a new state of the same shape. On the real model the pattern is softer, and what we measured is below. Two stories (Mira's passport and a ring), each with two- and three-hop questions told forwards and in reverse, scored over whole candidate answers. Of the eight two- and three-hop prompts, <span data-fact="hop.correct1">2</span> were answered correctly with one pass, <span data-fact="hop.correct2">5</span> with two and <span data-fact="hop.correct3">8</span> with three. The right answer's average share among the candidate containers rose from <span data-fact="hop.share1">0.36</span> to <span data-fact="hop.share2">0.60</span> to <span data-fact="hop.share3">0.99</span>.</p>
+      <p>An idealised rule, in the spirit of the toy: a question needing \(h\) dependent lookups is answerable when the model has at least \(h\) passes to spend, <span class="eq" data-speak="A question needing h dependent lookups is answerable roughly when the number of passes k is at least h.">$$\operatorname{answerable}(h,\,k) \;\approx\; [\,k \ge h\,]$$</span> Each pass maps \(h \in \mathbb{R}^{[T,\,2304]}\) to a new state of the same shape. On the real model the pattern is softer, and what we measured is below. Two stories (Mira's passport and a ring), each with two- and three-hop questions told forwards and in reverse, scored over whole candidate answers. Of the eight two- and three-hop prompts, <span data-fact="hop.correct1">2</span> were answered correctly with one pass, <span data-fact="hop.correct2">5</span> with two and <span data-fact="hop.correct3">8</span> with three. The right answer's average share among the candidate containers rose from <span data-fact="hop.share1">0.36</span> to <span data-fact="hop.share2">0.60</span> to <span data-fact="hop.share3">0.99</span>.</p>
       <p>Three caveats. Mini was trained with three passes, so one and two passes are outside what it was built for. Eight prompts are a small sample. And the ring story's three-hop prompts succeed at every pass count, because "garage" is the only place-like answer among their candidates, so the model can guess it without following the chain. They are both of the one-pass successes: leaving them out, the counts are 0 of 6, 3 of 6 and 6 of 6.</p>
     </div>
   </section>
@@ -291,9 +291,16 @@
     <button id="prev" type="button" aria-label="Previous beat">← Prev</button><button id="next" type="button" aria-label="Next beat">Next →</button>
     <label>Speed <select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
   </div>
+  <div class="controls voice" id="voice-controls">
+    <label class="narrate"><input type="checkbox" id="narrate"> 🔊 Narrate</label>
+    <label>Voice <select id="voice"><option value="">System default</option></select></label>
+    <label>Rate <select id="rate"><option value="0.8">0.8×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></label>
+    <button id="narrate-pause" type="button">Read beat</button>
+    <span id="voice-note" class="note"></span>
+  </div>
 </aside>
 </div>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
-<script src="engine/state.js"></script><script src="engine/layout.js"></script><script src="engine/micro.js"></script><script src="engine/gl.js"></script><script src="engine/canvas2d.js"></script><script src="engine/scene.js"></script><script src="toy/toy.js"></script><script src="engine/toywidget.js"></script><script src="engine/charts.js"></script><script src="engine/terms.js"></script><script src="engine/drivers.js"></script><script src="engine/boot.js"></script><script src="beats/beats-a.js"></script>
+<script src="engine/state.js"></script><script src="engine/layout.js"></script><script src="engine/micro.js"></script><script src="engine/gl.js"></script><script src="engine/canvas2d.js"></script><script src="engine/scene.js"></script><script src="toy/toy.js"></script><script src="engine/toywidget.js"></script><script src="engine/charts.js"></script><script src="engine/speech.js"></script><script src="engine/terms.js"></script><script src="engine/drivers.js"></script><script src="engine/narrator.js"></script><script src="engine/boot.js"></script><script src="beats/beats-a.js"></script>
 <script>LoopArticle.start({ beats: window.LOOP_BEATS_A });</script>
 </body></html>

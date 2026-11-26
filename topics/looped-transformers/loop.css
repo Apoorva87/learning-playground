@@ -110,3 +110,7 @@ a.card b { font: 650 20px/1.25 system-ui, sans-serif; }
 a.card .kicker { color: var(--ink2); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
 a.card .try { color: var(--ink2); font-size: 14px; } a.card .try a { color: var(--accent); }
 main.landing .foot { margin-top: 28px; font: 14px system-ui, sans-serif; }
+.controls.voice { padding-top: 6px; }
+.controls .note { color: var(--ink2); font-size: 13px; }
+::highlight(speaking) { background-color: color-mix(in srgb, var(--accent) 30%, transparent); }
+.speaking { background: color-mix(in srgb, var(--accent) 14%, transparent); border-radius: 3px; }

@@ -70,16 +70,28 @@
     }
     const tweenMs = () => config.tweenMs / d.speed;
 
+    /* Play one beat's animation: a tween to the end, or, with narration on, a short arrival and then the voice
+       reading the beat while the scene's progress follows it. */
+    async function playBeat(i, id) {
+      const n = d.narrator, p = store.get().progress;
+      if (n && n.enabled && n.supported) {
+        await tween(i, p, S.ARRIVE, tweenMs() * 0.5, id);
+        if (id !== runId) return;
+        const finished = await n.speakBeat(i, { drive: true, alive: () => id === runId });
+        if (id === runId && finished) store.set({ beat: i, progress: 1 }, 'narrate');
+      } else await tween(i, p, 1, tweenMs() * (1 - p), id);
+    }
+
     /* Show beat i: scroll to it and let the scene arrive. */
     async function stepTo(i, id) {
       i = Math.min(Math.max(i, 0), beats.length - 1);
       scrollTo(targetY(i), 0);                                  // a cut, in the same task as the state change, so text and scene never disagree
       store.set({ beat: i, progress: 0 }, 'step');
-      await tween(i, 0, 1, tweenMs(), id);
+      await playBeat(i, id);
     }
 
     /* ---------- mode switching ---------- */
-    function cancel() { runId++; cancelAnimationFrame(scrollJob); }
+    function cancel() { runId++; cancelAnimationFrame(scrollJob); if (d.narrator) d.narrator.stop(); }
     function setMode(mode) {
       if (!radios[mode]) return;
       cancel();
@@ -92,14 +104,17 @@
       const last = beats.length - 1;
       while (id === runId) {
         const { beat, progress } = store.get();
-        if (progress < 1) await tween(beat, progress, 1, tweenMs() * (1 - progress), id);
+        if (progress < 1) await playBeat(beat, id);
         if (id !== runId) return;
         if (beat >= last) { setMode('step'); return; }          // the end: stay where we are
-        await sleep((config.test ? config.dwellMs : Math.min(Math.max(config.dwellMs, words[beat] / 6 * 1000), 25000)) / d.speed);   // about 360 words a minute, between 2 and 25 seconds, scaled by the speed control
+        const narrating = d.narrator && d.narrator.enabled && d.narrator.supported;
+        await sleep(narrating ? 600 / d.speed : (config.test ? config.dwellMs : Math.min(Math.max(config.dwellMs, words[beat] / 6 * 1000), 25000)) / d.speed);   // about 360 words a minute, between 2 and 25 seconds, scaled by the speed control
         if (id !== runId) return;
         await stepTo(beat + 1, id);
       }
     }
+    d.scrollBy = dy => scrollTo(Math.max(0, scrollY + dy), 250);
+    d.narrator = null;
     d.setMode = setMode;
     d.play = () => setMode('play');
     d.pause = () => { if (d.mode === 'play') setMode('step'); };

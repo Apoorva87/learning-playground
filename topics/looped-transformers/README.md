@@ -44,6 +44,7 @@ A 43-token CPU prefill took about 2.1 s in the prelude, about 4.3 s for each cor
 | [toy/](assets/toy/) | The toy looped model: [train_toy.py](assets/toy/train_toy.py), its weights, test vectors, held-out puzzles and accuracy tables. |
 | [facts.json](assets/facts.json) | Every number or quotation in the prose, with its source. |
 | `engine/`, `toy/toy.js`, `beats/` | The shared scene engine (state, layout, WebGL2 and Canvas 2D renderers, drivers, linked terms, charts, recorded tables), the JavaScript toy model, and the beat data for each article. |
+| `engine/narrator.js`, `engine/speech.js` | Voice narration with the browser's speech synthesis: voice and rate pickers, sentence highlight, scene follows the voice. |
 | `tests/` | Unit tests (`node --test`), browser tests (`playwright-core` with system Chrome), and the fact, structure and link checkers. |
 
 ## Reproduce

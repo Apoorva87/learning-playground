@@ -15,6 +15,10 @@ Built November 26, 2026. Open [the landing page](index.html).
 - The toy: trained offline by `assets/toy/train_toy.py`, ported to JavaScript, and checked to 1e-5 against PyTorch on saved vectors.
 - Publication checks run: unit and browser tests, structure, facts and link checkers, and a Pages-prefix build.
 
+## Voice narration
+
+Both articles have a **Narrate** switch, **Voice** and **Rate** pickers and a Pause/Read button under the scene. It uses the browser's built-in `speechSynthesis`, so voices differ by browser and system (on macOS they are the system voices). Each display equation carries a hand-written `data-speak` sentence, and inline math is read by a small TeX-to-words helper (`engine/speech.js`). Tests drive it with a fake `speechSynthesis`, so the real voices were not exercised in headless Chrome. Try it by ear and tell me which beats read badly.
+
 ## Limits
 
 - One prompt, one machine, and a BF16 copy of the quantised model. The gate values, message weights, expert overlap and timings show the mechanism, not a benchmark. The one- and two-pass runs of Mini are outside what it was trained for.

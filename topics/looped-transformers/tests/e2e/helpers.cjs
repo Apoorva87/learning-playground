@@ -10,8 +10,9 @@ async function launch() {
   return { base, browser, async close() { await browser.close(); await base.close(); } };
 }
 /* A fresh page that records console errors and failed requests. */
-async function open(env, rel, { width = 1400, height = 900, scheme = 'light', reducedMotion = 'no-preference', hasTouch = false, route = null } = {}) {
+async function open(env, rel, { width = 1400, height = 900, scheme = 'light', reducedMotion = 'no-preference', hasTouch = false, route = null, init = null } = {}) {
   const ctx = await env.browser.newContext({ viewport: { width, height }, colorScheme: scheme, reducedMotion, hasTouch });
+  if (init) await ctx.addInitScript(init);
   const page = await ctx.newPage();
   page.errors = [];
   page.on('console', m => { if (m.type() === 'error') page.errors.push(m.text()); });

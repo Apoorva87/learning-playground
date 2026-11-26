@@ -22,7 +22,7 @@
     </div>
     <div class="math">
       <p>The layer run at visit \(v\) is \(\ell(v)\):</p>
-      <p>$$\ell(v) = \begin{cases} v & v < 6 \\ 6 + (v - 6) \bmod 12 & 6 \le v < 42 \\ v - 24 & v \ge 42 \end{cases} \qquad h_v \in \mathbb{R}^{[T,\,2304]}$$</p>
+      <p><span class="eq" data-speak="The layer run at visit v is: layer v for visits below six; six plus the remainder of v minus six divided by twelve, for visits six up to forty-two; and v minus twenty-four from forty-two on.">$$\ell(v) = \begin{cases} v & v < 6 \\ 6 + (v - 6) \bmod 12 & 6 \le v < 42 \\ v - 24 & v \ge 42 \end{cases} \qquad h_v \in \mathbb{R}^{[T,\,2304]}$$</span></p>
       <p>Every visit takes and returns a state of shape \([T,\ 2304]\), where <span data-fact="cfg.hidden">2304</span> is the hidden size. The model has <span data-fact="cfg.heads">24</span> query heads and <span data-fact="cfg.kv_heads">8</span> key/value heads of dimension <span data-fact="cfg.head_dim">128</span>, in every layer.</p>
     </div>
   </section>
@@ -36,7 +36,7 @@
       <p>A dictionary that gives each word a point in a 2304-dimensional space, followed by a step that pushes every point onto a sphere of the same radius. Direction carries the meaning, and length is thrown away at the door.</p>
     </div>
     <div class="math">
-      <p>$$\begin{aligned}h_0 &= \operatorname{RMSNorm}\big(E[x]\big) \\ \operatorname{RMSNorm}(u) &= \frac{u}{\sqrt{\tfrac{1}{d}\sum_i u_i^2 + \epsilon}} \odot g\end{aligned}$$</p>
+      <p><span class="eq" data-speak="The initial state h zero is the RMS norm of the embedding rows picked for the token IDs. RMS norm divides each vector by its root mean square, plus a small epsilon, and multiplies by a learned gain.">$$\begin{aligned}h_0 &= \operatorname{RMSNorm}\big(E[x]\big) \\ \operatorname{RMSNorm}(u) &= \frac{u}{\sqrt{\tfrac{1}{d}\sum_i u_i^2 + \epsilon}} \odot g\end{aligned}$$</span></p>
       <p>\(x \in \mathbb{N}^{[T]}\) are the token IDs, \(E \in \mathbb{R}^{[201024,\,2304]}\) is the table, \(h_0 \in \mathbb{R}^{[T,\,2304]}\) the result, \(d = 2304\), \(\epsilon = 10^{-6}\), and \(g\) is a learned per-feature gain.</p>
     </div>
   </section>
@@ -51,7 +51,7 @@
     </div>
     <div class="math">
       <p>Let \(b_1,\dots,b_n \in \mathbb{R}^{[T,\,2304]}\) be the saved block states and \(p \in \mathbb{R}^{[T,\,2304]}\) the current partial sum. <span data-fact="ar.stack">They are stacked and RMS-normalised</span> into \(S \in \mathbb{R}^{[T,\,n+1,\,2304]}\). With a learned query \(w \in \mathbb{R}^{2304}\):</p>
-      <p>$$a = \operatorname{softmax}_j\!\Big(\frac{S_j \cdot w}{\sqrt{2304}}\Big), \qquad x = \sum_{j} a_j\, S_j \in \mathbb{R}^{[T,\,2304]}$$</p>
+      <p><span class="eq" data-speak="The attention over depth takes a softmax of each source&#x27;s dot product with a learned query, scaled by one over root 2304. The sublayer input x is the weighted sum of the sources.">$$a = \operatorname{softmax}_j\!\Big(\frac{S_j \cdot w}{\sqrt{2304}}\Big), \qquad x = \sum_{j} a_j\, S_j \in \mathbb{R}^{[T,\,2304]}$$</span></p>
       <p>The scale \(2304^{-1/2}\) is <span data-fact="ar.scale">in the code</span>, and the query <span data-fact="ar.query">starts at zero</span>, so before training every source has the same weight. <b>In the recorded run</b>, the MLP input of layer 0 put weight <span data-fact="rec.res0_a">0.146</span> and <span data-fact="rec.res0_b">0.854</span> on its two sources at the last prompt token, far from uniform.</p>
     </div>
   </section>
@@ -66,8 +66,8 @@
       <p>Think of each head as asking "which earlier tokens matter to me?" Distance gets a say through the bias. A sink lets the head spend probability on nothing at all. The output gate lets the layer decide per feature whether the attention result is worth keeping. We read the clips as guard rails that keep the scores bounded, and that is our reading. The source states what they compute, not why.</p>
     </div>
     <div class="math">
-      <p>$$\begin{aligned}q &= \operatorname{clip}(\gamma_q \odot W_q x) \in \mathbb{R}^{[T,\,24,\,128]} \\ k &= \operatorname{clip}\big(\operatorname{conv}(W_k x)\big) \in \mathbb{R}^{[T,\,8,\,128]} \\ v &= \operatorname{rms}\big(\operatorname{conv}(W_v x)\big) \in \mathbb{R}^{[T,\,8,\,128]}\end{aligned}$$</p>
-      <p>$$\begin{aligned}s_{t,u} &= \frac{q_t \cdot k_u}{\sqrt{128}} + \underbrace{\big(r_t P\big)[t-u]}_{\text{bias},\ r_t \in \mathbb{R}^{16},\ P \in \mathbb{R}^{[16,\,1024]}} \\ a_t &= \operatorname{softmax}\big([\,s_{t,\cdot}\,;\ \sigma_t\,]\big)_{\text{without the last}}\end{aligned}$$</p>
+      <p><span class="eq" data-speak="Queries are the projected input, rescaled and clipped, with shape T by twenty-four by one twenty-eight. Keys are the projected input, passed through a short convolution and clipped, with shape T by eight by one twenty-eight. Values go through the convolution and an RMS norm, with the same shape.">$$\begin{aligned}q &= \operatorname{clip}(\gamma_q \odot W_q x) \in \mathbb{R}^{[T,\,24,\,128]} \\ k &= \operatorname{clip}\big(\operatorname{conv}(W_k x)\big) \in \mathbb{R}^{[T,\,8,\,128]} \\ v &= \operatorname{rms}\big(\operatorname{conv}(W_v x)\big) \in \mathbb{R}^{[T,\,8,\,128]}\end{aligned}$$</span></p>
+      <p><span class="eq" data-speak="The score between token t and an earlier token u is the query-key dot product over root one twenty-eight, plus a learned relative-position bias that depends on the token. The attention weights are a softmax over those scores plus one extra sink logit, with the sink dropped afterwards.">$$\begin{aligned}s_{t,u} &= \frac{q_t \cdot k_u}{\sqrt{128}} + \underbrace{\big(r_t P\big)[t-u]}_{\text{bias},\ r_t \in \mathbb{R}^{16},\ P \in \mathbb{R}^{[16,\,1024]}} \\ a_t &= \operatorname{softmax}\big([\,s_{t,\cdot}\,;\ \sigma_t\,]\big)_{\text{without the last}}\end{aligned}$$</span></p>
       <p>The scores are <span data-fact="sw.scaling">scaled by \(128^{-1/2}\)</span>, the <span data-fact="sw.rel">bias comes from \(r_t P\)</span> and is <span data-fact="sw.bias_added">added to them</span>. The sink logit \(\sigma_t\) is <span data-fact="sw.sink">projected from the layer input</span>, one per head, and <span data-fact="sw.sink_softmax">joins the softmax as one extra logit</span> that carries a zero value, so it only absorbs probability. The output is \(\big(a\,v\big)\odot \operatorname{sigmoid}(W_g x)\), then \(W_o\), then the convolution, which returns \(\big(\operatorname{conv}(u) + u\big)/\sqrt{5}\) (<span data-fact="sw.conv">the code divides by \(\sqrt{\text{kernel}+1}\)</span>). Shapes: scores \([24,\,T,\,S]\) with \(S \le 1024\), and the layer output \([T,\,2304]\).</p>
     </div>
   </section>
@@ -81,7 +81,7 @@
       <p>The local layers are a reading lamp, and these four are the floodlights. They are rare because they are expensive. In the cache chapter, you will see that these are the only visits whose keys and values keep growing with the context.</p>
     </div>
     <div class="math">
-      <p>$$\tau(n) = 1 + 0.1\,\ln\!\Big(\max\!\big(\tfrac{n+1}{8192},\ 1\big)\Big), \qquad q \leftarrow \tau(n)\cdot q$$</p>
+      <p><span class="eq" data-speak="Full-attention queries are multiplied by tau of n, which is one plus zero point one times the log of the larger of n plus one over eight thousand one hundred ninety-two, and one. For short prompts it is exactly one.">$$\tau(n) = 1 + 0.1\,\ln\!\Big(\max\!\big(\tfrac{n+1}{8192},\ 1\big)\Big), \qquad q \leftarrow \tau(n)\cdot q$$</span></p>
       <p><span data-fact="fa.logscale">The code defines it as</span> \(\tau = 1 + \alpha \ln\max\big((n+1)/n_0,\,1\big)\) with \(\alpha = \)<span data-fact="cfg.log_alpha">0.1</span> and \(n_0 = \)<span data-fact="cfg.log_floor">8192</span>, for position \(n\). Because the maximum is 1 below 8,192 tokens, \(\tau = 1\) for every position in a short prompt like ours, and the factor only starts to bite in long contexts. Queries, keys and scores keep the shapes \([T,\,24,\,128]\), \([T,\,8,\,128]\) and \([24,\,T,\,S]\), now with \(S = T\).</p>
     </div>
   </section>
@@ -96,8 +96,8 @@
       <p>A panel of 128 specialists, of whom the router calls eight for each token. The bias in the selection is an adjustable thumb on the scale. It decides who gets called, while the unbiased scores decide how loudly each is heard.</p>
     </div>
     <div class="math">
-      <p>$$\begin{aligned}z &= W_r\,x \in \mathbb{R}^{128}, \qquad s = \sigma(z) \\ \mathcal{E} &= \operatorname{top\text{-}8}(s + \beta), \qquad w_e = 8\cdot\frac{s_e}{\sum_{e'\in\mathcal{E}} s_{e'}}\end{aligned}$$</p>
-      <p>$$y = \sum_{e\in\mathcal{E}} w_e\; W^{\text{down}}_e\Big(\operatorname{cap}_{4}(g)\cdot\sigma(g)\cdot\operatorname{cap}_{25}(u)\Big),\quad [g;u] = W^{\text{gate-up}}_e\,x$$</p>
+      <p><span class="eq" data-speak="The router scores all one hundred twenty-eight experts with a sigmoid, then picks the top eight by score plus a bias. Their weights are the chosen scores divided by their sum, times eight.">$$\begin{aligned}z &= W_r\,x \in \mathbb{R}^{128}, \qquad s = \sigma(z) \\ \mathcal{E} &= \operatorname{top\text{-}8}(s + \beta), \qquad w_e = 8\cdot\frac{s_e}{\sum_{e'\in\mathcal{E}} s_{e'}}\end{aligned}$$</span></p>
+      <p><span class="eq" data-speak="The layer output is the weighted sum, over the chosen experts, of each expert&#x27;s down projection of a capped gate times the sigmoid of the gate times a capped up projection.">$$y = \sum_{e\in\mathcal{E}} w_e\; W^{\text{down}}_e\Big(\operatorname{cap}_{4}(g)\cdot\sigma(g)\cdot\operatorname{cap}_{25}(u)\Big),\quad [g;u] = W^{\text{gate-up}}_e\,x$$</span></p>
       <p>The activation is <span data-fact="moe.swiglu">exactly</span> a capped gate times the sigmoid of the raw gate times a capped up-projection, where a <span data-fact="moe.cap">softcap</span> is \(c\tanh(u/c)\) with \(c = \)<span data-fact="cfg.gate_softcap">4</span> for the gate and <span data-fact="cfg.up_softcap">25</span> for the up-projection. Shapes: \(x \in \mathbb{R}^{[T,\,2304]}\), \(W^{\text{gate-up}}_e\) maps \(\mathbb{R}^{2304} \to \mathbb{R}^{2\times1152}\), \(W^{\text{down}}_e\) maps \(\mathbb{R}^{1152} \to \mathbb{R}^{2304}\), output \([T,\,2304]\).</p>
     </div>
   </section>
@@ -110,7 +110,7 @@
       <p>The prelude is the setup of a workbench. You lay out the tools once, photograph the layout, and every later attempt starts from that photograph.</p>
     </div>
     <div class="math">
-      <p>$$\big(h^{\text{pre}},\ B^{\text{pre}}\big) \;=\; \operatorname{Layers}_{0\ldots5}\big(h_0\big), \qquad h^{\text{pre}} \in \mathbb{R}^{[T,\,2304]},\quad B^{\text{pre}} \in \mathbb{R}^{[T,\,n,\,2304]}$$</p>
+      <p><span class="eq" data-speak="The prelude maps the embedding to a final hidden state and a list of block states, both reused by later passes.">$$\big(h^{\text{pre}},\ B^{\text{pre}}\big) \;=\; \operatorname{Layers}_{0\ldots5}\big(h_0\big), \qquad h^{\text{pre}} \in \mathbb{R}^{[T,\,2304]},\quad B^{\text{pre}} \in \mathbb{R}^{[T,\,n,\,2304]}$$</span></p>
       <p>\(n\) is the number of block states saved so far. <b>In the recorded run</b>, the prelude took <span data-fact="cap.prelude_s">2.12 s</span> for our 43-token prompt on CPU, about half of one pass over the core.</p>
     </div>
   </section>
@@ -125,7 +125,7 @@
       <p>Pass 1 climbs the stairs. Passes 2 and 3 are sent back to the ground floor with the photograph of the prelude and a sealed envelope from the climber before them, and each climbs again with its own notebook. See <a href="why-loop.html#b-restart-message">Article A, way two</a> for the toy version.</p>
     </div>
     <div class="math">
-      <p>$$\begin{aligned}&\text{for } t = 2, 3: \quad (h,\,B) \leftarrow (h^{\text{pre}},\,B^{\text{pre}}) \\ &\quad \text{for } j = 6,\dots,17: \\ &\qquad m_j^{(t)} = \operatorname{Msg}\big(w_j;\ B^{(t-1)},\,h^{(t-1)}\big) \\ &\qquad h \leftarrow \operatorname{Layer}_j\big(h,\,B,\,m_j^{(t)}\big)\end{aligned}$$</p>
+      <p><span class="eq" data-speak="For each of passes two and three: reset the state and block states to the prelude&#x27;s. Then for each loop layer, build a message from the previous pass, and run the layer with that message.">$$\begin{aligned}&\text{for } t = 2, 3: \quad (h,\,B) \leftarrow (h^{\text{pre}},\,B^{\text{pre}}) \\ &\quad \text{for } j = 6,\dots,17: \\ &\qquad m_j^{(t)} = \operatorname{Msg}\big(w_j;\ B^{(t-1)},\,h^{(t-1)}\big) \\ &\qquad h \leftarrow \operatorname{Layer}_j\big(h,\,B,\,m_j^{(t)}\big)\end{aligned}$$</span></p>
       <p>\(h, m \in \mathbb{R}^{[T,\,2304]}\). \(B^{(t-1)}\) and \(h^{(t-1)}\) are the loop's saved block state and final hidden state from the previous pass. The learned queries \(w_j\) number <span data-fact="loop.query_shape">four per loop layer: 12 × 4 × 2304 values</span>, one for each of the query, key, value and MLP inputs.</p>
     </div>
   </section>
@@ -139,7 +139,7 @@
       <p>Four different sticky notes per floor, each worded by asking the previous climber one question. The question is fixed in advance and learned in training. The answer is a blend of "what you had at the half-way landing" and "what you had at the top".</p>
     </div>
     <div class="math">
-      <p>$$\begin{aligned}S &= \big[\operatorname{rms}(b_{\text{mid}});\ \operatorname{rms}(h_{\text{final}})\big] \in \mathbb{R}^{[T,\,2,\,2304]} \\ m_{j,r} &= \sum_{i=1}^{2} \operatorname{softmax}_i\!\Big(\tfrac{S_i \cdot w_{j,r}}{\sqrt{2304}}\Big) S_i \in \mathbb{R}^{[T,\,2304]}, \quad r \in \{q,k,v,\text{mlp}\}\end{aligned}$$</p>
+      <p><span class="eq" data-speak="The sources are the normalised mid-loop block state and the normalised final hidden state of the previous pass. Each message is a softmax-weighted mix of the two, using one of four learned queries per layer.">$$\begin{aligned}S &= \big[\operatorname{rms}(b_{\text{mid}});\ \operatorname{rms}(h_{\text{final}})\big] \in \mathbb{R}^{[T,\,2,\,2304]} \\ m_{j,r} &= \sum_{i=1}^{2} \operatorname{softmax}_i\!\Big(\tfrac{S_i \cdot w_{j,r}}{\sqrt{2304}}\Big) S_i \in \mathbb{R}^{[T,\,2304]}, \quad r \in \{q,k,v,\text{mlp}\}\end{aligned}$$</span></p>
       <p>This is the same depth attention as in the attention-residual chapter, with the previous pass's states as sources and four queries per layer. The queries begin at zero, so a fresh model would read both sources equally. <b>In the recorded run</b> the trained queries lean hard on the final state, as the table in the last chapter of the loop shows.</p>
     </div>
   </section>
@@ -153,7 +153,7 @@
       <p>One dimmer fades the old value. The other lets the message in. Both are tanh, so each is a number between −1 and 1 per feature, and "fade" can go negative, which amplifies.</p>
     </div>
     <div class="math">
-      <p>$$\begin{aligned}z &= W_{\text{down}}\big[\operatorname{rms}(h);\ \operatorname{rms}(m)\big] \\ f = \tanh(W_f z),\quad g &= \tanh(W_m z) \\ \text{out} &= (1-f)\odot h + g\odot m\end{aligned}$$</p>
+      <p><span class="eq" data-speak="The gate computes a rank sixty-four summary z of the state and message, then f and g by tanh, and the output is one minus f times the state, plus g times the message.">$$\begin{aligned}z &= W_{\text{down}}\big[\operatorname{rms}(h);\ \operatorname{rms}(m)\big] \\ f = \tanh(W_f z),\quad g &= \tanh(W_m z) \\ \text{out} &= (1-f)\odot h + g\odot m\end{aligned}$$</span></p>
       <p>\(h, m, f, g, \text{out} \in \mathbb{R}^{[T,\,2304]}\) and \(z \in \mathbb{R}^{[T,\,64]}\). <span data-fact="src.gate_formula">The mixing line</span> and <span data-fact="src.gate_tanh">the tanh gates</span> are in the source. By our count of the config, one gate has \(2\cdot 2304\cdot 64 + 2\cdot 64\cdot 2304 = 589{,}824\) parameters. Four gates on each of twelve loop layers come to 28,311,552, and the queries add 110,592. The whole machinery of looping is about 28.4M parameters, roughly a tenth of a percent of the <span data-fact="mc.params_total">26.4B</span>.</p>
     </div>
   </section>
@@ -186,7 +186,7 @@
       <p>The coda is the editing pass. It turns the working representation back into something that can be said, and the softcap is a limiter on the volume knob so that no single word can shout.</p>
     </div>
     <div class="math">
-      <p>$$\text{logits} = 30\cdot\tanh\!\Big(\tfrac{1}{30}\,W_{\text{vocab}}\operatorname{RMSNorm}(x)\Big)$$</p>
+      <p><span class="eq" data-speak="The logits are thirty times the hyperbolic tangent of one thirtieth of the vocabulary projection of the normalised state, which bounds them between minus thirty and thirty.">$$\text{logits} = 30\cdot\tanh\!\Big(\tfrac{1}{30}\,W_{\text{vocab}}\operatorname{RMSNorm}(x)\Big)$$</span></p>
       <p>Shapes: \(x \in \mathbb{R}^{[T,\,2304]}\), \(W_{\text{vocab}} \in \mathbb{R}^{[2304,\,200058]}\), logits \(\in \mathbb{R}^{[T,\,200058]}\). The cap is <span data-fact="cfg.softcap">30</span>. Only the last position's row is needed to choose the next token.</p>
     </div>
   </section>
@@ -201,7 +201,7 @@
       <p>The weights are a library: one copy, however many people read. The cache is a notebook that every reader starts afresh, and a model that reads the same chapters three times fills three notebooks.</p>
     </div>
     <div class="math">
-      <p>$$\underbrace{40 \times 4096 \times 1024}_{\text{sliding visits, capped}} \;+\; \underbrace{8 \times 4096 \times n}_{\text{full-attention visits}} \quad\text{bytes}$$ with \(4096 = 2 \times 8 \times 128 \times 2\) bytes per visit per token.</p>
+      <p><span class="eq" data-speak="Cache bytes per token: forty sliding-window visits, capped at one thousand twenty-four positions, plus eight full-attention visits that grow with the context length n, at four thousand ninety-six bytes each per token.">$$\underbrace{40 \times 4096 \times 1024}_{\text{sliding visits, capped}} \;+\; \underbrace{8 \times 4096 \times n}_{\text{full-attention visits}} \quad\text{bytes}$$</span> with \(4096 = 2 \times 8 \times 128 \times 2\) bytes per visit per token.</p>
       <p>At the full context of <span data-fact="cfg.max_len">1,048,576</span> tokens this is 167,772,160 + 34,359,738,368 bytes, about 34.5 GB of keys and values, and the full-attention visits are 99.5% of it. Every key and value block has shape \([T,\,8,\,128]\) per visit. As a check on Thinking Machines' count of about <span data-fact="mc.params_extra_pass">1.0B</span> extra active parameters per pass, our count from the config is 12 layers × (8 experts × 7.96M + 25.95M of attention weights + 0.29M of router) ≈ 1.08B. We did not count the small tensors, so the two agree as far as we can tell.</p>
     </div>
   </section>
@@ -228,9 +228,16 @@
     <button id="prev" type="button" aria-label="Previous beat">← Prev</button><button id="next" type="button" aria-label="Next beat">Next →</button>
     <label>Speed <select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
   </div>
+  <div class="controls voice" id="voice-controls">
+    <label class="narrate"><input type="checkbox" id="narrate"> 🔊 Narrate</label>
+    <label>Voice <select id="voice"><option value="">System default</option></select></label>
+    <label>Rate <select id="rate"><option value="0.8">0.8×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></label>
+    <button id="narrate-pause" type="button">Read beat</button>
+    <span id="voice-note" class="note"></span>
+  </div>
 </aside>
 </div>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
-<script src="engine/state.js"></script><script src="engine/layout.js"></script><script src="engine/micro.js"></script><script src="engine/gl.js"></script><script src="engine/canvas2d.js"></script><script src="engine/scene.js"></script><script src="engine/recorded.js"></script><script src="engine/terms.js"></script><script src="engine/drivers.js"></script><script src="engine/boot.js"></script><script src="beats/beats-b.js"></script>
+<script src="engine/state.js"></script><script src="engine/layout.js"></script><script src="engine/micro.js"></script><script src="engine/gl.js"></script><script src="engine/canvas2d.js"></script><script src="engine/scene.js"></script><script src="engine/recorded.js"></script><script src="engine/speech.js"></script><script src="engine/terms.js"></script><script src="engine/drivers.js"></script><script src="engine/narrator.js"></script><script src="engine/boot.js"></script><script src="beats/beats-b.js"></script>
 <script>LoopArticle.start({ beats: window.LOOP_BEATS_B });</script>
 </body></html>

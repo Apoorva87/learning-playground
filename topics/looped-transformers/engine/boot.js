@@ -38,7 +38,9 @@
       state: () => ({ ...store.get(), mode: LOOP.drivers ? LOOP.drivers.mode : 'scroll' }),
     };
     LOOP.drivers = window.LoopDrivers.create({ store, sections, beats, config, stage: document.getElementById('stage') });
-    window.LoopTerms.bind({ root: document.getElementById('article'), beats, scene, store, canvas: scene.canvas });
+    const terms = window.LoopTerms.bind({ root: document.getElementById('article'), beats, scene, store, canvas: scene.canvas });
+    LOOP.terms = terms;
+    if (window.LoopNarrator) LOOP.narrator = LOOP.drivers.narrator = window.LoopNarrator.create({ store, beats, sections, scene, drivers: LOOP.drivers, getTerms: () => terms, config });
     renderMath();
     if (window.LoopRecorded) window.LoopRecorded.bind(document.getElementById('article'));
     if (window.LoopCharts) window.LoopCharts.renderAll();

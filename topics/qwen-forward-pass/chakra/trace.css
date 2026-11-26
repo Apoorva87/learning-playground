@@ -1,0 +1,63 @@
+:root{color-scheme:light;--ink:#122e41;--dim:#486471;--blue:#07526c;--mint:#d3f3ed;--line:#bacfd4;--pale:#f0f6f8}
+*{box-sizing:border-box}
+body{margin:0;background:#fbfdfe;color:var(--ink);font:17px/1.52 "Atkinson Hyperlegible Next","Avenir Next",Arial,sans-serif}
+main{max-width:1140px;margin:auto;padding:0 clamp(16px,4.2vw,65px)}
+a{color:var(--blue);text-underline-offset:.18em}
+nav,footer,.section-title,.detail-title,.steps,.block-title{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+nav,footer{padding:1.3rem 0;border-bottom:1px solid var(--line);font-size:.9rem}
+footer{border-top:1px solid var(--line);border-bottom:0;margin:3rem 0}
+header{padding:3.3rem 0 2rem}
+h1,h2,h3,h4,p{margin:0}
+h1,h2,h3{line-height:1.1;letter-spacing:-.035em}
+h1{font-size:clamp(2.8rem,6.3vw,5.6rem);max-width:900px}
+h2{font-size:clamp(1.8rem,3.7vw,3rem)}
+h3{font-size:1.65rem}
+h4{font-size:.96rem}
+.kicker,.mono,code,output{font-family:"IBM Plex Mono",ui-monospace,monospace}
+.kicker{color:var(--blue);margin-bottom:.75rem}
+.lead{font-size:clamp(1.05rem,2vw,1.35rem);max-width:730px}
+p{margin-top:.85rem;max-width:82ch}
+section{border-top:2px solid var(--ink);padding:1.6rem 0 2.15rem}
+.section-title span,.caption,.block-title span,.mono{color:var(--dim);font-size:.86rem}
+button,select,input{font:inherit;color:var(--ink);background:white;border:1px solid #8cabb4;border-radius:4px;padding:.4rem .75rem}
+button,select{cursor:pointer}
+button:hover,a:hover{color:#00505c}
+button[disabled]{opacity:.4;cursor:default}
+button[aria-pressed=true]{background:var(--ink);color:white;border-color:var(--ink)}
+button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible,select:focus-visible{outline:3px solid #da7416;outline-offset:2px}
+.switch{display:flex;gap:.25rem;margin:1.1rem 0;flex-wrap:wrap}
+.diagram{border:1px solid var(--line);background:var(--pale);overflow-x:auto;padding:1rem 0}
+.graph{width:780px;height:208px;position:relative;margin:auto}
+.graph svg{position:absolute;inset:0;width:100%;height:100%}
+.node{position:absolute;background:white;border:1px solid #7e9aa5;color:var(--ink);text-align:left;padding:.45rem .55rem;width:115px;line-height:1.15;font-size:.86rem;min-height:53px}
+.node span{display:block;color:var(--dim);font-size:.72rem;margin-top:.25rem}
+.node[aria-pressed=true] span{color:#d9e6ec}
+.steps{justify-content:flex-start;margin:1rem 0}.steps button{font-size:.85rem}
+.inspector{background:white;border:1px solid var(--line);padding:clamp(14px,3vw,32px);margin:1rem 0 1.5rem}
+.detail-title p{margin:.15rem 0}
+.detail-title h3{font-size:2rem}
+.io{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-top:1.2rem}
+.tensor{background:var(--pale);padding:.55rem .7rem;margin:.35rem 0;overflow-wrap:anywhere}
+.tensor b,.tensor span{display:block}
+.tensor span{font-size:.85rem;color:var(--dim)}
+.relation{display:flex;gap:1.4rem;flex-wrap:wrap;margin:1rem 0}
+.relation button{font-size:.85rem;padding:.2rem .55rem;margin:.25rem .25rem 0 0;background:var(--mint)}
+details{border-top:1px solid var(--line);padding-top:1rem;margin-top:1rem}
+summary{font-weight:650;cursor:pointer}
+details label{font-size:.9rem}
+.table-wrap{overflow:auto;margin-top:.7rem}
+.nested{max-height:300px;min-height:48px}
+table{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;font-size:.87rem}
+th,td{text-align:left;padding:.55rem .5rem;border-block-end:1px solid var(--line)}
+th{color:var(--dim);background:#f5f9fb}
+.nested th{position:sticky;top:0}
+td{overflow-wrap:anywhere}
+.block-title{margin:1.2rem 0}
+#block{margin:.7rem 0}
+.downloads{display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;margin-top:1rem}
+.timeline{min-width:430px;padding:0 1rem}
+.timeline button{width:100%;display:grid;grid-template-columns:125px 1fr;align-items:center;gap:.5rem;border:0;background:none;color:var(--ink);padding:.28rem;font-size:.84rem;text-align:left}
+.timeline button[aria-pressed=true]{background:var(--mint);color:var(--ink)}
+.track{height:.6rem;background:#dfebef;position:relative}
+.track i{position:absolute;top:0;height:100%;min-width:1px;background:var(--blue)}
+@media(max-width:700px){.io{grid-template-columns:1fr}.inspector{padding:14px}.section-title{gap:.5rem}.diagram{margin-inline:0}.table-wrap{width:100%}.block-title{gap:.3rem}header{padding:2.2rem 0 1.5rem}}

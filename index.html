@@ -54,6 +54,8 @@
     .directory li {padding:.55rem .5rem .55rem 0; border-bottom:1px solid #d4dbd1; }
     .directory li a {font-weight:650;}
     .directory li span {display:block; font-size:.91rem; color:#49584c;}
+    .topic-preview {display:block;margin:.9rem 0 .4rem}
+    .topic-preview img {display:block;width:100%;height:auto;border:1px solid #c6d1c4}
     code { font-size: 0.92em; }
     footer { display: flex; flex-wrap: wrap; gap: 0.65rem 1.5rem; }
     #feedback { border-block: 1px solid #b9c2b5; padding: 1.25rem 0; }
@@ -89,12 +91,20 @@
       <p><a href="#topics">Learn a topic</a> · <a href="#guides">Tool guides</a> · <a href="#skill">Master skill</a> · <a href="#feedback">Rate a tool</a></p>
     </header>
     <section class="directory" aria-labelledby="topics"><h2 id="topics">Learn a topic</h2>
-      <ul><li><a href="topics/how-transformers-remember/index.html">How Transformers Remember</a><span>Work an attention example and measure what changes as a KV cache grows.</span></li>
+      <a class="topic-preview" href="topics/qwen-forward-pass/compare/index.html" aria-label="Explore five visualizations of the Qwen forward pass"><img src="topics/qwen-forward-pass/assets/forward-preview.svg" width="960" height="316" alt="Measured Qwen decode time across 64 blocks, alongside attention weights from 24 heads over 17 tokens."></a>
+      <ul><li><a href="topics/qwen-forward-pass/index.html">Inside one Qwen forward pass</a><span>Follow a real 27B model through 64 blocks and inspect five views of its computation.</span></li>
+      <li><a href="topics/qwen-forward-pass/compare/index.html">Compare five visualizations of Qwen</a><span>See the profiler timeline, tensor graph, dataflow maps, compiled kernels and execution dependencies together.</span></li>
+      <li><a href="topics/how-transformers-remember/index.html">How Transformers Remember</a><span>Work an attention example and measure what changes as a KV cache grows.</span></li>
       <li><a href="topics/inside-prism/index.html">Inside Prism · From screen to Swift</a><span>Pick an Apple TV interface element and read the Swift that makes it work.</span></li></ul>
     </section>
     <section class="directory" aria-labelledby="guides"><h2 id="guides">Tool guides</h2>
       <p>Each guide explains how to use the tool, the software or teaching method behind it, and what happened in our trial.</p>
       <ul>
+        <li><a href="tools/pytorch-profiler/index.html">PyTorch Profiler</a><span>Capture operators, their nested durations and tensor shapes in a real forward pass.</span></li>
+        <li><a href="tools/torchlens/index.html">TorchLens</a><span>Trace a forward call to inspect which tensor operations produced each value.</span></li>
+        <li><a href="tools/dace/index.html">DaCe</a><span>Lower numerical Python into a dataflow graph and inspect the array regions and parallel maps.</span></li>
+        <li><a href="tools/torchinductor/index.html">TorchInductor</a><span>Compile tensor operations and compare the captured graph with the buffers and kernels it generates.</span></li>
+        <li><a href="tools/chakra/index.html">MLCommons Chakra</a><span>Link execution events and inspect their control, timing and tensor relationships.</span></li>
         <li><a href="tools/deeptutor/index.html">DeepTutor</a><span>Study with a tutor and review its worked answer.</span></li>
         <li><a href="tools/teachable-code/index.html">Teachable Code</a><span>Connect a working interface to real source lines.</span></li>
         <li><a href="tools/openmaic/index.html">OpenMAIC</a><span>Generate a classroom, a simulation, or a quiz.</span></li>
@@ -257,6 +267,14 @@
         <p class="links"><a href="topics/how-transformers-remember/cases/huggingarch-cache/runs/2026-11-24-huggingarch/result.html">Inspect the cache measurements</a>
         <a href="tools/huggingarch/index.html">Read the HuggingArch guide</a> <a href="https://www.huggingarch.com">Open the hosted explorer</a> <a href="https://shenhan.cc/blog/huggingarch.html">Read the author’s explanation</a></p>
       </article>
+    </section>
+    <section aria-labelledby="tracing"><h2 id="tracing">Profile a forward pass</h2>
+      <p>Use the <a href="topics/qwen-forward-pass/index.html">Qwen3.8-27B timeline</a> to compare the five tools on the same inputs.</p>
+      <article class="tool" id="pytorch-profiler"><h3><a href="tools/pytorch-profiler/index.html">PyTorch Profiler</a></h3><p>Capture operators, their nested durations and tensor shapes in a real forward pass.</p><p class="links"><a href="topics/qwen-forward-pass/pytorch-profiler/index.html">Explore the recorded CPU timeline for the pinned Qwen checkpoint.</a></p></article>
+      <article class="tool" id="torchlens"><h3><a href="tools/torchlens/index.html">TorchLens</a></h3><p>Trace a forward call to inspect which tensor operations produced each value.</p><p class="links"><a href="topics/qwen-forward-pass/torchlens/index.html">Select a tensor in Qwen’s attention core and follow its parents.</a></p></article>
+      <article class="tool" id="dace"><h3><a href="tools/dace/index.html">DaCe</a></h3><p>Lower numerical Python into a dataflow graph and inspect the array regions and parallel maps.</p><p class="links"><a href="topics/qwen-forward-pass/dace/index.html">Walk through the cache reads and reductions for one Qwen attention head.</a></p></article>
+      <article class="tool" id="torchinductor"><h3><a href="tools/torchinductor/index.html">TorchInductor</a></h3><p>Compile tensor operations and compare the captured graph with the buffers and kernels it generates.</p><p class="links"><a href="topics/qwen-forward-pass/torchinductor/index.html">Inspect what the compiler fused in the Qwen attention replay.</a></p></article>
+      <article class="tool" id="chakra"><h3><a href="tools/chakra/index.html">MLCommons Chakra</a></h3><p>Link execution events and inspect their control, timing and tensor relationships.</p><p class="links"><a href="topics/qwen-forward-pass/chakra/index.html">Trace dependencies in the Qwen workload.</a></p></article>
     </section>
     <nav aria-label="Workspace index">
       <a href="#topics">

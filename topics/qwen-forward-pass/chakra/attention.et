@@ -1,0 +1,43 @@
+◊
+1.1.1-chakra.0.0.4¿
+
+projectionÍ∞Replay region + seven top-level CPU operations. ctrl_deps = scope parent; data_deps = same tensor ID between siblings. Times relative to region start; inclusive, rounded to us.%layer3.decode.attention_core8ËÖaten::repeat_interleave"0S8‰Bv
+,[[6, 7, 0, 17408, 4, "cpu"], 6, 1, "<None>"][[1, 4, 17, 256], [], [], []]'["Tensor(float)", "Int", "Int", "None"]JH
+[[22, 18, 0, 104448, 4, "cpu"]][[1, 24, 17, 256]]["Tensor(float)"]R	
+rf_idHR
+
+kineto_tidHÙ∆Åáaten::repeat_interleave"0Ω8oBx
+.[[24, 25, 0, 17408, 4, "cpu"], 6, 1, "<None>"][[1, 4, 17, 256], [], [], []]'["Tensor(float)", "Int", "Int", "None"]JH
+[[40, 36, 0, 104448, 4, "cpu"]][[1, 24, 17, 256]]["Tensor(float)"]R	
+rf_idHR
+
+kineto_tidHÙ∆Å)aten::transpose"*0≤8Bf
+'[[22, 18, 0, 104448, 4, "cpu"], -2, -1][[1, 24, 17, 256], [], []]["Tensor(float)", "Int", "Int"]JH
+[[43, 18, 0, 104448, 4, "cpu"]][[1, 24, 256, 17]]["Tensor(float)"]R	
+rf_idHR
+
+kineto_tidHÙ∆Åå,aten::matmul"*)0À8üBá
+<[[45, 46, 0, 6144, 4, "cpu"], [43, 18, 0, 104448, 4, "cpu"]]#[[1, 24, 1, 256], [1, 24, 256, 17]]"["Tensor(float)", "Tensor(float)"]JD
+[[306, 64, 0, 408, 4, "cpu"]][[1, 24, 1, 17]]["Tensor(float)"]R	
+rf_idHR
+
+kineto_tidHÙ∆Å˘≥	aten::mul"*,0˙89Bv
+9[[306, 64, 0, 408, 4, "cpu"], [308, 309, 0, 1, 8, "cpu"]][[1, 24, 1, 17], []]#["Tensor(float)", "Tensor(double)"]JE
+[[316, 317, 0, 408, 4, "cpu"]][[1, 24, 1, 17]]["Tensor(float)"]R
+
+rf_idHËR
+
+kineto_tidHÙ∆ÅÒæaten::softmax"*≥0¿8Bj
+,[[316, 317, 0, 408, 4, "cpu"], -1, "<None>"][[1, 24, 1, 17], [], []] ["Tensor(float)", "Int", "None"]JD
+[[320, 64, 0, 408, 4, "cpu"]][[1, 24, 1, 17]]["Tensor(float)"]R
+
+rf_idHÌR
+
+kineto_tidHÙ∆Åí¡aten::matmul"*æ0’8
+BÜ
+<[[320, 64, 0, 408, 4, "cpu"], [40, 36, 0, 104448, 4, "cpu"]]"[[1, 24, 1, 17], [1, 24, 17, 256]]"["Tensor(float)", "Tensor(float)"]JG
+[[627, 338, 0, 6144, 4, "cpu"]][[1, 24, 1, 256]]["Tensor(float)"]R
+
+rf_idHÔR
+
+kineto_tidHÙ∆Å

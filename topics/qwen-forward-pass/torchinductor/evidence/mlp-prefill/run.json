@@ -1,0 +1,291 @@
+{
+  "case": "mlp-prefill",
+  "revision": "37561816e66b5b9153b1b64c10968c18c1e6f4a0",
+  "torch": "2.11.0",
+  "python": "3.13.12",
+  "host": "macOS-26.1-arm64-arm-64bit-Mach-O",
+  "threads": 1,
+  "interop_threads": 1,
+  "inputs": {
+    "hidden": {
+      "shape": [
+        1,
+        16,
+        5120
+      ],
+      "dtype": "bfloat16",
+      "bytes": 163840
+    },
+    "model.language_model.layers.3.mlp.gate_proj.weight": {
+      "shape": [
+        17408,
+        5120
+      ],
+      "dtype": "bfloat16",
+      "bytes": 178257920
+    },
+    "model.language_model.layers.3.mlp.up_proj.weight": {
+      "shape": [
+        17408,
+        5120
+      ],
+      "dtype": "bfloat16",
+      "bytes": 178257920
+    },
+    "model.language_model.layers.3.mlp.down_proj.weight": {
+      "shape": [
+        5120,
+        17408
+      ],
+      "dtype": "bfloat16",
+      "bytes": 178257920
+    }
+  },
+  "output": {
+    "shape": [
+      1,
+      16,
+      5120
+    ],
+    "dtype": "bfloat16",
+    "bytes": 163840
+  },
+  "weight_shards": {
+    "model.language_model.layers.3.mlp.gate_proj.weight": "model-00001-of-00018.safetensors",
+    "model.language_model.layers.3.mlp.up_proj.weight": "model-00001-of-00018.safetensors",
+    "model.language_model.layers.3.mlp.down_proj.weight": "model-00001-of-00018.safetensors"
+  },
+  "fixture_sha256": "699b1c861d55f29d0c60400caff45a4699996ff273508dce11db6c5aeabc6d35",
+  "first_compiled_call_s": 2.8332607499323785,
+  "timing": {
+    "batches": 11,
+    "calls_per_batch": 1,
+    "wall_us_per_call": [
+      211006.541,
+      211736.792,
+      211300.75,
+      209477.667,
+      209712.791,
+      209997.958,
+      211766.667,
+      210530.417,
+      209617.166,
+      220059.291,
+      222983.541
+    ],
+    "median_wall_us": 211006.541,
+    "process_cpu_us_per_call": [
+      210738.0,
+      211402.0,
+      210856.0,
+      209321.0,
+      209415.0,
+      209229.0,
+      211437.0,
+      210208.0,
+      209454.0,
+      214422.0,
+      216668.0
+    ],
+    "median_process_cpu_us": 210738.0
+  },
+  "wrapper_calls": [
+    {
+      "name": "extern_kernels.mm",
+      "start_us": 96.25,
+      "end_us": 70100.375,
+      "elapsed_us": 70004.125,
+      "thread": 0,
+      "positional": [
+        {
+          "shape": [
+            16,
+            5120
+          ],
+          "dtype": "bfloat16",
+          "bytes": 163840
+        },
+        {
+          "shape": [
+            5120,
+            17408
+          ],
+          "dtype": "bfloat16",
+          "bytes": 178257920
+        }
+      ],
+      "named": {
+        "out": {
+          "shape": [
+            16,
+            17408
+          ],
+          "dtype": "bfloat16",
+          "bytes": 557056
+        }
+      },
+      "returned": [
+        {
+          "shape": [
+            16,
+            17408
+          ],
+          "dtype": "bfloat16",
+          "bytes": 557056
+        }
+      ]
+    },
+    {
+      "name": "extern_kernels.mm",
+      "start_us": 70156.875,
+      "end_us": 140096.209,
+      "elapsed_us": 69939.334,
+      "thread": 0,
+      "positional": [
+        {
+          "shape": [
+            16,
+            5120
+          ],
+          "dtype": "bfloat16",
+          "bytes": 163840
+        },
+        {
+          "shape": [
+            5120,
+            17408
+          ],
+          "dtype": "bfloat16",
+          "bytes": 178257920
+        }
+      ],
+      "named": {
+        "out": {
+          "shape": [
+            16,
+            17408
+          ],
+          "dtype": "bfloat16",
+          "bytes": 557056
+        }
+      },
+      "returned": [
+        {
+          "shape": [
+            16,
+            17408
+          ],
+          "dtype": "bfloat16",
+          "bytes": 557056
+        }
+      ]
+    },
+    {
+      "name": "cpp_fused__unsafe_view_mul_silu_0",
+      "start_us": 140141.5,
+      "end_us": 140481.042,
+      "elapsed_us": 339.542,
+      "thread": 0,
+      "positional": [
+        {
+          "shape": [
+            1,
+            16,
+            17408
+          ],
+          "dtype": "bfloat16",
+          "bytes": 557056
+        },
+        {
+          "shape": [
+            16,
+            17408
+          ],
+          "dtype": "bfloat16",
+          "bytes": 557056
+        }
+      ],
+      "named": {},
+      "returned": []
+    },
+    {
+      "name": "extern_kernels.mm",
+      "start_us": 140497.542,
+      "end_us": 210880.417,
+      "elapsed_us": 70382.875,
+      "thread": 0,
+      "positional": [
+        {
+          "shape": [
+            16,
+            17408
+          ],
+          "dtype": "bfloat16",
+          "bytes": 557056
+        },
+        {
+          "shape": [
+            17408,
+            5120
+          ],
+          "dtype": "bfloat16",
+          "bytes": 178257920
+        }
+      ],
+      "named": {
+        "out": {
+          "shape": [
+            16,
+            5120
+          ],
+          "dtype": "bfloat16",
+          "bytes": 163840
+        }
+      },
+      "returned": [
+        {
+          "shape": [
+            16,
+            5120
+          ],
+          "dtype": "bfloat16",
+          "bytes": 163840
+        }
+      ]
+    }
+  ],
+  "generated_openmp_parallel_directives": [],
+  "compiled_vs_reference": {
+    "max_abs": 0.001953125,
+    "mean_abs": 4.7230347263393924e-05,
+    "rmse": 9.649035928305238e-05,
+    "num_values": 81920,
+    "count_exact": 41105,
+    "reference_abs_max": 0.78515625,
+    "expected_rms": 0.029486875981092453
+  },
+  "eager_vs_reference": {
+    "max_abs": 0.0,
+    "mean_abs": 0.0,
+    "rmse": 0.0,
+    "num_values": 81920,
+    "count_exact": 81920,
+    "reference_abs_max": 0.78515625,
+    "expected_rms": 0.029486875981092453
+  },
+  "compiled_vs_eager": {
+    "max_abs": 0.001953125,
+    "mean_abs": 4.7230347263393924e-05,
+    "rmse": 9.649035928305238e-05,
+    "num_values": 81920,
+    "count_exact": 41105,
+    "reference_abs_max": 0.78515625,
+    "expected_rms": 0.029486875981092453
+  },
+  "check": {
+    "rtol": 0.016,
+    "atol": 0.003,
+    "pass": true,
+    "out_of_tolerance": 0
+  }
+}

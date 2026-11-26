@@ -1,0 +1,291 @@
+{
+  "case": "mlp-decode",
+  "revision": "37561816e66b5b9153b1b64c10968c18c1e6f4a0",
+  "torch": "2.11.0",
+  "python": "3.13.12",
+  "host": "macOS-26.1-arm64-arm-64bit-Mach-O",
+  "threads": 1,
+  "interop_threads": 1,
+  "inputs": {
+    "hidden": {
+      "shape": [
+        1,
+        1,
+        5120
+      ],
+      "dtype": "bfloat16",
+      "bytes": 10240
+    },
+    "model.language_model.layers.3.mlp.gate_proj.weight": {
+      "shape": [
+        17408,
+        5120
+      ],
+      "dtype": "bfloat16",
+      "bytes": 178257920
+    },
+    "model.language_model.layers.3.mlp.up_proj.weight": {
+      "shape": [
+        17408,
+        5120
+      ],
+      "dtype": "bfloat16",
+      "bytes": 178257920
+    },
+    "model.language_model.layers.3.mlp.down_proj.weight": {
+      "shape": [
+        5120,
+        17408
+      ],
+      "dtype": "bfloat16",
+      "bytes": 178257920
+    }
+  },
+  "output": {
+    "shape": [
+      1,
+      1,
+      5120
+    ],
+    "dtype": "bfloat16",
+    "bytes": 10240
+  },
+  "weight_shards": {
+    "model.language_model.layers.3.mlp.gate_proj.weight": "model-00001-of-00018.safetensors",
+    "model.language_model.layers.3.mlp.up_proj.weight": "model-00001-of-00018.safetensors",
+    "model.language_model.layers.3.mlp.down_proj.weight": "model-00001-of-00018.safetensors"
+  },
+  "fixture_sha256": "699b1c861d55f29d0c60400caff45a4699996ff273508dce11db6c5aeabc6d35",
+  "first_compiled_call_s": 2.647631458006799,
+  "timing": {
+    "batches": 11,
+    "calls_per_batch": 1,
+    "wall_us_per_call": [
+      14978.417,
+      16998.166,
+      15105.667,
+      14865.0,
+      15358.416,
+      15670.5,
+      15308.0,
+      15373.208,
+      15142.875,
+      15173.209,
+      15084.25
+    ],
+    "median_wall_us": 15173.209,
+    "process_cpu_us_per_call": [
+      14947.0,
+      15876.0,
+      14996.0,
+      14845.0,
+      15302.0,
+      15596.0,
+      15210.0,
+      15176.0,
+      15090.0,
+      15121.0,
+      15031.0
+    ],
+    "median_process_cpu_us": 15121.0
+  },
+  "wrapper_calls": [
+    {
+      "name": "extern_kernels.mm",
+      "start_us": 99.709,
+      "end_us": 5214.334,
+      "elapsed_us": 5114.625,
+      "thread": 0,
+      "positional": [
+        {
+          "shape": [
+            1,
+            5120
+          ],
+          "dtype": "bfloat16",
+          "bytes": 10240
+        },
+        {
+          "shape": [
+            5120,
+            17408
+          ],
+          "dtype": "bfloat16",
+          "bytes": 178257920
+        }
+      ],
+      "named": {
+        "out": {
+          "shape": [
+            1,
+            17408
+          ],
+          "dtype": "bfloat16",
+          "bytes": 34816
+        }
+      },
+      "returned": [
+        {
+          "shape": [
+            1,
+            17408
+          ],
+          "dtype": "bfloat16",
+          "bytes": 34816
+        }
+      ]
+    },
+    {
+      "name": "extern_kernels.mm",
+      "start_us": 5271.459,
+      "end_us": 10135.459,
+      "elapsed_us": 4864.0,
+      "thread": 0,
+      "positional": [
+        {
+          "shape": [
+            1,
+            5120
+          ],
+          "dtype": "bfloat16",
+          "bytes": 10240
+        },
+        {
+          "shape": [
+            5120,
+            17408
+          ],
+          "dtype": "bfloat16",
+          "bytes": 178257920
+        }
+      ],
+      "named": {
+        "out": {
+          "shape": [
+            1,
+            17408
+          ],
+          "dtype": "bfloat16",
+          "bytes": 34816
+        }
+      },
+      "returned": [
+        {
+          "shape": [
+            1,
+            17408
+          ],
+          "dtype": "bfloat16",
+          "bytes": 34816
+        }
+      ]
+    },
+    {
+      "name": "cpp_fused__unsafe_view_mul_silu_0",
+      "start_us": 10156.5,
+      "end_us": 10180.75,
+      "elapsed_us": 24.25,
+      "thread": 0,
+      "positional": [
+        {
+          "shape": [
+            1,
+            1,
+            17408
+          ],
+          "dtype": "bfloat16",
+          "bytes": 34816
+        },
+        {
+          "shape": [
+            1,
+            17408
+          ],
+          "dtype": "bfloat16",
+          "bytes": 34816
+        }
+      ],
+      "named": {},
+      "returned": []
+    },
+    {
+      "name": "extern_kernels.mm",
+      "start_us": 10191.917,
+      "end_us": 15207.125,
+      "elapsed_us": 5015.208,
+      "thread": 0,
+      "positional": [
+        {
+          "shape": [
+            1,
+            17408
+          ],
+          "dtype": "bfloat16",
+          "bytes": 34816
+        },
+        {
+          "shape": [
+            17408,
+            5120
+          ],
+          "dtype": "bfloat16",
+          "bytes": 178257920
+        }
+      ],
+      "named": {
+        "out": {
+          "shape": [
+            1,
+            5120
+          ],
+          "dtype": "bfloat16",
+          "bytes": 10240
+        }
+      },
+      "returned": [
+        {
+          "shape": [
+            1,
+            5120
+          ],
+          "dtype": "bfloat16",
+          "bytes": 10240
+        }
+      ]
+    }
+  ],
+  "generated_openmp_parallel_directives": [],
+  "compiled_vs_reference": {
+    "max_abs": 0.000244140625,
+    "mean_abs": 3.1190942536341026e-05,
+    "rmse": 5.00340829603374e-05,
+    "num_values": 5120,
+    "count_exact": 2248,
+    "reference_abs_max": 0.2119140625,
+    "expected_rms": 0.014562762342393398
+  },
+  "eager_vs_reference": {
+    "max_abs": 0.0,
+    "mean_abs": 0.0,
+    "rmse": 0.0,
+    "num_values": 5120,
+    "count_exact": 5120,
+    "reference_abs_max": 0.2119140625,
+    "expected_rms": 0.014562762342393398
+  },
+  "compiled_vs_eager": {
+    "max_abs": 0.000244140625,
+    "mean_abs": 3.1190942536341026e-05,
+    "rmse": 5.00340829603374e-05,
+    "num_values": 5120,
+    "count_exact": 2248,
+    "reference_abs_max": 0.2119140625,
+    "expected_rms": 0.014562762342393398
+  },
+  "check": {
+    "rtol": 0.016,
+    "atol": 0.003,
+    "pass": true,
+    "out_of_tolerance": 0
+  }
+}

@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PyTorch Profiler · Inside one Qwen forward pass</title>
+<link rel="stylesheet" href="../atlas.css"><link rel="stylesheet" href="profiler.css">
+<script defer src="decode-data.js"></script><script defer src="prefill-data.js"></script><script defer src="replay-data.js"></script><script defer src="profiler.js"></script></head>
+<body><main>
+<nav><a href="../index.html">Inside one Qwen forward pass</a><a href="../../../tools/pytorch-profiler/index.html">PyTorch Profiler guide</a></nav>
+<header><h1>Inside the CPU trace</h1><p>Follow a decoder block down to a single PyTorch call. Compare its elapsed time, tensor sizes and place in the execution order.</p></header>
+<section class="lab" id="timeline">
+<div class="section-top"><h2>Operator timeline</h2><div class="switch" aria-label="Capture" id="phases"><button data-phase="decode" aria-pressed="true">Cached decode</button><button data-phase="prefill" aria-pressed="false">Prefill</button><button data-phase="replay" aria-pressed="false">Attention replay</button></div></div>
+<p id="phaseIntro"></p>
+<div id="overviewWrap"><div class="chartcap"><h3>All 64 decoder blocks</h3><span><i class="recur"></i>Recurrent <i class="att"></i>Full attention</span></div><div id="overview" aria-label="Block timeline"></div><div class="axis" id="overviewAxis"></div></div>
+<div class="chartbox">
+<div class="controls"><label>Window <select id="window"></select></label><button id="closer">Zoom in</button><button id="further">Zoom out</button><button id="reset">Fit capture</button></div>
+<div class="trace-scroll"><svg id="timelineSvg" role="group" aria-label="Nested CPU calls arranged by start time and depth"></svg></div>
+<div class="axis"><span id="leftEdge"></span><span>Time from capture start</span><span id="rightEdge"></span></div>
+<label class="pan">Pan through capture <input id="pan" type="range" min="0" max="1000000" value="0"></label>
+<p class="hint">Rows show nested calls on one recorded host thread. Click a bar or use the event menu. Gaps can contain operators omitted from this compact timeline. Times include tracing overhead.</p>
+</div>
+<div class="controls" id="shortcuts" aria-label="Trace examples"></div>
+<div class="inspect"><div><label for="event">Inspect an event in this window</label><select id="event"></select><h3 id="eventTitle"></h3><p id="eventContext"></p><div class="controls"><button id="zoomEvent">Fit selected event</button><button id="parent">Select enclosing call</button></div></div><div>
+<div class="split-meter" id="timeSplit"></div><p id="timeValues"></p><h4>Tensor payloads</h4><div id="tensors"></div><p class="hint" id="payloadHint"></p></div></div>
+</section>
+<section class="lab" id="breakdown"><div class="section-top"><h2>Where the time went</h2><div class="switch" id="measure"><button data-order="2" aria-pressed="true">Self time</button><button data-order="1" aria-pressed="false">Inclusive time</button><button data-order="0" aria-pressed="false">Calls</button></div></div>
+<p id="summaryLead"></p><div class="fraction" id="convShare"></div><div class="chartcap" id="convLabels"></div>
+<div class="controls"><label>Count within <select id="subset"><option value="all">Entire capture</option><option value="conv">Grouped convolutions</option></select></label><label>Find operator <input id="search" type="search" placeholder="e.g. aten::mm"></label><button id="showAll">Show all operators</button></div>
+<div id="ranking" class="ranking"></div><p class="hint" id="rankHint"></p><p id="rankDetail"></p></section>
+<section class="lab" id="clocks"><h2>How much CPU ran?</h2><p>A separate pass measured wall and process CPU time around the same modules with lightweight hooks. Process CPU sums time across all threads. Dividing by elapsed time gives the average number of busy CPU cores attributable to the process during this interval.</p><div class="controls"><label>Compare clocks for <select id="clockScope"></select></label></div><div id="clockChart" class="metric-bars"></div><p id="clockConclusion"></p><p class="hint">Eight intra-op threads were configured. The timeline shows the main host thread. It cannot identify which workers overlapped or when they ran. The instrumented range comes from a separate invocation with both Kineto and the execution trace observer enabled. <a href="../index.html#cpu-occupancy">Explore the separate 50 ms CPU occupancy samples</a>.</p></section>
+<section class="lab" id="replay"><h2>Follow one attention result</h2><p>Block 3 uses 24 query heads and four key/value heads. Six queries share each KV head. This FP32 replay used the checkpoint’s own tensors for one new token attending to 17 positions.</p>
+<div class="chartbox"><h3>Which values must be ready?</h3><div class="flow-scroll"><svg id="flow" viewBox="0 0 825 173" role="group" aria-label="Dependencies of the replay from keys and values to the final mixture"></svg></div><p class="hint">Arrows indicate tensor dependencies. Select a calculation to locate it on the one-thread replay timeline.</p><p id="flowDetail"></p></div>
+<div class="columns"><div><h3>Allocations during the replay</h3><p class="hint">Net live bytes from recorded allocation and release events. The fixture was already resident at the start. Select a point to inspect its change.</p><svg id="alloc" role="group" aria-label="Step chart of net allocated tensor bytes"></svg><label>Allocation event <select id="allocSelect"></select></label><p id="allocDetail"></p></div>
+<div><h3>Check the output against the fixture</h3><p class="hint">Select one of the 24 output heads and a feature. The line shows all 256 values from the profiled FP32 replay for that head.</p><div class="controls"><label>Query head <select id="head"></select></label><label>Feature <input type="number" min="0" max="255" value="0" id="feature"></label></div><svg id="values" role="img" aria-label="Output by feature for the selected query head"></svg><p id="comparison"></p></div></div></section>
+<section class="lab"><h2>Inspect the evidence</h2><p>The compact full-model traces retain the major operators, enclosing calls and 21 initial records per grouped convolution, including a per-channel branch. The rankings cover every operator and annotation in the original model captures. The replay trace contains every operator and allocation event.</p>
+<div class="sources"><a href="prefill-operators.json.gz" download>Prefill trace (.json.gz)</a><a href="decode-operators.json.gz" download>Decode trace (.json.gz)</a><a href="replay-operators.json.gz" download>Replay trace (.json.gz)</a><a href="notes.md">Run notes and commands</a><a href="../assets/workload.json">Input manifest</a><a href="collect.py">Trace reduction</a><a href="replay.py">Replay script</a></div>
+</section><footer><a href="../index.html">Return to the Qwen study</a><a href="../../../tools/pytorch-profiler/index.html">Profiler guide and setup</a></footer>
+</main></body></html>

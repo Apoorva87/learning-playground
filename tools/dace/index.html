@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DaCe · Learning Playground</title><link rel="stylesheet" href="../../guide.css"></head>
+<body><main><nav aria-label="Playground"><a href="../../index.html#dace">All tools</a><a href="../../topics/qwen-forward-pass/index.html">Qwen forward pass</a></nav>
+<header><h1>DaCe</h1><p class="lede">Trace a computation by asking which array elements must move. DaCe lets you express those movements, choose a schedule, and compile the graph into a native program.</p>
+<a href="../../topics/qwen-forward-pass/dace/index.html">Explore one Qwen decode token through six states</a></header>
+<h2>Read a graph from the inside out</h2>
+<p>A stateful dataflow multigraph (SDFG) connects states with control flow. Inside a state, a <em>tasklet</em> computes, a <em>map</em> identifies iterations, and a <em>memlet</em> carries a subset of an array along an edge. The subset can expose reuse even when two references point to the same underlying memory. <a href="https://spcldace.readthedocs.io/en/stable/frontend/daceprograms.html">DaCe’s explicit dataflow documentation</a></p>
+<figure><pre><code>One map iteration at query head h and token t
+
+q[h, :]              ── 256 FP32 ──┐
+                                   ├─ dot and scale ── 1 FP32 ── scores[h,t]
+k[floor(h/6), t, :]  ── 256 FP32 ──┘</code></pre>
+<figcaption>The score state in the saved trial, drawn from its native SDFG. The two inputs contribute 2,048 logical read bytes for this iteration. Multiplying by 408 head–position pairs gives 835,584 read bytes in the state. <a href="../../topics/qwen-forward-pass/dace/decode.sdfg">Download the graph</a></figcaption></figure>
+<h2>Run the saved case</h2>
+<ol><li>Install <code>uv</code>, Python 3.11 and a C++ compiler with OpenMP. On the tested Apple Silicon Mac, Apple Clang and Homebrew <code>libomp</code> supply the compiler and runtime. The recipe installs CMake into the tool environment.</li>
+<li>From the repository root, install the tested release and run the benchmark.
+<pre><code>./install.sh dace
+.local/tools/dace/.venv/bin/python topics/qwen-forward-pass/dace/replay.py</code></pre></li>
+<li>Open the <a href="../../topics/qwen-forward-pass/dace/index.html">six-state inspector</a>. Choose <strong>Value mix</strong>, select query head 6 and token 16, then inspect the contribution of the newest cached value. Head 6 is the first query head to read KV head 1.</li></ol>
+<h2>What you can change</h2>
+<p>The Python source uses DaCe’s graph-construction API. Each state contains a mapped arithmetic tasklet. Normalization and value mixing use separate workspaces so you can inspect intermediate numerical results. The SDFG can also be examined using the upstream viewer. <a href="../../topics/qwen-forward-pass/dace/replay.py">Trial source</a> · <a href="https://github.com/spcl/dace">Upstream project and viewer instructions</a></p>
+<p>DaCe compiles the graph and times an instrumented execution. The browser controls, byte accounting and explanations are teaching material built around that output. This trial exercised the CPU backend and sequential map schedule. GPU compilation, graph transformations, hardware memory counters and the IDE workflow remain untested here.</p>
+<footer><a href="README.md">Installation record</a> · <a href="install.sh">Setup recipe</a> · <a href="../../topics/qwen-forward-pass/dace/README.md">Trial record</a> · <a href="https://pypi.org/project/dace/1.0.2/">DaCe 1.0.2 release</a></footer>
+</main></body></html>

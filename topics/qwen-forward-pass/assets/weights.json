@@ -1,0 +1,397 @@
+{
+  "tensors": 1199,
+  "bytes_by_component": {
+    "decoder_blocks": 48706393088,
+    "vision": 921460192,
+    "model.language_model.embed_tokens.weight": 2542796800,
+    "model.language_model.norm.weight": 10240,
+    "lm_head.weight": 2542796800,
+    "multi_token_prediction": 849398784
+  },
+  "bytes_by_block": [
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240,
+      "self_attn": 209716224
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240,
+      "self_attn": 209716224
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240,
+      "self_attn": 209716224
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240,
+      "input_layernorm": 10240,
+      "self_attn": 209716224
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240,
+      "self_attn": 209716224
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240,
+      "self_attn": 209716224
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240,
+      "self_attn": 209716224
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240,
+      "self_attn": 209716224
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240,
+      "self_attn": 209716224
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240,
+      "self_attn": 209716224
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240,
+      "self_attn": 209716224
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240,
+      "self_attn": 209716224
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240,
+      "self_attn": 209716224
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240,
+      "self_attn": 209716224
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240,
+      "self_attn": 209716224
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "linear_attn": 231752128,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240
+    },
+    {
+      "input_layernorm": 10240,
+      "mlp": 534773760,
+      "post_attention_layernorm": 10240,
+      "self_attn": 209716224
+    }
+  ]
+}

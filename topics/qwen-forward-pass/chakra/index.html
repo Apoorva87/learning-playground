@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Follow an attention dependency · MLCommons Chakra</title>
+<link rel="stylesheet" href="trace.css"><script src="study-data.js" defer></script><script src="explorer.js" defer></script></head>
+<body><main><nav><a href="../index.html">← Qwen forward pass</a><a href="../../../tools/chakra/index.html">Chakra tool guide</a></nav>
+<header><p class="kicker">MLCommons Chakra</p><h1>Follow an attention dependency</h1>
+<p class="lead">One decode token needs two inputs for its final matrix multiply. Trace each input back to its producer, then see when the CPU actually ran the work.</p></header>
+<section aria-labelledby="replay-title"><div class="section-title"><h2 id="replay-title">The attention replay</h2><span>Block 3 · FP32 · one CPU thread</span></div>
+<p>Qwen supplies one query for each of 24 heads. Each group of six queries shares the same keys and values from 17 positions. These seven operations run on tensors captured from the fourth decoder block.</p>
+<div class="switch" role="group" aria-label="Replay view"><button id="lineage" aria-pressed="true">Tensor dependencies</button><button id="intervals" aria-pressed="false">Observed host time</button></div>
+<div id="diagram" class="diagram"></div><p id="diagram-caption" class="caption"></p>
+<div class="steps"><button id="previous" aria-label="Previous operation">← Previous</button><output id="position" aria-live="polite"></output><button id="next" aria-label="Next operation">Next →</button></div>
+<article class="inspector" aria-labelledby="op-heading"><div class="detail-title"><div><p id="operator" class="mono"></p><h3 id="op-heading"></h3></div><div id="op-id" class="mono"></div></div>
+<p id="explanation"></p><div class="io" id="tensors"></div>
+<div class="relation"><div><h4>Tensor producers</h4><div id="producers"></div></div><div><h4>Tensor consumers</h4><div id="consumers"></div></div></div>
+<details id="call-tree"><summary>Inspect recorded call nesting</summary><p id="nested-info"></p><label for="child-filter">Filter nested calls</label> <input type="search" id="child-filter" placeholder="e.g. bmm or copy_"><p id="child-count" class="caption"></p>
+<div class="table-wrap nested"><table><thead><tr><th>ET node</th><th>Parent</th><th>Nested operation</th><th>Start µs</th><th>Inclusive µs</th></tr></thead><tbody id="child-rows"></tbody></table></div></details></article>
+<h3>What would parallel execution look like?</h3><p id="concurrency"></p>
+<p>At the transpose, compare the input and output storage IDs and strides. Two tensor objects can share a buffer. A storage address can also be reused over time. The replay follows exact tensor IDs among these seven siblings. Logical tensor bytes count elements × element width. A view’s payload can refer to existing bytes without a physical copy.</p></section>
+<section aria-labelledby="full-title"><div class="section-title"><h2 id="full-title">Inside the full model</h2><span>Text decoder · BF16 · 64 blocks</span></div>
+<p>Choose a phase and block to inspect a filtered set of CPU calls within its recorded scope. The full prefill consumes 16 tokens. The cached decode then consumes the fixed token “ The”. The vocabulary head produces last-position logits in each phase.</p>
+<div class="switch" role="group" aria-label="Full-model phase"><button id="full-prefill" aria-pressed="false">Prefill</button><button id="full-decode" aria-pressed="true">Cached decode</button></div>
+<p id="phase-evidence"></p><label for="block">Decoder block</label> <select id="block"></select>
+<div class="block-title"><h3 id="block-title"></h3><span id="block-detail"></span></div>
+<p id="block-note"></p><div class="table-wrap"><table><thead><tr><th>Operation</th><th>Calls</th><th>Total inclusive µs</th><th>Example ET node</th><th>Example tensor input shapes</th></tr></thead><tbody id="hot"></tbody></table></div>
+<p class="caption">The table sums matched inclusive intervals by operation across the retained calls and shows the top eight. Nested calls can cover the same time, so adding the rows would double-count work. The full-model ET capture also capped long literal list arguments at 4,096 entries. All start offsets use the phase annotation as zero.</p></section>
+<section aria-labelledby="artifacts"><h2 id="artifacts">Read the evidence</h2>
+<p id="native-report"></p><p>PyTorch records a scope’s parent in <code>ctrl_deps</code>. Chakra’s standard converter traverses CPU calls in order and places predecessor IDs in <code>data_deps</code> for replay scheduling. The small export here assigns that field by exact tensor identity across sibling calls. Its region supplies the control parent, and its times are matched Kineto intervals rounded to integral microseconds.</p>
+<p id="check"></p><div class="downloads"><a href="attention.et" download>Seven operations + region (.et)</a><a href="attention.json" download>Decoded projection (JSON)</a><a href="native-replay.et" download>Native converter output (.et)</a><a href="replay-host.json.gz" download>Raw replay ET (.json.gz)</a><a href="replay-kineto.json.gz" download>Raw replay Kineto (.json.gz)</a><a href="run.sh">Reproduce the study</a><a href="../assets/workload.py">Shared PyTorch workload</a><a href="notes.md">Trial notes and provenance</a></div></section>
+<footer><a href="../../../index.html">Learning playground</a><a href="../index.html">Compare the five tools</a></footer>
+</main></body></html>

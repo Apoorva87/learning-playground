@@ -1,0 +1,26 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TorchLens · Tool guide</title><link rel="stylesheet" href="../../guide.css"><style>figure{overflow:auto}figure img{min-width:620px}.try{display:inline-block;background:#22543d;color:white;padding:.5rem 1rem;border-radius:.3rem;text-decoration:none}figure a{display:block}</style></head><body><main>
+<nav><a href="../../index.html">Learning playground</a><a href="../../topics/qwen-forward-pass/index.html">Qwen forward-pass study</a></nav>
+<header><p class="kicker">PyTorch execution / Tool guide</p><h1>TorchLens</h1><p class="lede">Start from a Python call such as <code>torch.matmul</code>. Find its tensor parents, inspect output shapes and values, and see the underlying ATen operations PyTorch dispatched.</p><p><a class="try" href="../../topics/qwen-forward-pass/torchlens/index.html">Explore the Qwen trace →</a></p></header>
+<h2>Inspect the native graph</h2><figure><a href="../../topics/qwen-forward-pass/torchlens/torchlens.svg"><img src="../../topics/qwen-forward-pass/torchlens/torchlens.svg" alt="TorchLens graph of three attention inputs, two repeat operations, a transpose, score and value matrix multiplications, scaling, softmax, and output."></a><figcaption>TorchLens 3.0.3 generated this SVG directly from the saved block 3 replay. Open the graphic to read its full-size labels. <a href="../../topics/qwen-forward-pass/torchlens/native-report.html">Open the native TorchLens HTML report</a></figcaption></figure>
+<h2>Try three lookups</h2><ol><li><strong>Follow a call.</strong> In the interactive study, select <b>Query × keys</b>. Expand the ATen list to find the batch matrix multiplication and inspect its two input shapes.</li><li><strong>Inspect a value.</strong> Choose query head 0 and cached position 8 in the bar chart. The token “ so” receives about 26.84% of this head’s weight. Change heads to compare distributions over the same cache.</li><li><strong>Find a module.</strong> In the whole-model browser, compare decode blocks 2 and 3. Block 2 uses linear attention. Block 3 introduces full attention. Select an operation and follow a parent to its producing module.</li></ol>
+<h2>Capture your own module</h2><p>Install the pinned version with the workspace recipe. The example enables ATen recording so you can inspect the dispatches inside a Python operation. Each saved output consumes memory. Use <code>save="none"</code> for a metadata-only run.</p>
+<pre><code>./install.sh torchlens
+.local/tools/torchlens/.venv/bin/python</code></pre>
+<pre><code>import torch
+import torchlens as tl
+from torchlens.options import CaptureOptions
+
+model = torch.nn.Softmax(dim=-1)
+trace = tl.trace(model, torch.tensor([[1., 2., 3.]]),
+                 capture=CaptureOptions(aten_ops=True))
+op = next(iter(trace.ops))
+print(op.label, op.parents, op.shape, op.out)
+print(op.aten_ops)
+tl.export.svg(trace, "softmax.svg")</code></pre>
+<h2>Repeat the Qwen trial</h2><p>The first command reads the supplied configuration and uses PyTorch meta tensors for the complete text path. The second reads the saved real attention inputs, compares the result with the shared reference and embeds both investigations in the standalone HTML. Both commands run from the workspace root.</p>
+<pre><code>py=.local/tools/torchlens/.venv/bin/python
+study=topics/qwen-forward-pass/torchlens
+"$py" "$study/structure.py"
+"$py" "$study/replay.py"</code></pre>
+<h2>What the trial exercised</h2><p>TorchLens supplied the shapes, dependency labels, activation values, ATen records, byte estimates, SVG and native HTML report. The study adds the step controls, graph layout, token-position chart and block browser. The native HTML used its built-in schematic because the Graphviz executable was unavailable. The independent SVG export rendered directly.</p><p>The tool also supports saved gradients and interventions. This inference trial used forward capture. Its memory estimates come from tensor geometry. To compare elapsed CPU events for this workload, open the other investigations in the study.</p>
+<p><a href="../../topics/qwen-forward-pass/torchlens/notes.md">Trial notes</a> · <a href="README.md">Setup details</a> · <a href="https://pypi.org/project/torchlens/3.0.3/">Pinned PyPI release</a> · <a href="https://johnmarktaylor91.github.io/torchlens/field-guide/see_and_inspect/">Upstream guide</a> · <a href="https://doi.org/10.1038/s41598-023-40807-0">Original paper</a></p></main></body></html>

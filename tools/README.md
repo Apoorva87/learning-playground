@@ -9,6 +9,12 @@
 - [LLM Visualization](llm-viz/README.md) runs a small transformer in the browser. We started it locally and explored its Self Attention chapter.
 - [HuggingArch](huggingarch/index.html) computes architecture costs from a model specification. We measured Llama and DeepSeek KV growth with its local engine.
 
+- [PyTorch Profiler](pytorch-profiler/index.html) — Capture operators, their nested durations and tensor shapes in a real forward pass. [Qwen study](../topics/qwen-forward-pass/pytorch-profiler/index.html)
+- [TorchLens](torchlens/index.html) — Trace a forward call to inspect which tensor operations produced each value. [Qwen study](../topics/qwen-forward-pass/torchlens/index.html)
+- [DaCe](dace/index.html) — Lower numerical Python into a dataflow graph and inspect the array regions and parallel maps. [Qwen study](../topics/qwen-forward-pass/dace/index.html)
+- [TorchInductor](torchinductor/index.html) — Compile tensor operations and compare the captured graph with the buffers and kernels it generates. [Qwen study](../topics/qwen-forward-pass/torchinductor/index.html)
+- [MLCommons Chakra](chakra/index.html) — Link execution events and inspect their control, timing and tensor relationships. [Qwen study](../topics/qwen-forward-pass/chakra/index.html)
+
 ## Register a tool
 
 Create `tools/<tool>/README.md` with the upstream link, what the tool does, the tested commit or package version, prerequisites, and the command used to verify it. Link back to the topic runs that used this version.

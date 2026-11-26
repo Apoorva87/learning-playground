@@ -1,0 +1,14 @@
+class GraphModule(torch.nn.Module):
+    def forward(self, L_x_: "bf16[1, 1, 5120]", L_gate_: "bf16[17408, 5120]", L_up_: "bf16[17408, 5120]", L_down_: "bf16[5120, 17408]"):
+        l_x_ = L_x_
+        l_gate_ = L_gate_
+        l_up_ = L_up_
+        l_down_ = L_down_
+
+        # File: topics/qwen-forward-pass/torchinductor/capture.py:48 in mlp, code: return linear(torch.nn.functional.silu(linear(x, gate)) * linear(x, up), down)
+        linear: "bf16[1, 1, 17408]" = torch._C._nn.linear(l_x_, l_gate_);  l_gate_ = None
+        silu: "bf16[1, 1, 17408]" = torch.nn.functional.silu(linear);  linear = None
+        linear_1: "bf16[1, 1, 17408]" = torch._C._nn.linear(l_x_, l_up_);  l_x_ = l_up_ = None
+        mul: "bf16[1, 1, 17408]" = silu * linear_1;  silu = linear_1 = None
+        linear_2: "bf16[1, 1, 5120]" = torch._C._nn.linear(mul, l_down_);  mul = l_down_ = None
+        return (linear_2,)

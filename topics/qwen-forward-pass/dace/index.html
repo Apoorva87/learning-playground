@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>One token through six states · DaCe</title>
+<link rel="stylesheet" href="explorer.css">
+<script defer src="results.js"></script><script defer src="explorer.js"></script>
+</head>
+<body>
+<main>
+<nav class="crumb" aria-label="Breadcrumb"><a href="../index.html">Qwen forward pass</a><span aria-hidden="true">/</span><a href="../../../tools/dace/index.html">DaCe guide</a></nav>
+<header><h1>One token through six states</h1>
+<p>Follow a query from Qwen3.8-27B’s fourth decoder block. DaCe exposes the array slices each operation reads, the values it writes, and the order in which the next state can use them.</p>
+<p class="scope">16 prompt tokens + 1 decode token · 24 query heads · 4 KV heads · FP32 replay</p></header>
+<section aria-labelledby="flow-title"><div class="section-heading"><h2 id="flow-title">Explore the dataflow</h2></div>
+<div class="workbench">
+<div id="stages" class="rail" role="group" aria-label="Select a graph state"></div>
+<article aria-labelledby="stage-title" class="detail">
+<div class="state-header"><div><div class="mono" id="stage-id"></div><h3 id="stage-title"></h3></div><code id="workers"></code></div>
+<p id="explanation"></p>
+<pre class="formula"><code id="formula"></code></pre>
+<div class="edges"><section><h4>Reads</h4><div id="reads"></div></section><section><h4>Writes</h4><div id="writes"></div></section></div>
+<p id="dependency" class="dep"></p>
+<details><summary>Inspect the compiled tasklet source</summary><pre><code id="code"></code></pre></details>
+</article></div></section>
+<section class="values" aria-labelledby="values-title"><div class="value-top"><div><h2 id="values-title">Follow one head</h2><p id="chart-note"></p></div>
+<label for="head">Query head <select id="head"></select></label></div>
+<p class="group" id="group"></p>
+<figure><figcaption id="chart-title"></figcaption><div class="plot" id="chart" role="group" aria-label="Select a token position"></div>
+<div class="axis"><span>0 · first prompt token</span><span>16 · decode token</span></div></figure>
+<div class="readout"><div><label for="position">Token position</label><select id="position"></select></div><p id="detail-value" aria-live="polite"></p></div>
+</section>
+<section aria-labelledby="model-title"><h2 id="model-title">Where these states sit in 64 blocks</h2>
+<figure class="model-context"><div class="pattern" aria-label="The four-block pattern repeats sixteen times"><span>Recurrent</span><span>Recurrent</span><span>Recurrent</span><strong>Full attention</strong><b>× 16</b></div>
+<figcaption>The first group ends at zero-based block 3, the source of the replay above.</figcaption></figure>
+<p>The embedding supplies 5,120 features per text token. Each block applies its mixer and a gated MLP with a 17,408-wide intermediate. Residual connections pass the result to the next block. After 64 blocks, final normalization and a vocabulary projection produce the next-token logits.</p>
+<p>The 48 recurrent mixers update convolution and recurrent state. The 16 full-attention mixers append one K and V per decode position. This DaCe graph begins after the cache update in block 3 and ends before the attention output gate. The shared PyTorch run covers the full chain, including the MLPs and vocabulary head. <a href="../index.html">Inspect the full forward pass</a> · <a href="../assets/config.json">Checkpoint configuration</a></p>
+</section>
+<section aria-labelledby="bytes-title"><h2 id="bytes-title">Count an edge, then count its uses</h2>
+<p>Each input memlet specifies a slice of an array. For a state, multiply its slice length by four bytes per FP32 element and by the number of map iterations. Count the inner tasklet edges once. Equal addresses accessed by different iterations count again.</p>
+<div class="table-wrap"><table><caption>Logical payload across tasklet edges for one replay</caption><thead><tr><th>State</th><th>Map iterations</th><th>Read bytes</th><th>Written bytes</th></tr></thead><tbody id="counts"></tbody><tfoot id="total"></tfoot></table></div>
+<p id="reuse"></p><p>A CPU cache can serve repeated requests. Register allocation, vectorization, cache-line transfers and stores affect the traffic that reaches memory. This run collected elapsed times and process CPU times. Measuring physical DRAM bandwidth requires hardware memory-traffic counters over a timed interval.</p>
+</section>
+<section aria-labelledby="evidence"><h2 id="evidence">The compiled run</h2>
+<p id="timing"></p><p id="numerics"></p>
+<p>The shared model run supplies real Q, K and V activations after the new key and value enter the cache. The SDFG replays the attention core before the output gate. It addresses each KV head directly. The shared PyTorch reference expands KV heads with <code>repeat_interleave</code>.</p>
+<div class="sources"><a href="decode.sdfg" download>Native SDFG</a><a href="results.json">Numerical results</a><a href="state-trace.json">Native state timer trace</a><a href="decode.cpp">DaCe-generated CPU code</a><a href="replay.py">Graph and benchmark source</a><a href="README.md">Run notes</a><a href="../assets/workload.json">Workload manifest</a><a href="../assets/layer3-decode.npz" download>Checkpoint fixture</a></div>
+</section>
+<footer><a href="../index.html">Back to the full forward pass</a><a href="../../../tools/dace/index.html">Learn to run DaCe</a></footer>
+<noscript><p>Enable JavaScript to inspect states and activations. The graph, results and source files above also open independently.</p></noscript>
+</main>
+</body></html>

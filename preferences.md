@@ -8,6 +8,8 @@
 
 **Workload profiling, November 25, 2026.** PyTorch Profiler and TorchLens both interest the learner. They want to connect function calls to the computations they trigger, inspect data sizes and reads, and distinguish dependencies from parallel work that actually ran. They are interested in writing their own compiler hooks for analysis. [Small PyTorch hook example](topics/how-transformers-remember/assets/inspect_compiled_graph.py)
 
+**Visual results, November 25, 2026.** The learner wants a visual representation for every profiling result. Include diagrams they can explore for each tool and a visual comparison across tools. Feedback on the five individual views is pending. [Qwen forward-pass visual comparison](topics/qwen-forward-pass/compare/index.html)
+
 | Date | Learning task | Tool or component | What I would use and why | Trial |
 | --- | --- | --- | --- | --- |
 | Nov 24, 2026 | Learning KV caches | DeepTutor | One of my favorites so far. | [Trial](topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-deeptutor/notes.md) |

@@ -1,0 +1,243 @@
+[
+  {
+    "version": "1.1.1-chakra.0.0.4",
+    "attr": [
+      {
+        "name": "projection",
+        "stringVal": "Replay region + seven top-level CPU operations. ctrl_deps = scope parent; data_deps = same tensor ID between siblings. Times relative to region start; inclusive, rounded to us."
+      }
+    ]
+  },
+  {
+    "id": "4",
+    "name": "layer3.decode.attention_core",
+    "type": "METADATA_NODE",
+    "durationMicros": "3432"
+  },
+  {
+    "id": "5",
+    "name": "aten::repeat_interleave",
+    "type": "COMP_NODE",
+    "ctrlDeps": [
+      "4"
+    ],
+    "startTimeMicros": "83",
+    "durationMicros": "228",
+    "inputs": {
+      "values": "[[6, 7, 0, 17408, 4, \"cpu\"], 6, 1, \"<None>\"]",
+      "shapes": "[[1, 4, 17, 256], [], [], []]",
+      "types": "[\"Tensor(float)\", \"Int\", \"Int\", \"None\"]"
+    },
+    "outputs": {
+      "values": "[[22, 18, 0, 104448, 4, \"cpu\"]]",
+      "shapes": "[[1, 24, 17, 256]]",
+      "types": "[\"Tensor(float)\"]"
+    },
+    "attr": [
+      {
+        "name": "rf_id",
+        "int64Val": "3"
+      },
+      {
+        "name": "kineto_tid",
+        "int64Val": "31482740"
+      }
+    ]
+  },
+  {
+    "id": "23",
+    "name": "aten::repeat_interleave",
+    "type": "COMP_NODE",
+    "ctrlDeps": [
+      "4"
+    ],
+    "startTimeMicros": "317",
+    "durationMicros": "111",
+    "inputs": {
+      "values": "[[24, 25, 0, 17408, 4, \"cpu\"], 6, 1, \"<None>\"]",
+      "shapes": "[[1, 4, 17, 256], [], [], []]",
+      "types": "[\"Tensor(float)\", \"Int\", \"Int\", \"None\"]"
+    },
+    "outputs": {
+      "values": "[[40, 36, 0, 104448, 4, \"cpu\"]]",
+      "shapes": "[[1, 24, 17, 256]]",
+      "types": "[\"Tensor(float)\"]"
+    },
+    "attr": [
+      {
+        "name": "rf_id",
+        "int64Val": "14"
+      },
+      {
+        "name": "kineto_tid",
+        "int64Val": "31482740"
+      }
+    ]
+  },
+  {
+    "id": "41",
+    "name": "aten::transpose",
+    "type": "COMP_NODE",
+    "ctrlDeps": [
+      "4"
+    ],
+    "dataDeps": [
+      "5"
+    ],
+    "startTimeMicros": "434",
+    "durationMicros": "16",
+    "inputs": {
+      "values": "[[22, 18, 0, 104448, 4, \"cpu\"], -2, -1]",
+      "shapes": "[[1, 24, 17, 256], [], []]",
+      "types": "[\"Tensor(float)\", \"Int\", \"Int\"]"
+    },
+    "outputs": {
+      "values": "[[43, 18, 0, 104448, 4, \"cpu\"]]",
+      "shapes": "[[1, 24, 256, 17]]",
+      "types": "[\"Tensor(float)\"]"
+    },
+    "attr": [
+      {
+        "name": "rf_id",
+        "int64Val": "25"
+      },
+      {
+        "name": "kineto_tid",
+        "int64Val": "31482740"
+      }
+    ]
+  },
+  {
+    "id": "44",
+    "name": "aten::matmul",
+    "type": "COMP_NODE",
+    "ctrlDeps": [
+      "4"
+    ],
+    "dataDeps": [
+      "41"
+    ],
+    "startTimeMicros": "459",
+    "durationMicros": "1439",
+    "inputs": {
+      "values": "[[45, 46, 0, 6144, 4, \"cpu\"], [43, 18, 0, 104448, 4, \"cpu\"]]",
+      "shapes": "[[1, 24, 1, 256], [1, 24, 256, 17]]",
+      "types": "[\"Tensor(float)\", \"Tensor(float)\"]"
+    },
+    "outputs": {
+      "values": "[[306, 64, 0, 408, 4, \"cpu\"]]",
+      "shapes": "[[1, 24, 1, 17]]",
+      "types": "[\"Tensor(float)\"]"
+    },
+    "attr": [
+      {
+        "name": "rf_id",
+        "int64Val": "27"
+      },
+      {
+        "name": "kineto_tid",
+        "int64Val": "31482740"
+      }
+    ]
+  },
+  {
+    "id": "307",
+    "name": "aten::mul",
+    "type": "COMP_NODE",
+    "ctrlDeps": [
+      "4"
+    ],
+    "dataDeps": [
+      "44"
+    ],
+    "startTimeMicros": "1914",
+    "durationMicros": "57",
+    "inputs": {
+      "values": "[[306, 64, 0, 408, 4, \"cpu\"], [308, 309, 0, 1, 8, \"cpu\"]]",
+      "shapes": "[[1, 24, 1, 17], []]",
+      "types": "[\"Tensor(float)\", \"Tensor(double)\"]"
+    },
+    "outputs": {
+      "values": "[[316, 317, 0, 408, 4, \"cpu\"]]",
+      "shapes": "[[1, 24, 1, 17]]",
+      "types": "[\"Tensor(float)\"]"
+    },
+    "attr": [
+      {
+        "name": "rf_id",
+        "int64Val": "232"
+      },
+      {
+        "name": "kineto_tid",
+        "int64Val": "31482740"
+      }
+    ]
+  },
+  {
+    "id": "318",
+    "name": "aten::softmax",
+    "type": "COMP_NODE",
+    "ctrlDeps": [
+      "4"
+    ],
+    "dataDeps": [
+      "307"
+    ],
+    "startTimeMicros": "1984",
+    "durationMicros": "16",
+    "inputs": {
+      "values": "[[316, 317, 0, 408, 4, \"cpu\"], -1, \"<None>\"]",
+      "shapes": "[[1, 24, 1, 17], [], []]",
+      "types": "[\"Tensor(float)\", \"Int\", \"None\"]"
+    },
+    "outputs": {
+      "values": "[[320, 64, 0, 408, 4, \"cpu\"]]",
+      "shapes": "[[1, 24, 1, 17]]",
+      "types": "[\"Tensor(float)\"]"
+    },
+    "attr": [
+      {
+        "name": "rf_id",
+        "int64Val": "237"
+      },
+      {
+        "name": "kineto_tid",
+        "int64Val": "31482740"
+      }
+    ]
+  },
+  {
+    "id": "321",
+    "name": "aten::matmul",
+    "type": "COMP_NODE",
+    "ctrlDeps": [
+      "4"
+    ],
+    "dataDeps": [
+      "23",
+      "318"
+    ],
+    "startTimeMicros": "2005",
+    "durationMicros": "1392",
+    "inputs": {
+      "values": "[[320, 64, 0, 408, 4, \"cpu\"], [40, 36, 0, 104448, 4, \"cpu\"]]",
+      "shapes": "[[1, 24, 1, 17], [1, 24, 17, 256]]",
+      "types": "[\"Tensor(float)\", \"Tensor(float)\"]"
+    },
+    "outputs": {
+      "values": "[[627, 338, 0, 6144, 4, \"cpu\"]]",
+      "shapes": "[[1, 24, 1, 256]]",
+      "types": "[\"Tensor(float)\"]"
+    },
+    "attr": [
+      {
+        "name": "rf_id",
+        "int64Val": "239"
+      },
+      {
+        "name": "kineto_tid",
+        "int64Val": "31482740"
+      }
+    ]
+  }
+]

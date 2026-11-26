@@ -1,0 +1,23 @@
+class GraphModule(torch.nn.Module):
+    def forward(self, L_k_: "f32[1, 4, 17, 256]", L_v_: "f32[1, 4, 17, 256]", L_q_: "f32[1, 24, 1, 256]"):
+        l_k_ = L_k_
+        l_v_ = L_v_
+        l_q_ = L_q_
+
+        # File: topics/qwen-forward-pass/assets/workload.py:16 in forward, code: keys = k.repeat_interleave(6, dim=1)
+        keys: "f32[1, 24, 17, 256]" = l_k_.repeat_interleave(6, dim = 1);  l_k_ = None
+
+        # File: topics/qwen-forward-pass/assets/workload.py:17 in forward, code: values = v.repeat_interleave(6, dim=1)
+        values: "f32[1, 24, 17, 256]" = l_v_.repeat_interleave(6, dim = 1);  l_v_ = None
+
+        # File: topics/qwen-forward-pass/assets/workload.py:18 in forward, code: scores = torch.matmul(q, keys.transpose(-2, -1)) * SPEC["scale"]
+        transpose: "f32[1, 24, 256, 17]" = keys.transpose(-2, -1);  keys = None
+        matmul: "f32[1, 24, 1, 17]" = torch.matmul(l_q_, transpose);  l_q_ = transpose = None
+        scores: "f32[1, 24, 1, 17]" = matmul * 0.0625;  matmul = None
+
+        # File: topics/qwen-forward-pass/assets/workload.py:19 in forward, code: probabilities = torch.softmax(scores, dim=-1)
+        probabilities: "f32[1, 24, 1, 17]" = torch.softmax(scores, dim = -1);  scores = None
+
+        # File: topics/qwen-forward-pass/assets/workload.py:20 in forward, code: return torch.matmul(probabilities, values)
+        matmul_1: "f32[1, 24, 1, 256]" = torch.matmul(probabilities, values);  probabilities = values = None
+        return (matmul_1,)

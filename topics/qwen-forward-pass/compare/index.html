@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>One token, five views · Qwen forward pass</title>
+<style>
+:root{--ink:#1c2b48;--muted:#465878;--sub:#626e86;--blue:#3b50ac;--mint:#187e76;--violet:#7851a3;--light:#e9edf6;--soft:#f5f7fc;--edge:#cfd7e6;--white:#fff;font-family:"Avenir Next","Segoe UI",Arial,sans-serif;color:var(--ink);background:var(--soft);line-height:1.48}
+*{box-sizing:border-box}body{margin:0}a{color:#2845a0;text-underline-offset:.2em;text-decoration-thickness:1px}a:hover{text-decoration-thickness:2px}
+:focus-visible{outline:3px solid #b44816;outline-offset:3px}h1,h2,h3,p,figure{margin:0}h1,h2,h3{line-height:1.12;letter-spacing:-.045em;text-wrap:balance}h1{font-size:clamp(2.55rem,5.7vw,4.9rem);line-height:.99;max-width:8.3em}h2{font-size:clamp(1.68rem,3vw,2.35rem)}h3{font-size:1.44rem}button,select{font:inherit}button{cursor:pointer}main,nav{max-width:1180px;margin:auto;padding-inline:clamp(16px,4vw,48px)}nav{display:flex;flex-wrap:wrap;gap:9px;align-items:center;min-height:58px;font-size:.85rem}nav span{color:var(--sub)}header{border-bottom:1px solid var(--edge);background:white}.hero{display:grid;grid-template-columns:1fr 1.05fr;align-items:center;gap:clamp(30px,5vw,74px);padding-block:clamp(32px,5vw,64px);border-bottom:1px solid var(--edge)}.intro p{max-width:34em;color:var(--muted);margin:16px 0}.links{display:flex;align-items:center;flex-wrap:wrap;gap:8px 16px;font-size:.87rem}.matrix{border-radius:20px;background:#20324f;color:#fff;padding:20px 24px;box-shadow:inset 0 1px #ffffff1c}.matrix figcaption{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:8px}.matrix h2{font-size:1.12rem;letter-spacing:-.02em}.matrix .range{font-size:.77rem;color:#e2e8f4;white-space:nowrap}.range i{display:inline-block;width:31px;height:7px;margin:0 4px;background:linear-gradient(to right,#354760,#aceee2)}.matrix svg{display:block;width:100%;height:125px}.matrix-controls{display:flex;align-items:center;gap:10px;margin-top:9px;font-size:.83rem}.matrix select{border:1px solid #9eaec2;background:#20324f;border-radius:4px;color:white;padding:2px 4px;min-height:30px}.matrix output{color:#d0fff6}.matrix a{color:#c8e7ff}.section-head{margin:35px 0 15px;display:flex;align-items:end;justify-content:space-between;gap:16px}.section-head p{margin-top:5px;max-width:44em;color:var(--muted);font-size:.94rem}.modes{display:inline-flex;align-items:center;gap:2px;background:#e4e9f3;border-radius:9px;padding:4px;flex-wrap:wrap}.modes button{background:transparent;border:0;border-radius:6px;padding:8px 10px;color:var(--muted);font-size:.85rem;font-weight:600}.modes button[aria-pressed=true]{color:white;background:var(--blue)}.modes button:hover:not([aria-pressed=true]){background:#f5f7fc}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:0 0 28px}.panel{display:flex;flex-direction:column;min-width:0;background:white;border:1px solid var(--edge);border-radius:14px;padding:clamp(16px,2.4vw,26px);scroll-margin-top:14px}.panel .question{color:var(--muted);font-size:.94rem;min-height:1.5em;margin:5px 0 12px}.panel .links{margin-top:auto;padding-top:14px}.panel figure{flex-grow:1;display:flex;flex-direction:column}.plot{background:var(--soft);border-radius:8px;padding:13px 14px;display:flex;flex-direction:column;justify-content:center;min-height:176px}.plot h4{font-size:.78rem;letter-spacing:.002em;color:#445575;margin:0 0 9px}.panel figcaption{font-size:.9rem;color:var(--muted);margin-top:11px}.panel figcaption b{color:var(--ink)}.plot svg{width:100%;height:auto;display:block}.plot svg text{font-family:inherit}.bar-row,.interval-row{display:grid;grid-template-columns:minmax(63px,25%) 1fr minmax(65px,auto);gap:8px;align-items:center;font-size:.76rem;line-height:1.2;min-height:19px}.bar-row .value,.interval-row .value{text-align:right;font-variant-numeric:tabular-nums}.track{position:relative;background:#e2e7f1;height:8px;border-radius:2px;overflow:hidden}.track i{background:var(--blue);display:block;height:100%;border-radius:1px}.track .mint{background:var(--mint)}.track .violet{background:var(--violet)}.interval-row .track i{position:absolute}.foot{font-size:.74rem;color:var(--muted);margin:9px 0 0}.swatch{display:inline-block;width:10px;height:8px;border-radius:1px;margin-right:4px;background:var(--blue)}.swatch.mint{background:var(--mint)}.swatch.violet{background:var(--violet)}.graph-desc{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.blocks{display:grid;grid-template-columns:repeat(16,minmax(1px,1fr));gap:3px;margin:5px 0 8px}.blocks i{height:6px;background:#98a8c2;border-radius:1px}.blocks .full{background:var(--mint)}.blocks .sample{outline:2px solid var(--ink);outline-offset:1px}.whole{background:#eef3f9}.whole .plot{background:#fff;display:block}.whole .bar-row{grid-template-columns:56px 1fr 80px}.whole h4:not(:first-child){margin-top:11px}.whole .foot{line-height:1.3}.whole .bar-row .track .mint{background:var(--mint)}.process-list{font-size:.78rem;margin:0;padding-left:20px}.process-list li{margin:4px 0}.kernel{display:grid;grid-template-columns:21px 1fr auto;gap:7px;align-items:center;line-height:1.25;font-size:.78rem;min-height:25px}.kernel .sequence{background:var(--blue);color:white;text-align:center;border-radius:4px;font-variant-numeric:tabular-nums}.kernel strong{overflow-wrap:anywhere}.kernel .kind{color:var(--muted);text-align:right}.kernel .kind.mint{color:var(--mint)}footer{border-top:1px solid var(--edge);padding:18px 0 30px;color:var(--muted);font-size:.85rem}footer .links{margin-top:6px}.jump{position:absolute;left:-10000px}.jump:focus{position:absolute;top:4px;left:5px;background:white;padding:6px;z-index:1}
+@media(max-width:850px){.section-head{display:block}.modes{margin-top:12px}.hero{gap:22px}.matrix{padding:15px}.bar-row,.interval-row{gap:5px}.grid{gap:12px}}
+@media(max-width:680px){.hero,.grid{grid-template-columns:1fr}.hero{padding-block:23px;gap:18px}.intro p{margin:10px 0;max-width:45em}h1{max-width:none;font-size:clamp(2.5rem,9.6vw,3.45rem)}.matrix svg{height:115px}.section-head{margin-top:24px}.plot{min-height:155px}.panel .question{margin-bottom:8px}.bar-row,.interval-row{font-size:.78rem}.grid{gap:13px}.modes button{padding:8px 9px}.links{gap:6px 13px}.matrix figcaption{gap:4px}.matrix .range{font-size:.73rem}}
+@media print{body{background:white}.hero{grid-template-columns:1fr 1fr}.modes,nav,footer,.jump{display:none}.grid{display:block}.panel{break-inside:avoid;margin:10px 0}.plot,.track,.matrix,.blocks,.bar-row i,.interval-row i{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+</head>
+<body>
+<a class="jump" href="#views">Skip to the five views</a>
+<header><nav aria-label="Breadcrumb"><a href="../../../index.html">Learning playground</a><span aria-hidden="true">/</span><a href="../index.html">Qwen forward pass</a><span aria-hidden="true">/</span><span>Visual comparison</span></nav></header>
+<main>
+<section class="hero" aria-labelledby="title">
+<div class="intro"><h1 id="title">One token, five views</h1>
+<p>Qwen3.8-27B processed a 16-token prompt and one more token through 64 decoder blocks. Five tools retrace the same attention calculation inside the fourth block using its saved query, keys and values.</p>
+<div class="links"><a href="#whole">Compare the complete passes</a><a href="../assets/workload.json">Input manifest</a></div></div>
+<figure class="matrix"><figcaption><h2>Where each head attends</h2><span class="range">Weight 0<i aria-hidden="true"></i><span id="weight-max"></span></span></figcaption>
+<div id="heat"></div><div class="matrix-controls"><label for="head">Query head</label><select id="head"></select><output id="head-output" for="head" aria-live="polite"></output></div>
+</figure>
+</section>
+<section id="views" aria-labelledby="compare-title">
+<div class="section-head"><div><h2 id="compare-title">Compare the evidence</h2><p>Change the question to redraw all five figures for the FP32 decode replay.</p></div><div class="modes" role="group" aria-label="Comparison question"><button type="button" data-mode="highlights" aria-pressed="true">Highlights</button><button type="button" data-mode="compute" aria-pressed="false">Compute</button><button type="button" data-mode="memory" aria-pressed="false">Memory</button><button type="button" data-mode="dependencies" aria-pressed="false">Dependencies</button></div></div>
+<div aria-live="polite" class="graph-desc" id="change"></div>
+<div class="grid" id="cards">
+<article class="panel" id="profiler"><h3>PyTorch Profiler</h3><p class="question"></p><figure><div class="plot"></div><figcaption></figcaption></figure><div class="links"><a href="../pytorch-profiler/index.html">Explore the profiler</a><a href="../pytorch-profiler/replay-operators.json.gz">Kineto recording</a></div></article>
+<article class="panel" id="lens"><h3>TorchLens</h3><p class="question"></p><figure><div class="plot"></div><figcaption></figcaption></figure><div class="links"><a href="../torchlens/index.html">Explore tensor operations</a><a href="../torchlens/trace.json">Tensor trace</a></div></article>
+<article class="panel" id="dace"><h3>DaCe</h3><p class="question"></p><figure><div class="plot"></div><figcaption></figcaption></figure><div class="links"><a href="../dace/index.html">Explore the dataflow</a><a href="../dace/results.json">State measurements</a></div></article>
+<article class="panel" id="compiler"><h3>TorchInductor</h3><p class="question"></p><figure><div class="plot"></div><figcaption></figcaption></figure><div class="links"><a href="../torchinductor/index.html">Explore the compiler</a><a id="compiler-data" href="../torchinductor/evidence/attention/run.json">Compiler record</a></div></article>
+<article class="panel" id="chakra"><h3>MLCommons Chakra</h3><p class="question"></p><figure><div class="plot"></div><figcaption></figcaption></figure><div class="links"><a href="../chakra/index.html">Explore the execution trace</a><a href="../chakra/attention.json">Decoded trace</a></div></article>
+<article class="panel whole" id="whole"><h3>The complete passes</h3><p class="question">How much did the next token add?</p><figure><div class="plot" id="whole-chart"></div><figcaption id="whole-note"></figcaption></figure><div class="links"><a href="../index.html">Inspect all 64 blocks</a><a href="../assets/whole-pass.json">Full-model run</a></div></article>
+</div>
+</section>
+<footer><p>The original BF16 model ran on an Apple M4 Max CPU with eight intra-op threads. The five attention replays use the saved activations promoted to FP32. Each instrument records a separate execution.</p><div class="links"><a href="../assets/layer3-decode.npz">Download the shared fixture</a><a href="../assets/workload.py">Reference calculation</a><a href="build.py">Rebuild the figures’ data</a></div></footer>
+<noscript>JavaScript displays these interactive figures. Each study and its recording are available through the links above.</noscript>
+</main>
+<script type="application/json" id="study-data">{"model":{"prefill":{"wall":22434391.71,"cpu":55333537.0,"kv":1048576,"state":154927104},"decode":{"wall":19138500.54,"cpu":35437836.0,"kv":1114112,"state":154927104},"types":["linear_attention","linear_attention","linear_attention","full_attention","linear_attention","linear_attention","linear_attention","full_attention","linear_attention","linear_attention","linear_attention","full_attention","linear_attention","linear_attention","linear_attention","full_attention","linear_attention","linear_attention","linear_attention","full_attention","linear_attention","linear_attention","linear_attention","full_attention","linear_attention","linear_attention","linear_attention","full_attention","linear_attention","linear_attention","linear_attention","full_attention","linear_attention","linear_attention","linear_attention","full_attention","linear_attention","linear_attention","linear_attention","full_attention","linear_attention","linear_attention","linear_attention","full_attention","linear_attention","linear_attention","linear_attention","full_attention","linear_attention","linear_attention","linear_attention","full_attention","linear_attention","linear_attention","linear_attention","full_attention","linear_attention","linear_attention","linear_attention","full_attention","linear_attention","linear_attention","linear_attention","full_attention"]},"lens":{"nodes":[{"id":"input_1","parents":[],"macs":null,"tensor_bytes":24576,"read_bytes":0,"write_bytes":24576},{"id":"input_2","parents":[],"macs":null,"tensor_bytes":69632,"read_bytes":0,"write_bytes":69632},{"id":"input_3","parents":[],"macs":null,"tensor_bytes":69632,"read_bytes":0,"write_bytes":69632},{"id":"repeatinterleave_1_1","parents":["input_2"],"macs":0,"tensor_bytes":417792,"read_bytes":69632,"write_bytes":417792},{"id":"repeatinterleave_2_2","parents":["input_3"],"macs":0,"tensor_bytes":417792,"read_bytes":69632,"write_bytes":417792},{"id":"transpose_1_3","parents":["repeatinterleave_1_1"],"macs":0,"tensor_bytes":417792,"read_bytes":0,"write_bytes":0},{"id":"matmul_1_4","parents":["input_1","transpose_1_3"],"macs":104448,"tensor_bytes":1632,"read_bytes":442368,"write_bytes":1632},{"id":"mul_1_5","parents":["matmul_1_4"],"macs":0,"tensor_bytes":1632,"read_bytes":1632,"write_bytes":1632},{"id":"softmax_1_6","parents":["mul_1_5"],"macs":0,"tensor_bytes":1632,"read_bytes":1632,"write_bytes":1632},{"id":"matmul_2_7","parents":["softmax_1_6","repeatinterleave_2_2"],"macs":104448,"tensor_bytes":24576,"read_bytes":419424,"write_bytes":24576},{"id":"output_1","parents":["matmul_2_7"],"macs":null,"tensor_bytes":24576,"read_bytes":24576,"write_bytes":24576}],"weights":[[0.12818413972854614,0.008762769401073456,0.024070046842098236,0.049107857048511505,0.01482880674302578,0.04257804900407791,0.06432006508111954,0.004318407271057367,0.2683967351913452,0.03952367231249809,0.11891306936740875,0.07799863070249557,0.020051542669534683,0.023819997906684875,0.0017649986548349261,0.04966592788696289,0.06369523704051971],[0.16309134662151337,0.0072110481560230255,0.19198980927467346,0.11275804042816162,0.0036893743090331554,0.0020122353453189135,0.018262002617120743,0.0012673895107582211,0.050569403916597366,0.02341769076883793,0.008080251514911652,0.014631353318691254,0.002219008980318904,0.0025039135944098234,0.000733453780412674,0.2786487936973572,0.11891487240791321],[0.18150751292705536,0.0613437294960022,0.16436515748500824,0.20564641058444977,0.011829489842057228,0.029160799458622932,0.03975750133395195,0.012154552154242992,0.04174242168664932,0.030654888600111008,0.066789411008358,0.03355712071061134,0.01167108491063118,0.011359776370227337,0.004179863724857569,0.0509716160595417,0.043308746069669724],[0.094794362783432,0.03658660501241684,0.15472105145454407,0.20163367688655853,0.04165539890527725,0.03137284517288208,0.03388850390911102,0.019718676805496216,0.024670710787177086,0.01677009090781212,0.06014373153448105,0.07028983533382416,0.011628174223005772,0.04831090196967125,0.039281971752643585,0.09269139915704727,0.02184205688536167],[0.05627721920609474,0.02731247805058956,0.14117509126663208,0.03524617850780487,0.03248245641589165,0.008236559107899666,0.09370233863592148,0.004185185767710209,0.12428195774555206,0.12283379584550858,0.02448468655347824,0.011344955302774906,0.018856270238757133,0.006677300203591585,0.006842852104455233,0.12535063922405243,0.16070999205112457],[0.1909717470407486,0.004928179085254669,0.02635565772652626,0.03731674700975418,0.0049289497546851635,0.004125520586967468,0.03286372497677803,0.0006767027080059052,0.05248819291591644,0.023412911221385002,0.007225128822028637,0.005712620913982391,0.004536528140306473,0.008770172484219074,0.004742509685456753,0.2851410210132599,0.30580374598503113],[0.05132272467017174,0.06046434864401817,0.07461058348417282,0.09905075281858444,0.003941158298403025,0.0034005960915237665,0.014080178923904896,0.012074743397533894,0.10821262747049332,0.01622403971850872,0.005085712298750877,0.005831281654536724,0.04095835238695145,0.0037215605843812227,0.006330373231321573,0.4704933166503906,0.02419765666127205],[0.056195639073848724,0.20646779239177704,0.12011564522981644,0.05933336913585663,0.032227523624897,0.015145350247621536,0.035883598029613495,0.04593903198838234,0.02279594913125038,0.050403691828250885,0.04399753734469414,0.038530491292476654,0.005985700525343418,0.010546821169555187,0.16849562525749207,0.03219171240925789,0.05574462562799454],[0.15149830281734467,0.028964396566152573,0.025294486433267593,0.08956379443407059,0.007295859511941671,0.003623815719038248,0.009988523088395596,0.008794481866061687,0.13350071012973785,0.03794639930129051,0.0016428995877504349,0.00448261434212327,0.01912638545036316,0.004162413068115711,0.003604656318202615,0.4040816128253937,0.06642860919237137],[0.045302100479602814,0.1318640559911728,0.4494597017765045,0.11814919859170914,0.015344986692070961,0.028013302013278008,0.007887261919677258,0.029136106371879578,0.052583858370780945,0.007016327697783709,0.008806438185274601,0.020484929904341698,0.007672775536775589,0.007054639048874378,0.04547761008143425,0.019798994064331055,0.005947798490524292],[0.02246047928929329,0.10994961857795715,0.10368529707193375,0.16523583233356476,0.0073499521240592,0.013483650982379913,0.029939766973257065,0.014948277734220028,0.15155872702598572,0.04221244156360626,0.06114833801984787,0.06258882582187653,0.0289523433893919,0.011853117495775223,0.07505789399147034,0.0838259756565094,0.01574951410293579],[0.16746799647808075,0.03978835418820381,0.15571120381355286,0.0512005053460598,0.006971543189138174,0.012400245293974876,0.037522319704294205,0.022540749981999397,0.053191378712654114,0.08148431032896042,0.026240892708301544,0.03291711211204529,0.012443259358406067,0.009539096616208553,0.03945571184158325,0.17101366817951202,0.08011168241500854],[0.13143625855445862,0.06615263223648071,0.06700251996517181,0.09603540599346161,0.0246818158775568,0.0270999688655138,0.06574533879756927,0.014680380932986736,0.15013505518436432,0.01450178399682045,0.02681950479745865,0.030308987945318222,0.01100344117730856,0.00846029631793499,0.007840740494430065,0.2116379737854004,0.046457916498184204],[0.12521407008171082,0.006376103963702917,0.03553861007094383,0.03330419957637787,0.0074417563155293465,0.010958845727145672,0.08461805433034897,0.0017378340708091855,0.0887226089835167,0.04620887711644173,0.007850490510463715,0.0033434038050472736,0.04081233963370323,0.002526716096326709,0.0010055300081148744,0.35643270611763,0.14790789783000946],[0.08610016107559204,0.027631793171167374,0.04403671994805336,0.158186137676239,0.02764369547367096,0.014150054194033146,0.04943707585334778,0.004826707299798727,0.14410580694675446,0.031192053109407425,0.009914590045809746,0.019677966833114624,0.01309963408857584,0.004392559174448252,0.0020853185560554266,0.2778356075286865,0.08568412065505981],[0.34605392813682556,0.05038582906126976,0.06686174869537354,0.08214905112981796,0.008821707218885422,0.01324426382780075,0.027708256617188454,0.0029359760228544474,0.056614771485328674,0.03523450344800949,0.012276786379516125,0.03165844827890396,0.008200549520552158,0.007456491235643625,0.004365215077996254,0.07971059530973434,0.16632184386253357],[0.05923895910382271,0.018767349421977997,0.019320443272590637,0.2558865547180176,0.07459791004657745,0.015542914159595966,0.07164941728115082,0.023378998041152954,0.09487105160951614,0.12335366755723953,0.03875849023461342,0.02693188562989235,0.06445806473493576,0.009773071855306625,0.010776267386972904,0.033141523599624634,0.05955350399017334],[0.013098428025841713,0.06133341044187546,0.15284058451652527,0.0907476618885994,0.026233799755573273,0.07690887153148651,0.016817262396216393,0.028718585148453712,0.02145339548587799,0.02166825905442238,0.03957783430814743,0.26988619565963745,0.014702979475259781,0.024315981194376945,0.10935531556606293,0.01569915935397148,0.01664220169186592],[0.14155641198158264,0.057460810989141464,0.043402887880802155,0.0980275422334671,0.02800009213387966,0.03883832320570946,0.034449439495801926,0.05045746639370918,0.06889910995960236,0.07402705401182175,0.03281465917825699,0.06289073824882507,0.00895692314952612,0.04224357753992081,0.028542162850499153,0.08633683621883392,0.10309591889381409],[0.3983731269836426,0.02700347639620304,0.0027822384145110846,0.008575113490223885,0.05433782562613487,0.00024862930877134204,0.0020934988278895617,0.0020056632347404957,0.0011867103166878223,0.0492735281586647,0.13801954686641693,0.0037223719991743565,0.001801714883185923,0.00898776575922966,0.0006848170887678862,0.0034923057537525892,0.29741171002388],[0.11422520875930786,0.08975468575954437,0.02730141580104828,0.04108466953039169,0.04745391383767128,0.03290174528956413,0.03965293616056442,0.01074451394379139,0.060515571385622025,0.10575217008590698,0.10406216233968735,0.05617178976535797,0.010118894279003143,0.03534127399325371,0.03736335039138794,0.051209740340709686,0.1363460123538971],[0.3215867578983307,0.0413760244846344,0.0035575025249272585,0.002096687676385045,0.025440877303481102,0.0006424353341571987,0.0019248566823080182,0.0025506068486720324,0.000981980236247182,0.008645066060125828,0.06859106570482254,0.005397420842200518,0.00036479649133980274,0.0017084620194509625,6.218154157977551e-05,0.002064421772956848,0.5130088329315186],[0.1603807806968689,0.08687600493431091,0.04242686182260513,0.05385701358318329,0.041953738778829575,0.04857750982046127,0.05045226588845253,0.016318731009960175,0.025297552347183228,0.07656094431877136,0.03809955343604088,0.16089874505996704,0.009085829369723797,0.04871020466089249,0.02599671110510826,0.03670061379671097,0.07780695706605911],[0.7532249689102173,0.003531503025442362,0.0021295789629220963,0.0008222183678299189,0.003572122659534216,0.0007324387552216649,0.008806116878986359,0.0032122975680977106,0.0015713676111772656,0.025185173377394676,0.0019180115777999163,0.001372568542137742,0.0036995543632656336,0.00225003226660192,0.00017634576943237334,0.01538363192230463,0.17241202294826508]],"ids":[32,3992,1558,10220,3162,6679,321,2663,748,279,1727,3817,628,25147,2193,13,561],"outputs":[0.1402181088924408,0.21560761332511902,0.30084124207496643,0.33038926124572754,0.2264774739742279,0.07484568655490875,0.08137232810258865,-0.10633374750614166,0.10472634434700012,-0.26341208815574646,-0.08901923149824142,-0.01989024132490158,-0.5144608616828918,-0.5635502934455872,-0.5819776058197021,-0.4134746491909027,-0.5172439217567444,-0.1985160857439041,0.14798328280448914,0.5719766020774841,0.35260236263275146,0.6911987662315369,0.11704117059707642,0.31912264227867126],"verified":6144,"aten":23},"profiler":{"rows":[{"label":"Expand K","start":44.664,"duration":198.076,"self":29.5,"allocated":417792},{"label":"Expand V","start":248.365,"duration":94.162,"self":15.915,"allocated":417792},{"label":"Transpose","start":347.319,"duration":13.541,"self":8.291,"allocated":0},{"label":"Score","start":366.443,"duration":1367.152,"self":27.125,"allocated":1632},{"label":"Scale","start":1743.679,"duration":46.914,"self":11.416,"allocated":1636},{"label":"Softmax","start":1800.302,"duration":14.374,"self":6.999,"allocated":1632},{"label":"Mix","start":1817.217,"duration":1415.984,"self":16.417,"allocated":24576}],"total":3274.325,"count":466,"children":[{"label":"unsqueeze","start":50.748,"duration":39.331},{"label":"expand","start":94.162,"duration":50.165},{"label":"clone","start":148.869,"duration":63.997},{"label":"flatten","start":216.657,"duration":15.083}]},"dace":{"stages":[{"name":"scaled_dot","iterations":408,"time":34,"reads":835584,"writes":1632,"input":["k","q"],"output":["scores"]},{"name":"row_max","iterations":24,"time":1,"reads":1632,"writes":96,"input":["scores"],"output":["peak"]},{"name":"shift_exp","iterations":408,"time":1,"reads":3264,"writes":1632,"input":["peak","scores"],"output":["exps"]},{"name":"row_sum","iterations":24,"time":0,"reads":1632,"writes":96,"input":["exps"],"output":["denom"]},{"name":"normalize","iterations":408,"time":0,"reads":3264,"writes":1632,"input":["denom","exps"],"output":["probs"]},{"name":"value_mix","iterations":6144,"time":7,"reads":835584,"writes":24576,"input":["probs","v"],"output":["out"]}],"unique":{"q":24576,"k":69632,"v":69632,"scores":1632,"peak":96,"exps":1632,"denom":96,"probs":1632,"out":24576},"elapsed":{"p10":83.625,"median":85.417,"p90":88.542}},"chakra":{"rows":[{"label":"Expand keys","id":5,"deps":[],"start":83.128,"duration":228.218,"input":[7],"output":18,"size":417792},{"label":"Expand values","id":23,"deps":[],"start":317.18,"duration":111.005,"input":[25],"output":36,"size":417792},{"label":"Transpose keys","id":41,"deps":[5],"start":433.519,"duration":16.083,"input":[18],"output":18,"size":417792},{"label":"Score queries","id":44,"deps":[41],"start":459.395,"duration":1439.189,"input":[46,18],"output":64,"size":1632},{"label":"Scale scores","id":307,"deps":[44],"start":1913.917,"duration":57.086,"input":[64,309],"output":317,"size":1632},{"label":"Normalize scores","id":318,"deps":[307],"start":1984.254,"duration":16.375,"input":[317],"output":64,"size":1632},{"label":"Mix values","id":321,"deps":[23,318],"start":2004.797,"duration":1392.353,"input":[64,36],"output":338,"size":24576}],"total":3432.318,"tracks":1},"compiler":{"kernels":[{"name":"cpp_fused__scaled_dot_product_flash_attention_for_cpu_clone_expand_unsqueeze_view_0","args":["arg0_1","arg1_1","buf0","buf1"]},{"name":"torch.ops.aten._scaled_dot_product_flash_attention_for_cpu.default","args":["arg2_1","buf0","buf1"]}],"buffers":[{"name":"buf0","bytes":417792},{"name":"buf1","bytes":417792}],"inputs":{"query":{"shape":[1,24,1,256],"dtype":"float32","bytes":24576},"keys":{"shape":[1,4,17,256],"dtype":"float32","bytes":69632},"values":{"shape":[1,4,17,256],"dtype":"float32","bytes":69632}},"output":{"shape":[1,24,1,256],"dtype":"float32","bytes":24576},"times":[53.795849999999994,55.56355,73.228125,50.68855,48.215625,51.68645,55.1802,49.4927,61.715625,56.322925,55.104175],"batches":11,"calls":40,"median":55.104175,"error":3.5762786865234375e-07}}</script>
+<script>
+"use strict";
+const study = JSON.parse(document.querySelector("#study-data").textContent);
+const byId = id => document.getElementById(id);
+const num = (v,digits=0) => v.toLocaleString("en-US",{minimumFractionDigits:digits,maximumFractionDigits:digits});
+function bytes(v){
+  if(v<1024) return num(v)+" B";
+  const unit=v>=1048576?1048576:1024;
+  const value=v/unit;
+  return num(value,Number.isInteger(value)?0:2)+(unit===1024?" KiB":" MiB");
+}
+function escaped(s){return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;")}
+function row(label,v,limit,format=num,kind=""){
+  const width=v/limit*100;
+  return `<div class="bar-row"><span>${escaped(label)}</span><span class="track" aria-hidden="true"><i class="${kind}" style="width:${width}%"></i></span><span class="value">${format(v)}</span></div>`;
+}
+function barChart(title,rows,format=num,foot=""){
+  const max=Math.max(...rows.map(item=>item[1]),1);
+  return `<h4>${title}</h4>`+rows.map(([label,v,kind])=>row(label,v,max,format,kind)).join("")+(foot?`<p class="foot">${foot}</p>`:"");
+}
+function timeline(title,rows,origin,span,labels){
+  return `<h4>${title}</h4>`+rows.map((r,i)=>`<div class="interval-row"><span>${escaped(labels?.[i]||r.label)}</span><span class="track" aria-hidden="true"><i class="${i%2?"mint":""}" style="left:${(r.start-origin)/span*100}%;width:${r.duration/span*100}%"></i></span><span class="value">${num(r.duration,1)} µs</span></div>`).join("")+`<p class="foot">Time axis from ${num(origin,1)} to ${num(origin+span,1)} µs. Labels give interval duration.</p>`;
+}
+function dag(title,nodes,edges,description,layout="normal"){
+  const width=400,height=layout==="small"?91:158;
+  const nodeWidth=layout==="small"?58:64;
+  const nodeHeight=24;
+  const colors={plain:["#e6eaf5","#30426c"],key:["#d0e9e6","#15544f"],value:["#e5dcf0","#5a387b"],join:["#4355a3","#fff"]};
+  const marker="arrow-"+(dag.index++);
+  let arrows="";
+  for(const [from,to] of edges){
+    const a=nodes[from],b=nodes[to];
+    const x=a[1]+nodeWidth/2,y=a[2],end=b[1]-nodeWidth/2-3,ey=b[2];
+    const middle=x+(end-x)*.5;
+    let d=`M${x} ${y} C${middle} ${y} ${middle} ${ey} ${end} ${ey}`;
+    if(b[1]===a[1]){
+      d=`M${a[1]} ${y+12} L${b[1]} ${ey-15}`;
+    }else if(b[1]<a[1]){
+      d=`M${a[1]} ${y+12} C${a[1]} ${ey} ${b[1]+nodeWidth/2+18} ${ey} ${b[1]+nodeWidth/2+3} ${ey}`;
+    }
+    arrows+=`<path d="${d}" fill="none" stroke="#64748c" stroke-width="1.5" marker-end="url(#${marker})"/>`;
+  }
+  let glyphs="";
+  for(const [name,x,y,type] of Object.values(nodes)){
+    const [fill,ink]=colors[type||"plain"];
+    glyphs+=`<g><rect x="${x-nodeWidth/2}" y="${y-nodeHeight/2}" width="${nodeWidth}" height="${nodeHeight}" rx="5" fill="${fill}"/><text x="${x}" y="${y+4}" text-anchor="middle" font-size="12.5" font-weight="600" fill="${ink}">${escaped(name)}</text></g>`;
+  }
+  const alt=description+" "+edges.map(([a,b])=>nodes[a][0]+" feeds "+nodes[b][0]).join(". ")+".";
+  return `<h4>${title}</h4><svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${escaped(alt)}"><defs><marker id="${marker}" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L6 3L0 6Z" fill="#64748c"/></marker></defs>${arrows}${glyphs}</svg>`;
+}
+dag.index=0;
+const short=["Expand K","Expand V","Transpose","Score","Scale","Softmax","Mix"];
+function profiler(mode){
+  const p=study.profiler,rows=p.rows;
+  if(mode==="memory") return ["Which calls triggered CPU allocations?",barChart("Positive allocation events inside each call",rows.map(r=>[r.label,r.allocated]),bytes),
+    "Each expansion accounts for <b>"+bytes(rows[0].allocated)+"</b> of positive allocations. The transpose creates a view. These events track allocator requests, which differ from memory traffic."];
+  if(mode==="dependencies"){
+    const first=rows[0];
+    return ["Which calls nest inside the key expansion?",timeline("Direct children of aten::repeat_interleave",p.children,first.start,first.duration),
+      "The profiler shows parent and child call scopes on a host thread. A tensor trace can identify which child produced a value consumed later."];
+  }
+  if(mode==="compute") return ["Which calls spent time in child operators?",barChart("Inclusive host duration per call",rows.map(r=>[r.label,r.duration]),v=>num(v,1)+" µs"),
+    "The score call includes <b>"+num(rows[3].duration,1)+" µs</b>. Its own work outside direct children occupied "+num(rows[3].self,1)+" µs. Timings include instrumentation."];
+  return ["Where did the host spend time?",timeline("Seven top-level operator intervals",rows,0,p.total),
+    "The two matrix multiplies fill <b>"+num(100*(rows[3].duration+rows[6].duration)/p.total,1)+"%</b> of this instrumented replay. Start offsets and durations come from Kineto."];
+}
+function lens(mode){
+  const t=study.lens;
+  const compute=t.nodes.filter(r=>r.macs!==null);
+  if(mode==="compute") return ["How much arithmetic do the matrix multiplies perform?",barChart("Multiply–accumulate operations",compute.map((r,i)=>[short[i],r.macs]),num),
+    "Each matrix multiply uses <b>"+num(compute[3].macs)+" multiply–accumulates</b> from its shapes. Scaling and softmax perform other arithmetic."];
+  if(mode==="memory") return ["Which tensor outputs need a payload write?",barChart("Estimated output bytes written per call",compute.map((r,i)=>[short[i],r.write_bytes]),bytes),
+    "The transpose exposes a <b>"+bytes(compute[2].tensor_bytes)+"</b> tensor view with "+bytes(compute[2].write_bytes)+" estimated payload writes. Estimates follow tensor shapes and operation semantics."];
+  const nodes={input_1:["Q",33,21,"plain"],input_2:["K",33,64,"key"],input_3:["V",33,133,"value"],repeatinterleave_1_1:["Expand K",117,64,"key"],repeatinterleave_2_2:["Expand V",117,133,"value"],transpose_1_3:["Transpose",200,64,"key"],matmul_1_4:["Score",284,29,"plain"],mul_1_5:["Scale",368,29,"plain"],softmax_1_6:["Softmax",284,92,"plain"],matmul_2_7:["Mix",368,133,"join"]};
+  const edges=t.nodes.filter(r=>nodes[r.id]).flatMap(r=>r.parents.map(p=>[p,r.id]));
+  return ["Which tensors meet at the final multiply?",dag("Producer → consumer, traced from the replay",nodes,edges,"Selected tensor dependencies."),
+    "The value expansion can proceed independently of the score branch. <b>Mix</b> waits for expanded V and the softmax probabilities. Graph edges establish data dependencies."];
+}
+function dace(mode){
+  const d=study.dace,st=d.stages;
+  const names=["Score","Row max","Exp","Row sum","Normalize","Mix"];
+  if(mode==="compute")return ["Which maps expose independent work?",barChart("Independent outer map iterations",st.map((s,i)=>[names[i],s.iterations,"mint"]),num),
+    "Value mixing has <b>"+num(st[5].iterations)+" independent output elements</b>. Each tasklet reduces across 17 positions. The generated CPU maps used a sequential schedule."];
+  if(mode==="dependencies"){
+    const buffers=st.map(s=>s.output[0]);
+    const nodes={};
+    const xs=[33,100,167,234,301,368],ys=[90,34,90,34,90,90];
+    names.forEach((name,i)=>nodes[i]=[name,xs[i],ys[i],i===5?"join":"plain"]);
+    const edges=[];
+    st.forEach((s,i)=>s.input.forEach(b=>{const src=buffers.indexOf(b);if(src>=0)edges.push([src,i])}));
+    let plot=dag("Producer states and their output buffers",nodes,edges,"Edges show use of a prior state’s output.");
+    return ["Which intermediate does each state consume?",plot,
+      "The score feeds the row maximum and exponentiation. The exponentials feed both row sum and normalization. All six states execute in program order."];
+  }
+  return ["Where are logical reads concentrated?",barChart("FP32 array bytes requested across map iterations",st.map((s,i)=>[names[i],s.reads,i===5?"mint":""]),bytes),
+    "Score and mix each request <b>"+bytes(st[0].reads)+"</b>. Six query heads share each KV head. A logical access counts again on reuse, while hardware caches can serve repeated reads."];
+}
+function compiler(mode){
+  const c=study.compiler;
+  if(mode==="compute"){
+    const rows=c.times.map((t,i)=>["Batch "+(i+1),t]);
+    return ["How long did the compiled replay take?",barChart("Mean elapsed time per call in each warm batch",rows,v=>num(v,1)+" µs"),
+      "The median warm batch averaged <b>"+num(c.median,2)+" µs per call</b> across "+c.batches+" batches of "+c.calls+" calls. Compilation and the first call preceded this benchmark."];
+  }
+  if(mode==="memory"){
+    const a=c.inputs;
+    return ["Which tensors did the wrapper materialize?",barChart("Named tensor payloads in the CPU wrapper",[
+      ["Q input",a.query.bytes],["K input",a.keys.bytes],["V input",a.values.bytes],
+      [c.buffers[0].name,c.buffers[0].bytes,"mint"],[c.buffers[1].name,c.buffers[1].bytes,"mint"],["Output",c.output.bytes]],bytes),
+      "The generated wrapper allocates two expanded KV buffers of <b>"+bytes(c.buffers[0].bytes)+" each</b>. The external attention routine manages its own internal storage."];
+  }
+  const node={K:["K",33,43,"key"],V:["V",33,126,"value"],copy:["Copy K/V",120,86,"plain"],Q:["Q",207,21,"plain"],
+    b0:[c.buffers[0].name,207,68,"key"],b1:[c.buffers[1].name,207,118,"value"],flash:["Attention",297,68,"join"],out:["Output",369,68,"plain"]};
+  const argsToNode=new Map([[c.kernels[0].args[0],"K"],[c.kernels[0].args[1],"V"],[c.kernels[1].args[0],"Q"],
+    [c.buffers[0].name,"b0"],[c.buffers[1].name,"b1"]]);
+  const e=[...c.kernels[0].args.slice(0,2).map(k=>[argsToNode.get(k),"copy"]),
+    ...c.kernels[0].args.slice(2).map(k=>["copy",argsToNode.get(k)]),
+    ...c.kernels[1].args.map(k=>[argsToNode.get(k),"flash"]),["flash","out"]];
+  return ["What did the compiler actually emit?",dag("Two compute calls in the generated wrapper",node,e,"Generated C++ copy and CPU flash attention."),
+    mode==="dependencies"?"Both named buffers feed the attention call. The generated copy executes its K and V loops sequentially. The wrapper exposes the call boundary of the native attention routine.":
+    "One generated C++ call expands K and V. One native CPU flash-attention call consumes them with Q. Score, scale, softmax and mix sit inside that second call."];
+}
+function chakra(mode){
+  const c=study.chakra,r=c.rows;
+  if(mode==="memory"){
+    const t=r[2];
+    const n={inp:["K view in",38,36,"key"],storage:["Storage "+t.output,200,36,"plain"],out:["K view out",362,36,"key"]};
+    const e=[["inp","storage"],["storage","out"]];
+    return ["Does transposing keys change their storage?",dag("Input and output of execution node "+t.id,n,e,"Both tensors share backing storage ID "+t.output+".","small"),
+      "The transpose input refers to storage <b>"+t.input[0]+"</b> and its output refers to the same ID. Both tensors describe "+bytes(t.size)+" of logical elements. Their shape and strides differ."];
+  }
+  if(mode==="dependencies"){
+    const nodes={};
+    const xs=[33,33,116,200,284,368,368],ys=[38,128,38,38,38,38,128];
+    r.forEach((op,i)=>nodes[op.id]=[short[i],xs[i],ys[i],i===1?"value":i===6?"join":"plain"]);
+    const e=r.flatMap(op=>op.deps.map(id=>[id,op.id]));
+    return ["Which execution nodes supply the value mix?",dag("Six tensor matches between recorded siblings",nodes,e,"Matched producer-output and consumer-input tensor IDs."),
+      "Mix, node <b>"+r[6].id+"</b>, consumes outputs from "+r[6].deps[0]+" (expanded values) and "+r[6].deps[1]+" (probabilities). Each line links a recorded output tensor ID to an input ID."];
+  }
+  if(mode==="compute") return ["Which recorded events took the most host time?",timeline("Kineto intervals joined to Chakra nodes",r,0,c.total,short),
+    "The trace joins host operation IDs to measured intervals. Score lasted <b>"+num(r[3].duration,1)+" µs</b> and value mix lasted "+num(r[6].duration,1)+" µs in this separately instrumented execution."];
+  const gap=r[1].start-(r[0].start+r[0].duration);
+  return ["Did the two independent expansions overlap?",timeline("Magnified interval on the recorded host track",r.slice(0,2),r[0].start,r[1].start+r[1].duration-r[0].start,short),
+    "Key expansion ended <b>"+num(gap,1)+" µs before</b> value expansion began. Their inputs are independent, but the captured intervals are disjoint. Worker-level scheduling was outside this trace."];
+}
+function modelChart(){
+  const m=study.model, phases=["prefill","decode"];
+  const bars=(key,format,kind)=>phases.map((p,i)=>row(i?"Decode":"Prefill",m[p][key],Math.max(...phases.map(x=>m[x][key])),format,kind)).join("");
+  byId("whole-chart").innerHTML='<h4>Observed host elapsed time</h4>'+bars("wall",v=>num(v/1e6,2)+" s","")+
+    '<h4>Retained key and value tensors</h4>'+bars("kv",v=>num(v/1024)+" KiB","mint")+
+    '<h4>Decoder blocks in forward order</h4><div class="blocks" aria-label="48 recurrent blocks and 16 full-attention blocks. Block 3 supplies the replay." role="img">'+
+    m.types.map((t,i)=>`<i class="${t==="full_attention"?"full":""} ${i===3?"sample":""}"></i>`).join("")+
+    '</div><p class="foot">Gray = recurrent · teal = full attention · outlined = replayed block</p>';
+  byId("whole-note").innerHTML="The full-attention KV cache grew by <b>"+bytes(m.decode.kv-m.prefill.kv)+"</b> across 16 blocks. The other 48 retained "+bytes(m.decode.state)+" of convolution and recurrent state in both phases. Timing covers one warmed, hook-timed pair.";
+}
+const headSelect=byId("head"),t=study.lens,peak=Math.max(...t.weights.flat());
+for(let i=0;i<t.weights.length;i++)headSelect.add(new Option(String(i),String(i)));
+headSelect.value="6";
+byId("weight-max").textContent=num(peak,2);
+function heatmap(){
+  const head=Number(headSelect.value),weights=t.weights[head],best=weights.indexOf(Math.max(...weights));
+  const sw=300,sh=101,left=25,top=5,cw=14.7,rh=3.35;
+  const mix=(a,b,f)=>Math.round(a+(b-a)*f);
+  let cell="";
+  t.weights.forEach((r,h)=>r.forEach((w,p)=>{
+    const f=w/peak;
+    cell+=`<rect x="${left+p*cw}" y="${top+h*rh}" width="${cw-.65}" height="${rh-.35}" fill="rgb(${mix(53,172,f)},${mix(71,238,f)},${mix(96,226,f)})" />`;
+  }));
+  const marking=`<rect x="${left-1}" y="${top+head*rh-.35}" width="${17*cw+1}" height="${rh+.15}" fill="none" stroke="#ffdf99" stroke-width=".7"/><circle cx="${left+(best+.5)*cw}" cy="${top+(head+.5)*rh}" r="2.35" fill="#ffdf99" stroke="#283a56" stroke-width=".6"/>`;
+  const labels=`<g fill="#e2e8f4" font-size="7.8"><text x="12" y="11">0</text><text x="8" y="83">23</text><text x="${left}" y="98">0</text><text x="150" y="98" text-anchor="middle">Cached position</text><text x="${left+17*cw-1}" y="98" text-anchor="end">16</text></g>`;
+  byId("heat").innerHTML=`<svg viewBox="0 0 ${sw} ${sh}" preserveAspectRatio="none" role="img" aria-label="Attention weights for 24 query heads by 17 cached positions. Head ${head} has its highest probability, ${num(weights[best],3)}, at position ${best}.">${cell}${marking}${labels}</svg>`;
+  byId("head-output").textContent="KV "+Math.floor(head/6)+" · peak "+num(weights[best]*100,1)+"% at position "+best;
+}
+headSelect.addEventListener("change",heatmap);
+const renderers={profiler,lens,dace,compiler,chakra};
+function render(mode){
+  dag.index=0;
+  for(const [id,fn] of Object.entries(renderers)){
+    const [question,chart,note]=fn(mode),panel=byId(id);
+    panel.querySelector(".question").textContent=question;
+    panel.querySelector(".plot").innerHTML=chart;
+    panel.querySelector("figure figcaption").innerHTML=note;
+  }
+  document.querySelectorAll(".modes button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.mode===mode)));
+  byId("change").textContent="Five figures showing "+mode+".";
+}
+document.querySelectorAll(".modes button").forEach(b=>b.addEventListener("click",()=>render(b.dataset.mode)));
+heatmap();modelChart();render("highlights");
+</script>
+</body></html>

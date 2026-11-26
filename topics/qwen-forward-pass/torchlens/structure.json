@@ -1,0 +1,4258 @@
+{
+  "model": "Qwen/Qwen3.8-27B",
+  "revision": "37561816e66b5b9153b1b64c10968c18c1e6f4a0",
+  "tool": "3.0.3",
+  "torch": "2.11.0",
+  "transformers": "5.24.0",
+  "records": 17469,
+  "ops": 17464,
+  "edges": 20996,
+  "parameters": 27356728560,
+  "counts": {
+    "boundary": 4,
+    "prefill": 9733,
+    "decode": 7732
+  },
+  "blocks": {
+    "prefill": [
+      {
+        "block": 0,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_15_188:1"
+      },
+      {
+        "block": 1,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_27_340:1"
+      },
+      {
+        "block": 2,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_39_492:1"
+      },
+      {
+        "block": 3,
+        "type": "full_attention",
+        "records": 107,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_52_599:1"
+      },
+      {
+        "block": 4,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_64_751:1"
+      },
+      {
+        "block": 5,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_76_903:1"
+      },
+      {
+        "block": 6,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_88_1055:1"
+      },
+      {
+        "block": 7,
+        "type": "full_attention",
+        "records": 107,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_101_1162:1"
+      },
+      {
+        "block": 8,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_113_1314:1"
+      },
+      {
+        "block": 9,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_125_1466:1"
+      },
+      {
+        "block": 10,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_137_1618:1"
+      },
+      {
+        "block": 11,
+        "type": "full_attention",
+        "records": 107,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_150_1725:1"
+      },
+      {
+        "block": 12,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_162_1877:1"
+      },
+      {
+        "block": 13,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_174_2029:1"
+      },
+      {
+        "block": 14,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_186_2181:1"
+      },
+      {
+        "block": 15,
+        "type": "full_attention",
+        "records": 107,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_199_2288:1"
+      },
+      {
+        "block": 16,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_211_2440:1"
+      },
+      {
+        "block": 17,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_223_2592:1"
+      },
+      {
+        "block": 18,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_235_2744:1"
+      },
+      {
+        "block": 19,
+        "type": "full_attention",
+        "records": 107,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_248_2851:1"
+      },
+      {
+        "block": 20,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_260_3003:1"
+      },
+      {
+        "block": 21,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_272_3155:1"
+      },
+      {
+        "block": 22,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_284_3307:1"
+      },
+      {
+        "block": 23,
+        "type": "full_attention",
+        "records": 107,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_297_3414:1"
+      },
+      {
+        "block": 24,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_309_3566:1"
+      },
+      {
+        "block": 25,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_321_3718:1"
+      },
+      {
+        "block": 26,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_333_3870:1"
+      },
+      {
+        "block": 27,
+        "type": "full_attention",
+        "records": 107,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_346_3977:1"
+      },
+      {
+        "block": 28,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_358_4129:1"
+      },
+      {
+        "block": 29,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_370_4281:1"
+      },
+      {
+        "block": 30,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_382_4433:1"
+      },
+      {
+        "block": 31,
+        "type": "full_attention",
+        "records": 107,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_395_4540:1"
+      },
+      {
+        "block": 32,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_407_4692:1"
+      },
+      {
+        "block": 33,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_419_4844:1"
+      },
+      {
+        "block": 34,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_431_4996:1"
+      },
+      {
+        "block": 35,
+        "type": "full_attention",
+        "records": 107,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_444_5103:1"
+      },
+      {
+        "block": 36,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_456_5255:1"
+      },
+      {
+        "block": 37,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_468_5407:1"
+      },
+      {
+        "block": 38,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_480_5559:1"
+      },
+      {
+        "block": 39,
+        "type": "full_attention",
+        "records": 107,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_493_5666:1"
+      },
+      {
+        "block": 40,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_505_5818:1"
+      },
+      {
+        "block": 41,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_517_5970:1"
+      },
+      {
+        "block": 42,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_529_6122:1"
+      },
+      {
+        "block": 43,
+        "type": "full_attention",
+        "records": 107,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_542_6229:1"
+      },
+      {
+        "block": 44,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_554_6381:1"
+      },
+      {
+        "block": 45,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_566_6533:1"
+      },
+      {
+        "block": 46,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_578_6685:1"
+      },
+      {
+        "block": 47,
+        "type": "full_attention",
+        "records": 107,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_591_6792:1"
+      },
+      {
+        "block": 48,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_603_6944:1"
+      },
+      {
+        "block": 49,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_615_7096:1"
+      },
+      {
+        "block": 50,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_627_7248:1"
+      },
+      {
+        "block": 51,
+        "type": "full_attention",
+        "records": 107,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_640_7355:1"
+      },
+      {
+        "block": 52,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_652_7507:1"
+      },
+      {
+        "block": 53,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_664_7659:1"
+      },
+      {
+        "block": 54,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_676_7811:1"
+      },
+      {
+        "block": 55,
+        "type": "full_attention",
+        "records": 107,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_689_7918:1"
+      },
+      {
+        "block": 56,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_701_8070:1"
+      },
+      {
+        "block": 57,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_713_8222:1"
+      },
+      {
+        "block": 58,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_725_8374:1"
+      },
+      {
+        "block": 59,
+        "type": "full_attention",
+        "records": 107,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_738_8481:1"
+      },
+      {
+        "block": 60,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_750_8633:1"
+      },
+      {
+        "block": 61,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_762_8785:1"
+      },
+      {
+        "block": 62,
+        "type": "linear_attention",
+        "records": 166,
+        "frequent": [
+          [
+            "mul",
+            22
+          ],
+          [
+            "reshape",
+            13
+          ],
+          [
+            "getitem",
+            13
+          ],
+          [
+            "add",
+            12
+          ],
+          [
+            "to",
+            12
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_774_8937:1"
+      },
+      {
+        "block": 63,
+        "type": "full_attention",
+        "records": 107,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          16,
+          5120
+        ],
+        "last": "add_787_9044:1"
+      }
+    ],
+    "decode": [
+      {
+        "block": 0,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_15_188:2"
+      },
+      {
+        "block": 1,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_27_340:2"
+      },
+      {
+        "block": 2,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_39_492:2"
+      },
+      {
+        "block": 3,
+        "type": "full_attention",
+        "records": 105,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_52_599:2"
+      },
+      {
+        "block": 4,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_64_751:2"
+      },
+      {
+        "block": 5,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_76_903:2"
+      },
+      {
+        "block": 6,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_88_1055:2"
+      },
+      {
+        "block": 7,
+        "type": "full_attention",
+        "records": 105,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_101_1162:2"
+      },
+      {
+        "block": 8,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_113_1314:2"
+      },
+      {
+        "block": 9,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_125_1466:2"
+      },
+      {
+        "block": 10,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_137_1618:2"
+      },
+      {
+        "block": 11,
+        "type": "full_attention",
+        "records": 105,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_150_1725:2"
+      },
+      {
+        "block": 12,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_162_1877:2"
+      },
+      {
+        "block": 13,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_174_2029:2"
+      },
+      {
+        "block": 14,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_186_2181:2"
+      },
+      {
+        "block": 15,
+        "type": "full_attention",
+        "records": 105,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_199_2288:2"
+      },
+      {
+        "block": 16,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_211_2440:2"
+      },
+      {
+        "block": 17,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_223_2592:2"
+      },
+      {
+        "block": 18,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_235_2744:2"
+      },
+      {
+        "block": 19,
+        "type": "full_attention",
+        "records": 105,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_248_2851:2"
+      },
+      {
+        "block": 20,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_260_3003:2"
+      },
+      {
+        "block": 21,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_272_3155:2"
+      },
+      {
+        "block": 22,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_284_3307:2"
+      },
+      {
+        "block": 23,
+        "type": "full_attention",
+        "records": 105,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_297_3414:2"
+      },
+      {
+        "block": 24,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_309_3566:2"
+      },
+      {
+        "block": 25,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_321_3718:2"
+      },
+      {
+        "block": 26,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_333_3870:2"
+      },
+      {
+        "block": 27,
+        "type": "full_attention",
+        "records": 105,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_346_3977:2"
+      },
+      {
+        "block": 28,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_358_4129:2"
+      },
+      {
+        "block": 29,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_370_4281:2"
+      },
+      {
+        "block": 30,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_382_4433:2"
+      },
+      {
+        "block": 31,
+        "type": "full_attention",
+        "records": 105,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_395_4540:2"
+      },
+      {
+        "block": 32,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_407_4692:2"
+      },
+      {
+        "block": 33,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_419_4844:2"
+      },
+      {
+        "block": 34,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_431_4996:2"
+      },
+      {
+        "block": 35,
+        "type": "full_attention",
+        "records": 105,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_444_5103:2"
+      },
+      {
+        "block": 36,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_456_5255:2"
+      },
+      {
+        "block": 37,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_468_5407:2"
+      },
+      {
+        "block": 38,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_480_5559:2"
+      },
+      {
+        "block": 39,
+        "type": "full_attention",
+        "records": 105,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_493_5666:2"
+      },
+      {
+        "block": 40,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_505_5818:2"
+      },
+      {
+        "block": 41,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_517_5970:2"
+      },
+      {
+        "block": 42,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_529_6122:2"
+      },
+      {
+        "block": 43,
+        "type": "full_attention",
+        "records": 105,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_542_6229:2"
+      },
+      {
+        "block": 44,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_554_6381:2"
+      },
+      {
+        "block": 45,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_566_6533:2"
+      },
+      {
+        "block": 46,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_578_6685:2"
+      },
+      {
+        "block": 47,
+        "type": "full_attention",
+        "records": 105,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_591_6792:2"
+      },
+      {
+        "block": 48,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_603_6944:2"
+      },
+      {
+        "block": 49,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_615_7096:2"
+      },
+      {
+        "block": 50,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_627_7248:2"
+      },
+      {
+        "block": 51,
+        "type": "full_attention",
+        "records": 105,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_640_7355:2"
+      },
+      {
+        "block": 52,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_652_7507:2"
+      },
+      {
+        "block": 53,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_664_7659:2"
+      },
+      {
+        "block": 54,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_676_7811:2"
+      },
+      {
+        "block": 55,
+        "type": "full_attention",
+        "records": 105,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_689_7918:2"
+      },
+      {
+        "block": 56,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_701_8070:2"
+      },
+      {
+        "block": 57,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_713_8222:2"
+      },
+      {
+        "block": 58,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_725_8374:2"
+      },
+      {
+        "block": 59,
+        "type": "full_attention",
+        "records": 105,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_738_8481:2"
+      },
+      {
+        "block": 60,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_750_8633:2"
+      },
+      {
+        "block": 61,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_762_8785:2"
+      },
+      {
+        "block": 62,
+        "type": "linear_attention",
+        "records": 125,
+        "frequent": [
+          [
+            "mul",
+            18
+          ],
+          [
+            "to",
+            13
+          ],
+          [
+            "add",
+            11
+          ],
+          [
+            "linear",
+            8
+          ],
+          [
+            "transpose",
+            8
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_774_8937:2"
+      },
+      {
+        "block": 63,
+        "type": "full_attention",
+        "records": 105,
+        "frequent": [
+          [
+            "mul",
+            15
+          ],
+          [
+            "add",
+            13
+          ],
+          [
+            "getitem",
+            10
+          ],
+          [
+            "float",
+            8
+          ],
+          [
+            "linear",
+            7
+          ]
+        ],
+        "output": [
+          1,
+          1,
+          5120
+        ],
+        "last": "add_787_9044:2"
+      }
+    ]
+  },
+  "output_shapes": [
+    [
+      1,
+      1,
+      248320
+    ],
+    [
+      1,
+      1,
+      248320
+    ]
+  ]
+}

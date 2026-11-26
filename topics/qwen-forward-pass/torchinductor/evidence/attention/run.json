@@ -1,0 +1,234 @@
+{
+  "case": "attention",
+  "revision": "37561816e66b5b9153b1b64c10968c18c1e6f4a0",
+  "torch": "2.11.0",
+  "python": "3.13.12",
+  "host": "macOS-26.1-arm64-arm-64bit-Mach-O",
+  "threads": 1,
+  "interop_threads": 1,
+  "inputs": {
+    "query": {
+      "shape": [
+        1,
+        24,
+        1,
+        256
+      ],
+      "dtype": "float32",
+      "bytes": 24576
+    },
+    "keys": {
+      "shape": [
+        1,
+        4,
+        17,
+        256
+      ],
+      "dtype": "float32",
+      "bytes": 69632
+    },
+    "values": {
+      "shape": [
+        1,
+        4,
+        17,
+        256
+      ],
+      "dtype": "float32",
+      "bytes": 69632
+    }
+  },
+  "output": {
+    "shape": [
+      1,
+      24,
+      1,
+      256
+    ],
+    "dtype": "float32",
+    "bytes": 24576
+  },
+  "weight_shards": {},
+  "fixture_sha256": "be8abdcda8cdd3b43d8269083087c5893017b736fe9c37d5d3566e4d277ad8d7",
+  "first_compiled_call_s": 2.6200103748124093,
+  "timing": {
+    "batches": 11,
+    "calls_per_batch": 40,
+    "wall_us_per_call": [
+      53.795849999999994,
+      55.56355,
+      73.228125,
+      50.68855,
+      48.215625,
+      51.68645,
+      55.1802,
+      49.4927,
+      61.715625,
+      56.322925,
+      55.104175
+    ],
+    "median_wall_us": 55.104175,
+    "process_cpu_us_per_call": [
+      53.7,
+      55.275,
+      72.8,
+      50.65,
+      48.2,
+      51.35,
+      54.7,
+      49.475,
+      61.7,
+      56.275,
+      54.75
+    ],
+    "median_process_cpu_us": 54.7
+  },
+  "wrapper_calls": [
+    {
+      "name": "cpp_fused__scaled_dot_product_flash_attention_for_cpu_clone_expand_unsqueeze_view_0",
+      "start_us": 91.792,
+      "end_us": 107.709,
+      "elapsed_us": 15.917,
+      "thread": 0,
+      "positional": [
+        {
+          "shape": [
+            1,
+            4,
+            17,
+            256
+          ],
+          "dtype": "float32",
+          "bytes": 69632
+        },
+        {
+          "shape": [
+            1,
+            4,
+            17,
+            256
+          ],
+          "dtype": "float32",
+          "bytes": 69632
+        },
+        {
+          "shape": [
+            1,
+            24,
+            17,
+            256
+          ],
+          "dtype": "float32",
+          "bytes": 417792
+        },
+        {
+          "shape": [
+            1,
+            24,
+            17,
+            256
+          ],
+          "dtype": "float32",
+          "bytes": 417792
+        }
+      ],
+      "named": {},
+      "returned": []
+    },
+    {
+      "name": "torch.ops.aten._scaled_dot_product_flash_attention_for_cpu.default",
+      "start_us": 123.75,
+      "end_us": 152.75,
+      "elapsed_us": 29.0,
+      "thread": 0,
+      "positional": [
+        {
+          "shape": [
+            1,
+            24,
+            1,
+            256
+          ],
+          "dtype": "float32",
+          "bytes": 24576
+        },
+        {
+          "shape": [
+            1,
+            24,
+            17,
+            256
+          ],
+          "dtype": "float32",
+          "bytes": 417792
+        },
+        {
+          "shape": [
+            1,
+            24,
+            17,
+            256
+          ],
+          "dtype": "float32",
+          "bytes": 417792
+        }
+      ],
+      "named": {},
+      "returned": [
+        {
+          "shape": [
+            1,
+            24,
+            1,
+            256
+          ],
+          "dtype": "float32",
+          "bytes": 24576
+        },
+        {
+          "shape": [
+            1,
+            24,
+            1
+          ],
+          "dtype": "float32",
+          "bytes": 96
+        }
+      ]
+    }
+  ],
+  "generated_openmp_parallel_directives": [],
+  "compiled_vs_reference": {
+    "max_abs": 3.5762786865234375e-07,
+    "mean_abs": 2.4618225680228534e-08,
+    "rmse": 4.2270198008509396e-08,
+    "num_values": 6144,
+    "count_exact": 1689,
+    "reference_abs_max": 2.585273027420044,
+    "expected_rms": 0.39408060908317566
+  },
+  "eager_vs_reference": {
+    "max_abs": 0.0,
+    "mean_abs": 0.0,
+    "rmse": 0.0,
+    "num_values": 6144,
+    "count_exact": 6144,
+    "reference_abs_max": 2.585273027420044,
+    "expected_rms": 0.39408060908317566
+  },
+  "compiled_vs_eager": {
+    "max_abs": 3.5762786865234375e-07,
+    "mean_abs": 2.4618225680228534e-08,
+    "rmse": 4.2270198008509396e-08,
+    "num_values": 6144,
+    "count_exact": 1689,
+    "reference_abs_max": 2.585273027420044,
+    "expected_rms": 0.39408060908317566
+  },
+  "check": {
+    "rtol": 1e-05,
+    "atol": 1e-06,
+    "pass": true,
+    "out_of_tolerance": 0
+  }
+}

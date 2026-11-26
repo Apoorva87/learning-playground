@@ -12,6 +12,8 @@
 
 **Code and architecture, November 26, 2026.** For the Qwen study the learner wants to begin with the model code, dimensions and the reason for each operation. They want diagrams inspired by the WebGL experience in LLM Visualization beside the explanations. [Qwen code walkthrough](topics/qwen-forward-pass/index.html)
 
+**Explanations that move with the picture, November 26, 2026.** For looped transformers, starting with Inkling 2 Mini, the learner asked for both a general article on looping and a full anatomy of the model. “Remember, I want to do stage by stage understanding of what is the math that is happening the intuition behind that and you know the story and the web animation should move in SYNC.” They want blog-style articles like The Illustrated Transformer, with diagrams like LLM Visualization. They chose to run the real model, converted to BF16, rather than rely on illustrative numbers. [Looped transformers topic](topics/looped-transformers/README.md)
+
 | Date | Learning task | Tool or component | What I would use and why | Trial |
 | --- | --- | --- | --- | --- |
 | Nov 24, 2026 | Learning KV caches | DeepTutor | One of my favorites so far. | [Trial](topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-deeptutor/notes.md) |

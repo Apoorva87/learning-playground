@@ -1,0 +1,66 @@
+# Looped transformers, stage by stage
+
+Why would a model run the same layers more than once, and what does each stage compute? The worked example is [Inkling 2 Mini](https://huggingface.co/thinkingmachines/Inkling-2-Mini/tree/c9d028302cd0f035fdf8e7e91f089a4ce94d2195) from Thinking Machines, released November 20, 2026. It stores 24 layers and runs layers 6–17 three times, which gives 48 layer visits per token.
+
+**Status, November 26, 2026.** The design is drafted and waiting for the learner's approval: [design](../../docs/superpowers/specs/2026-11-26-looped-transformers-design.md). The real model has been run and measured. The two articles are not built yet:
+
+- *Why loop a transformer?*
+- *Inside Inkling 2 Mini*
+
+Their text and their WebGL scene will move together under scroll, step and play.
+
+## What the real model did
+
+We ran the official checkpoint on an Apple M4 Max CPU. Transformers dequantized its 4-bit NVFP4 and 8-bit MXFP8 experts to BF16 while loading. It took 82 s and peaked at 51 GB of memory.
+
+### Each pass mostly picks different experts
+
+In the same core layer, a prompt token shares on average about 4.8 of its 8 routed experts between passes 1 and 2. It shares about 4.3 between passes 2 and 3 and about 3 across all three. Layer 17, the last core layer, shares almost none. Looping reuses the stored weights, but each pass reads a largely different set of them.
+
+### The trained message gates are open
+
+Passes 2 and 3 restart from the prelude output and receive a gated message from the previous pass. The message adds about as much as the restarted state keeps: the norm ratio `‖g⊙m‖ / ‖(1−f)⊙h‖` is about 1.0–1.4 for the query, key and value inputs, and about 0.6 for the MLP input.
+
+### More passes, more hops
+
+The probe scored whole answers for two chains of containers, stated in forward and reversed order. The model was trained with three passes. Its one- and two-pass results are therefore a probe outside its training setting.
+
+| Loop passes | Two- and three-hop prompts answered correctly | Average share of the right answer among the containers |
+| --- | --- | --- |
+| 1 | 2 of 8 | 0.36 |
+| 2 | 5 of 8 | 0.60 |
+| 3 (trained) | 8 of 8 | 0.99 |
+
+With one pass, the model usually names the first container in the chain. In the ring story, three hops succeed at every pass count, because the garage is the only location among the candidates.
+
+### Cost
+
+A 43-token CPU prefill took about 2.1 s in the prelude, about 4.3 s for each core pass and 2.1 s in the coda. Every visit keeps its own cache. Keys and values therefore grow by 196,608 bytes per token, the same as a 48-layer model. Sliding-window visits stop growing at 1,024 positions.
+
+## Files
+
+| File | What it holds |
+| --- | --- |
+| [capture_inkling.py](assets/capture_inkling.py) | Loads the checkpoint in BF16 and hooks the gates, messages, depth-wise attention residuals, router and cache. Records a prefill at 1, 2 and 3 passes and one cached decode. |
+| [inkling-capture.json](assets/inkling-capture.json) | Raw recorded values. |
+| [inkling-capture-summary.json](assets/inkling-capture-summary.json) | Compact figures for the pages, made by [summarize_capture.py](assets/summarize_capture.py). |
+| [probe_hops.py](assets/probe_hops.py) | Scores whole multi-hop answers at each pass count. |
+| [hop-probe.json](assets/hop-probe.json) | The probe's results. |
+
+## Reproduce
+
+Use Python 3.13 with the [pinned environment](assets/requirements.txt), including Transformers at the commit that added Inkling 2. You need about 20 GB of disk for the checkpoint and 64 GB of memory. From the playground root:
+
+```sh
+hf download thinkingmachines/Inkling-2-Mini --revision c9d028302cd0f035fdf8e7e91f089a4ce94d2195 \
+  --local-dir .local/inkling2/checkpoint
+python topics/looped-transformers/assets/capture_inkling.py .local/inkling2/checkpoint .local/inkling2/capture
+python topics/looped-transformers/assets/probe_hops.py .local/inkling2/checkpoint .local/inkling2/capture/hop-probe.json
+python topics/looped-transformers/assets/summarize_capture.py .local/inkling2/capture/inkling-capture.json summary.json
+```
+
+The capture script checks the weights file against its published SHA-256 before loading. The model's code is the Transformers source in [models/inkling2_loop](https://github.com/huggingface/transformers/tree/b62646bbda836d467060b7e3d64028202079b77d/src/transformers/models/inkling2_loop). The checkpoint is Apache 2.0. The weights stay in the ignored `.local/` directory.
+
+## Feedback
+
+Pending. Approve or change the design, then read the articles once they are built.

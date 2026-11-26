@@ -1,0 +1,11 @@
+# Python 3.13.12 on macOS (Apple M4 Max, 128 GB). Tested November 26, 2026.
+torch==2.11.0
+torchvision==0.26.0
+numpy==2.4.4
+safetensors==0.8.0
+tokenizers==0.23.3
+tiktoken==0.14.0
+pillow==13.0.0
+huggingface-hub==2.5.0
+# Inkling 2 Mini support landed after the latest release (v5.24.1); pin the commit that was tested.
+transformers @ git+https://github.com/huggingface/transformers@b62646bbda836d467060b7e3d64028202079b77d

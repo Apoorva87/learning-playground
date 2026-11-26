@@ -1,0 +1,1075 @@
+{
+ "prompts": [
+  {
+   "story": "passport",
+   "hops": 1,
+   "order": "forward",
+   "prompt": "Mira keeps her passport in the blue box. So, Mira's passport is ultimately in the",
+   "answer": "blue box",
+   "candidates": [
+    "blue box"
+   ]
+  },
+  {
+   "story": "passport",
+   "hops": 2,
+   "order": "forward",
+   "prompt": "Mira keeps her passport in the blue box. The blue box sits inside the oak chest. So, Mira's passport is ultimately in the",
+   "answer": "oak chest",
+   "candidates": [
+    "blue box",
+    "oak chest"
+   ]
+  },
+  {
+   "story": "passport",
+   "hops": 2,
+   "order": "reversed",
+   "prompt": "The blue box sits inside the oak chest. Mira keeps her passport in the blue box. So, Mira's passport is ultimately in the",
+   "answer": "oak chest",
+   "candidates": [
+    "blue box",
+    "oak chest"
+   ]
+  },
+  {
+   "story": "passport",
+   "hops": 3,
+   "order": "forward",
+   "prompt": "Mira keeps her passport in the blue box. The blue box sits inside the oak chest. The oak chest is stored in the attic. So, Mira's passport is ultimately in the",
+   "answer": "attic",
+   "candidates": [
+    "blue box",
+    "oak chest",
+    "attic"
+   ]
+  },
+  {
+   "story": "passport",
+   "hops": 3,
+   "order": "reversed",
+   "prompt": "The oak chest is stored in the attic. The blue box sits inside the oak chest. Mira keeps her passport in the blue box. So, Mira's passport is ultimately in the",
+   "answer": "attic",
+   "candidates": [
+    "blue box",
+    "oak chest",
+    "attic"
+   ]
+  },
+  {
+   "story": "ring",
+   "hops": 1,
+   "order": "forward",
+   "prompt": "Theo keeps his ring in the red pouch. So, Theo's ring is ultimately in the",
+   "answer": "red pouch",
+   "candidates": [
+    "red pouch"
+   ]
+  },
+  {
+   "story": "ring",
+   "hops": 2,
+   "order": "forward",
+   "prompt": "Theo keeps his ring in the red pouch. The red pouch is inside the leather bag. So, Theo's ring is ultimately in the",
+   "answer": "leather bag",
+   "candidates": [
+    "red pouch",
+    "leather bag"
+   ]
+  },
+  {
+   "story": "ring",
+   "hops": 2,
+   "order": "reversed",
+   "prompt": "The red pouch is inside the leather bag. Theo keeps his ring in the red pouch. So, Theo's ring is ultimately in the",
+   "answer": "leather bag",
+   "candidates": [
+    "red pouch",
+    "leather bag"
+   ]
+  },
+  {
+   "story": "ring",
+   "hops": 3,
+   "order": "forward",
+   "prompt": "Theo keeps his ring in the red pouch. The red pouch is inside the leather bag. The leather bag is kept in the garage. So, Theo's ring is ultimately in the",
+   "answer": "garage",
+   "candidates": [
+    "red pouch",
+    "leather bag",
+    "garage"
+   ]
+  },
+  {
+   "story": "ring",
+   "hops": 3,
+   "order": "reversed",
+   "prompt": "The leather bag is kept in the garage. The red pouch is inside the leather bag. Theo keeps his ring in the red pouch. So, Theo's ring is ultimately in the",
+   "answer": "garage",
+   "candidates": [
+    "red pouch",
+    "leather bag",
+    "garage"
+   ]
+  }
+ ],
+ "rows": [
+  {
+   "story": "passport",
+   "hops": 1,
+   "order": "forward",
+   "answer": "blue box",
+   "passes": 1,
+   "correct": true,
+   "scores": {
+    "blue box": {
+     "logp": -1.1757,
+     "tokens": [
+      " blue",
+      " box"
+     ],
+     "p_among": 1.0,
+     "p": 0.3086
+    }
+   },
+   "s": 7.6
+  },
+  {
+   "story": "passport",
+   "hops": 1,
+   "order": "forward",
+   "answer": "blue box",
+   "passes": 2,
+   "correct": true,
+   "scores": {
+    "blue box": {
+     "logp": -1.7264,
+     "tokens": [
+      " blue",
+      " box"
+     ],
+     "p_among": 1.0,
+     "p": 0.17792
+    }
+   },
+   "s": 11.2
+  },
+  {
+   "story": "passport",
+   "hops": 1,
+   "order": "forward",
+   "answer": "blue box",
+   "passes": 3,
+   "correct": true,
+   "scores": {
+    "blue box": {
+     "logp": -3.1685,
+     "tokens": [
+      " blue",
+      " box"
+     ],
+     "p_among": 1.0,
+     "p": 0.04207
+    }
+   },
+   "s": 15.3
+  },
+  {
+   "story": "passport",
+   "hops": 2,
+   "order": "forward",
+   "answer": "oak chest",
+   "passes": 1,
+   "correct": false,
+   "scores": {
+    "blue box": {
+     "logp": -1.8907,
+     "tokens": [
+      " blue",
+      " box"
+     ],
+     "p_among": 0.782,
+     "p": 0.15097
+    },
+    "oak chest": {
+     "logp": -3.1678,
+     "tokens": [
+      " ",
+      "oak",
+      " chest"
+     ],
+     "p_among": 0.218,
+     "p": 0.0421
+    }
+   },
+   "s": 15.6
+  },
+  {
+   "story": "passport",
+   "hops": 2,
+   "order": "forward",
+   "answer": "oak chest",
+   "passes": 2,
+   "correct": true,
+   "scores": {
+    "blue box": {
+     "logp": -2.048,
+     "tokens": [
+      " blue",
+      " box"
+     ],
+     "p_among": 0.2816,
+     "p": 0.12899
+    },
+    "oak chest": {
+     "logp": -1.1116,
+     "tokens": [
+      " ",
+      "oak",
+      " chest"
+     ],
+     "p_among": 0.7184,
+     "p": 0.32903
+    }
+   },
+   "s": 23.8
+  },
+  {
+   "story": "passport",
+   "hops": 2,
+   "order": "forward",
+   "answer": "oak chest",
+   "passes": 3,
+   "correct": true,
+   "scores": {
+    "blue box": {
+     "logp": -5.5574,
+     "tokens": [
+      " blue",
+      " box"
+     ],
+     "p_among": 0.0049,
+     "p": 0.00386
+    },
+    "oak chest": {
+     "logp": -0.2526,
+     "tokens": [
+      " ",
+      "oak",
+      " chest"
+     ],
+     "p_among": 0.9951,
+     "p": 0.77678
+    }
+   },
+   "s": 31.9
+  },
+  {
+   "story": "passport",
+   "hops": 2,
+   "order": "reversed",
+   "answer": "oak chest",
+   "passes": 1,
+   "correct": false,
+   "scores": {
+    "blue box": {
+     "logp": -2.4188,
+     "tokens": [
+      " blue",
+      " box"
+     ],
+     "p_among": 0.6192,
+     "p": 0.08903
+    },
+    "oak chest": {
+     "logp": -2.9049,
+     "tokens": [
+      " ",
+      "oak",
+      " chest"
+     ],
+     "p_among": 0.3808,
+     "p": 0.05475
+    }
+   },
+   "s": 16.1
+  },
+  {
+   "story": "passport",
+   "hops": 2,
+   "order": "reversed",
+   "answer": "oak chest",
+   "passes": 2,
+   "correct": true,
+   "scores": {
+    "blue box": {
+     "logp": -2.3623,
+     "tokens": [
+      " blue",
+      " box"
+     ],
+     "p_among": 0.3472,
+     "p": 0.0942
+    },
+    "oak chest": {
+     "logp": -1.7311,
+     "tokens": [
+      " ",
+      "oak",
+      " chest"
+     ],
+     "p_among": 0.6528,
+     "p": 0.17709
+    }
+   },
+   "s": 23.9
+  },
+  {
+   "story": "passport",
+   "hops": 2,
+   "order": "reversed",
+   "answer": "oak chest",
+   "passes": 3,
+   "correct": true,
+   "scores": {
+    "blue box": {
+     "logp": -4.9856,
+     "tokens": [
+      " blue",
+      " box"
+     ],
+     "p_among": 0.0086,
+     "p": 0.00684
+    },
+    "oak chest": {
+     "logp": -0.2345,
+     "tokens": [
+      " ",
+      "oak",
+      " chest"
+     ],
+     "p_among": 0.9914,
+     "p": 0.79097
+    }
+   },
+   "s": 32.0
+  },
+  {
+   "story": "passport",
+   "hops": 3,
+   "order": "forward",
+   "answer": "attic",
+   "passes": 1,
+   "correct": false,
+   "scores": {
+    "blue box": {
+     "logp": -1.8104,
+     "tokens": [
+      " blue",
+      " box"
+     ],
+     "p_among": 0.5469,
+     "p": 0.16359
+    },
+    "oak chest": {
+     "logp": -2.3881,
+     "tokens": [
+      " ",
+      "oak",
+      " chest"
+     ],
+     "p_among": 0.3069,
+     "p": 0.0918
+    },
+    "attic": {
+     "logp": -3.13,
+     "tokens": [
+      " ",
+      "attic"
+     ],
+     "p_among": 0.1462,
+     "p": 0.04372
+    }
+   },
+   "s": 25.0
+  },
+  {
+   "story": "passport",
+   "hops": 3,
+   "order": "forward",
+   "answer": "attic",
+   "passes": 2,
+   "correct": false,
+   "scores": {
+    "blue box": {
+     "logp": -2.27,
+     "tokens": [
+      " blue",
+      " box"
+     ],
+     "p_among": 0.1902,
+     "p": 0.10331
+    },
+    "oak chest": {
+     "logp": -0.8957,
+     "tokens": [
+      " ",
+      "oak",
+      " chest"
+     ],
+     "p_among": 0.7518,
+     "p": 0.40832
+    },
+    "attic": {
+     "logp": -3.4583,
+     "tokens": [
+      " ",
+      "attic"
+     ],
+     "p_among": 0.058,
+     "p": 0.03148
+    }
+   },
+   "s": 37.4
+  },
+  {
+   "story": "passport",
+   "hops": 3,
+   "order": "forward",
+   "answer": "attic",
+   "passes": 3,
+   "correct": true,
+   "scores": {
+    "blue box": {
+     "logp": -9.2654,
+     "tokens": [
+      " blue",
+      " box"
+     ],
+     "p_among": 0.0001,
+     "p": 9e-05
+    },
+    "oak chest": {
+     "logp": -7.3549,
+     "tokens": [
+      " ",
+      "oak",
+      " chest"
+     ],
+     "p_among": 0.0007,
+     "p": 0.00064
+    },
+    "attic": {
+     "logp": -0.0661,
+     "tokens": [
+      " ",
+      "attic"
+     ],
+     "p_among": 0.9992,
+     "p": 0.93604
+    }
+   },
+   "s": 49.4
+  },
+  {
+   "story": "passport",
+   "hops": 3,
+   "order": "reversed",
+   "answer": "attic",
+   "passes": 1,
+   "correct": false,
+   "scores": {
+    "blue box": {
+     "logp": -1.5387,
+     "tokens": [
+      " blue",
+      " box"
+     ],
+     "p_among": 0.6077,
+     "p": 0.21466
+    },
+    "oak chest": {
+     "logp": -2.2416,
+     "tokens": [
+      " ",
+      "oak",
+      " chest"
+     ],
+     "p_among": 0.3009,
+     "p": 0.10629
+    },
+    "attic": {
+     "logp": -3.4329,
+     "tokens": [
+      " ",
+      "attic"
+     ],
+     "p_among": 0.0914,
+     "p": 0.03229
+    }
+   },
+   "s": 25.2
+  },
+  {
+   "story": "passport",
+   "hops": 3,
+   "order": "reversed",
+   "answer": "attic",
+   "passes": 2,
+   "correct": false,
+   "scores": {
+    "blue box": {
+     "logp": -2.4946,
+     "tokens": [
+      " blue",
+      " box"
+     ],
+     "p_among": 0.1184,
+     "p": 0.08253
+    },
+    "oak chest": {
+     "logp": -0.9201,
+     "tokens": [
+      " ",
+      "oak",
+      " chest"
+     ],
+     "p_among": 0.5718,
+     "p": 0.39848
+    },
+    "attic": {
+     "logp": -1.5332,
+     "tokens": [
+      " ",
+      "attic"
+     ],
+     "p_among": 0.3097,
+     "p": 0.21584
+    }
+   },
+   "s": 37.6
+  },
+  {
+   "story": "passport",
+   "hops": 3,
+   "order": "reversed",
+   "answer": "attic",
+   "passes": 3,
+   "correct": true,
+   "scores": {
+    "blue box": {
+     "logp": -6.2299,
+     "tokens": [
+      " blue",
+      " box"
+     ],
+     "p_among": 0.0022,
+     "p": 0.00197
+    },
+    "oak chest": {
+     "logp": -5.0129,
+     "tokens": [
+      " ",
+      "oak",
+      " chest"
+     ],
+     "p_among": 0.0074,
+     "p": 0.00665
+    },
+    "attic": {
+     "logp": -0.1214,
+     "tokens": [
+      " ",
+      "attic"
+     ],
+     "p_among": 0.9904,
+     "p": 0.88568
+    }
+   },
+   "s": 50.5
+  },
+  {
+   "story": "ring",
+   "hops": 1,
+   "order": "forward",
+   "answer": "red pouch",
+   "passes": 1,
+   "correct": true,
+   "scores": {
+    "red pouch": {
+     "logp": -1.9138,
+     "tokens": [
+      " red",
+      " ",
+      "pouch"
+     ],
+     "p_among": 1.0,
+     "p": 0.14752
+    }
+   },
+   "s": 6.7
+  },
+  {
+   "story": "ring",
+   "hops": 1,
+   "order": "forward",
+   "answer": "red pouch",
+   "passes": 2,
+   "correct": true,
+   "scores": {
+    "red pouch": {
+     "logp": -1.6763,
+     "tokens": [
+      " red",
+      " ",
+      "pouch"
+     ],
+     "p_among": 1.0,
+     "p": 0.18706
+    }
+   },
+   "s": 10.4
+  },
+  {
+   "story": "ring",
+   "hops": 1,
+   "order": "forward",
+   "answer": "red pouch",
+   "passes": 3,
+   "correct": true,
+   "scores": {
+    "red pouch": {
+     "logp": -1.5315,
+     "tokens": [
+      " red",
+      " ",
+      "pouch"
+     ],
+     "p_among": 1.0,
+     "p": 0.21621
+    }
+   },
+   "s": 14.8
+  },
+  {
+   "story": "ring",
+   "hops": 2,
+   "order": "forward",
+   "answer": "leather bag",
+   "passes": 1,
+   "correct": false,
+   "scores": {
+    "red pouch": {
+     "logp": -1.7667,
+     "tokens": [
+      " red",
+      " ",
+      "pouch"
+     ],
+     "p_among": 0.7958,
+     "p": 0.1709
+    },
+    "leather bag": {
+     "logp": -3.127,
+     "tokens": [
+      " ",
+      "leather",
+      " bag"
+     ],
+     "p_among": 0.2042,
+     "p": 0.04385
+    }
+   },
+   "s": 16.1
+  },
+  {
+   "story": "ring",
+   "hops": 2,
+   "order": "forward",
+   "answer": "leather bag",
+   "passes": 2,
+   "correct": false,
+   "scores": {
+    "red pouch": {
+     "logp": -1.5953,
+     "tokens": [
+      " red",
+      " ",
+      "pouch"
+     ],
+     "p_among": 0.5345,
+     "p": 0.20285
+    },
+    "leather bag": {
+     "logp": -1.7334,
+     "tokens": [
+      " ",
+      "leather",
+      " bag"
+     ],
+     "p_among": 0.4655,
+     "p": 0.17668
+    }
+   },
+   "s": 24.2
+  },
+  {
+   "story": "ring",
+   "hops": 2,
+   "order": "forward",
+   "answer": "leather bag",
+   "passes": 3,
+   "correct": true,
+   "scores": {
+    "red pouch": {
+     "logp": -3.7705,
+     "tokens": [
+      " red",
+      " ",
+      "pouch"
+     ],
+     "p_among": 0.0276,
+     "p": 0.02304
+    },
+    "leather bag": {
+     "logp": -0.2096,
+     "tokens": [
+      " ",
+      "leather",
+      " bag"
+     ],
+     "p_among": 0.9724,
+     "p": 0.81091
+    }
+   },
+   "s": 32.2
+  },
+  {
+   "story": "ring",
+   "hops": 2,
+   "order": "reversed",
+   "answer": "leather bag",
+   "passes": 1,
+   "correct": false,
+   "scores": {
+    "red pouch": {
+     "logp": -1.6905,
+     "tokens": [
+      " red",
+      " ",
+      "pouch"
+     ],
+     "p_among": 0.7582,
+     "p": 0.18443
+    },
+    "leather bag": {
+     "logp": -2.8335,
+     "tokens": [
+      " ",
+      "leather",
+      " bag"
+     ],
+     "p_among": 0.2418,
+     "p": 0.05881
+    }
+   },
+   "s": 15.8
+  },
+  {
+   "story": "ring",
+   "hops": 2,
+   "order": "reversed",
+   "answer": "leather bag",
+   "passes": 2,
+   "correct": true,
+   "scores": {
+    "red pouch": {
+     "logp": -2.4073,
+     "tokens": [
+      " red",
+      " ",
+      "pouch"
+     ],
+     "p_among": 0.1582,
+     "p": 0.09006
+    },
+    "leather bag": {
+     "logp": -0.7354,
+     "tokens": [
+      " ",
+      "leather",
+      " bag"
+     ],
+     "p_among": 0.8418,
+     "p": 0.47931
+    }
+   },
+   "s": 24.0
+  },
+  {
+   "story": "ring",
+   "hops": 2,
+   "order": "reversed",
+   "answer": "leather bag",
+   "passes": 3,
+   "correct": true,
+   "scores": {
+    "red pouch": {
+     "logp": -6.8117,
+     "tokens": [
+      " red",
+      " ",
+      "pouch"
+     ],
+     "p_among": 0.0013,
+     "p": 0.0011
+    },
+    "leather bag": {
+     "logp": -0.1628,
+     "tokens": [
+      " ",
+      "leather",
+      " bag"
+     ],
+     "p_among": 0.9987,
+     "p": 0.84976
+    }
+   },
+   "s": 31.8
+  },
+  {
+   "story": "ring",
+   "hops": 3,
+   "order": "forward",
+   "answer": "garage",
+   "passes": 1,
+   "correct": true,
+   "scores": {
+    "red pouch": {
+     "logp": -2.0891,
+     "tokens": [
+      " red",
+      " ",
+      "pouch"
+     ],
+     "p_among": 0.211,
+     "p": 0.1238
+    },
+    "leather bag": {
+     "logp": -3.0908,
+     "tokens": [
+      " ",
+      "leather",
+      " bag"
+     ],
+     "p_among": 0.0775,
+     "p": 0.04547
+    },
+    "garage": {
+     "logp": -0.8734,
+     "tokens": [
+      " garage"
+     ],
+     "p_among": 0.7115,
+     "p": 0.41753
+    }
+   },
+   "s": 24.8
+  },
+  {
+   "story": "ring",
+   "hops": 3,
+   "order": "forward",
+   "answer": "garage",
+   "passes": 2,
+   "correct": true,
+   "scores": {
+    "red pouch": {
+     "logp": -2.6692,
+     "tokens": [
+      " red",
+      " ",
+      "pouch"
+     ],
+     "p_among": 0.0967,
+     "p": 0.06931
+    },
+    "leather bag": {
+     "logp": -2.563,
+     "tokens": [
+      " ",
+      "leather",
+      " bag"
+     ],
+     "p_among": 0.1075,
+     "p": 0.07707
+    },
+    "garage": {
+     "logp": -0.5616,
+     "tokens": [
+      " garage"
+     ],
+     "p_among": 0.7958,
+     "p": 0.5703
+    }
+   },
+   "s": 36.9
+  },
+  {
+   "story": "ring",
+   "hops": 3,
+   "order": "forward",
+   "answer": "garage",
+   "passes": 3,
+   "correct": true,
+   "scores": {
+    "red pouch": {
+     "logp": -5.028,
+     "tokens": [
+      " red",
+      " ",
+      "pouch"
+     ],
+     "p_among": 0.0094,
+     "p": 0.00655
+    },
+    "leather bag": {
+     "logp": -4.5597,
+     "tokens": [
+      " ",
+      "leather",
+      " bag"
+     ],
+     "p_among": 0.015,
+     "p": 0.01047
+    },
+    "garage": {
+     "logp": -0.3841,
+     "tokens": [
+      " garage"
+     ],
+     "p_among": 0.9756,
+     "p": 0.68106
+    }
+   },
+   "s": 49.7
+  },
+  {
+   "story": "ring",
+   "hops": 3,
+   "order": "reversed",
+   "answer": "garage",
+   "passes": 1,
+   "correct": true,
+   "scores": {
+    "red pouch": {
+     "logp": -3.1143,
+     "tokens": [
+      " red",
+      " ",
+      "pouch"
+     ],
+     "p_among": 0.0649,
+     "p": 0.04441
+    },
+    "leather bag": {
+     "logp": -3.8707,
+     "tokens": [
+      " ",
+      "leather",
+      " bag"
+     ],
+     "p_among": 0.0304,
+     "p": 0.02084
+    },
+    "garage": {
+     "logp": -0.4792,
+     "tokens": [
+      " garage"
+     ],
+     "p_among": 0.9047,
+     "p": 0.61928
+    }
+   },
+   "s": 24.2
+  },
+  {
+   "story": "ring",
+   "hops": 3,
+   "order": "reversed",
+   "answer": "garage",
+   "passes": 2,
+   "correct": true,
+   "scores": {
+    "red pouch": {
+     "logp": -3.9541,
+     "tokens": [
+      " red",
+      " ",
+      "pouch"
+     ],
+     "p_among": 0.0211,
+     "p": 0.01918
+    },
+    "leather bag": {
+     "logp": -3.3689,
+     "tokens": [
+      " ",
+      "leather",
+      " bag"
+     ],
+     "p_among": 0.0379,
+     "p": 0.03443
+    },
+    "garage": {
+     "logp": -0.1575,
+     "tokens": [
+      " garage"
+     ],
+     "p_among": 0.941,
+     "p": 0.85428
+    }
+   },
+   "s": 37.0
+  },
+  {
+   "story": "ring",
+   "hops": 3,
+   "order": "reversed",
+   "answer": "garage",
+   "passes": 3,
+   "correct": true,
+   "scores": {
+    "red pouch": {
+     "logp": -5.9451,
+     "tokens": [
+      " red",
+      " ",
+      "pouch"
+     ],
+     "p_among": 0.0029,
+     "p": 0.00262
+    },
+    "leather bag": {
+     "logp": -4.5874,
+     "tokens": [
+      " ",
+      "leather",
+      " bag"
+     ],
+     "p_among": 0.0114,
+     "p": 0.01018
+    },
+    "garage": {
+     "logp": -0.1242,
+     "tokens": [
+      " garage"
+     ],
+     "p_among": 0.9857,
+     "p": 0.8832
+    }
+   },
+   "s": 51.1
+  }
+ ]
+}

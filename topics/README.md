@@ -1,6 +1,7 @@
 # Topics
 
 - [Inside one Qwen forward pass](qwen-forward-pass/index.html) — Start with the 3D code walkthrough of the recurrent and full-attention blocks, then explore measured execution, storage and dependencies, and finish with the [whole-pass dependency graph](qwen-forward-pass/claude-graph/index.html).
+- [Looped transformers, stage by stage](looped-transformers/README.md) — Why run the same layers again? Inkling 2 Mini runs its middle 12 layers three times. In our real BF16 run, each pass picked mostly different experts. Two- and three-hop questions went from 2 of 8 correct at one pass to 8 of 8 at three. The design is drafted; the synced articles come next.
 - [How Transformers Remember](how-transformers-remember/README.md) — What is a KV cache, and how did we get from multi-head attention to DeepSeek‑V4.1‑Flash’s 890 bytes of global cache per token?
 - [Inside Prism · From screen to Swift](inside-prism/README.md) — Which Swift creates each visible Apple TV element, and what happens when you use the remote?
 

@@ -91,8 +91,8 @@
       <p><a href="#topics">Learn a topic</a> · <a href="#guides">Tool guides</a> · <a href="#skill">Master skill</a> · <a href="#feedback">Rate a tool</a></p>
     </header>
     <section class="directory" aria-labelledby="topics"><h2 id="topics">Learn a topic</h2>
-      <a class="topic-preview" href="topics/qwen-forward-pass/compare/index.html" aria-label="Explore five visualizations of the Qwen forward pass"><img src="topics/qwen-forward-pass/assets/forward-preview.svg" width="960" height="316" alt="Measured Qwen decode time across 64 blocks, alongside attention weights from 24 heads over 17 tokens."></a>
-      <ul><li><a href="topics/qwen-forward-pass/index.html">Inside one Qwen forward pass</a><span>Follow a real 27B model through 64 blocks and inspect five views of its computation.</span></li>
+      <a class="topic-preview" href="topics/qwen-forward-pass/index.html" aria-label="Open the Qwen 3D code walkthrough"><img src="topics/qwen-forward-pass/walkthrough/tensor-preview.png" width="806" height="365" alt="A Qwen query and its key and value caches feeding the attention calculation in the 3D code walkthrough."></a>
+      <ul><li><a href="topics/qwen-forward-pass/index.html">Inside Qwen3.8-27B · 3D code walkthrough</a><span>Start with the model code, tensor shapes, and two ways a decoder block remembers earlier tokens.</span></li>
       <li><a href="topics/qwen-forward-pass/compare/index.html">Compare five visualizations of Qwen</a><span>See the profiler timeline, tensor graph, dataflow maps, compiled kernels and execution dependencies together.</span></li>
       <li><a href="topics/how-transformers-remember/index.html">How Transformers Remember</a><span>Work an attention example and measure what changes as a KV cache grows.</span></li>
       <li><a href="topics/inside-prism/index.html">Inside Prism · From screen to Swift</a><span>Pick an Apple TV interface element and read the Swift that makes it work.</span></li></ul>
@@ -269,7 +269,7 @@
       </article>
     </section>
     <section aria-labelledby="tracing"><h2 id="tracing">Profile a forward pass</h2>
-      <p>Use the <a href="topics/qwen-forward-pass/index.html">Qwen3.8-27B timeline</a> to compare the five tools on the same inputs.</p>
+      <p>Use the <a href="topics/qwen-forward-pass/profile.html#timeline">Qwen3.8-27B timeline</a> to compare the five tools on the same inputs.</p>
       <article class="tool" id="pytorch-profiler"><h3><a href="tools/pytorch-profiler/index.html">PyTorch Profiler</a></h3><p>Capture operators, their nested durations and tensor shapes in a real forward pass.</p><p class="links"><a href="topics/qwen-forward-pass/pytorch-profiler/index.html">Explore the recorded CPU timeline for the pinned Qwen checkpoint.</a></p></article>
       <article class="tool" id="torchlens"><h3><a href="tools/torchlens/index.html">TorchLens</a></h3><p>Trace a forward call to inspect which tensor operations produced each value.</p><p class="links"><a href="topics/qwen-forward-pass/torchlens/index.html">Select a tensor in Qwen’s attention core and follow its parents.</a></p></article>
       <article class="tool" id="dace"><h3><a href="tools/dace/index.html">DaCe</a></h3><p>Lower numerical Python into a dataflow graph and inspect the array regions and parallel maps.</p><p class="links"><a href="topics/qwen-forward-pass/dace/index.html">Walk through the cache reads and reductions for one Qwen attention head.</a></p></article>

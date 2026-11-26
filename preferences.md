@@ -10,6 +10,8 @@
 
 **Visual results, November 25, 2026.** The learner wants a visual representation for every profiling result. Include diagrams they can explore for each tool and a visual comparison across tools. Feedback on the five individual views is pending. [Qwen forward-pass visual comparison](topics/qwen-forward-pass/compare/index.html)
 
+**Code and architecture, November 26, 2026.** For the Qwen study the learner wants to begin with the model code, dimensions and the reason for each operation. They want diagrams inspired by the WebGL experience in LLM Visualization beside the explanations. [Qwen code walkthrough](topics/qwen-forward-pass/index.html)
+
 | Date | Learning task | Tool or component | What I would use and why | Trial |
 | --- | --- | --- | --- | --- |
 | Nov 24, 2026 | Learning KV caches | DeepTutor | One of my favorites so far. | [Trial](topics/how-transformers-remember/cases/one-more-token/runs/2026-11-24-deeptutor/notes.md) |

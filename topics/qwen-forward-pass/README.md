@@ -1,8 +1,22 @@
 # Inside one Qwen forward pass
 
-[Open the interactive investigation](index.html) or [compare the five visual results](compare/index.html). Compare five ways to study the same text-only forward pass of [Qwen3.8-27B at the pinned revision](https://huggingface.co/Qwen/Qwen3.8-27B/tree/37561816e66b5b9153b1b64c10968c18c1e6f4a0).
+Start with the [3D architecture and code walkthrough](index.html) or [read all 16 steps as a lesson](walkthrough/reading.html). Then [play the measured timeline](profile.html) or [compare the five visual results](compare/index.html). Compare five ways to study the same text-only forward pass of [Qwen3.8-27B at the pinned revision](https://huggingface.co/Qwen/Qwen3.8-27B/tree/37561816e66b5b9153b1b64c10968c18c1e6f4a0).
 
 [Download the five diagrams as one image](assets/five-views.png).
+
+## Reproduce the architecture walkthrough
+
+The walkthrough contains short Python adaptations and line-checked expressions from the tested Transformers source. It follows the text path through blocks 0 and 3, the two residual additions, the gated MLP and the vocabulary head. The bundled WebGL view uses the actual tensor shapes and the last-query attention rows from both phases. Selected cell values and intermediate checks are saved in the [architecture capture](walkthrough/observed.json). The browser can open the walkthrough directly from this checkout.
+
+From the playground root, with the capture environment below and the checkpoint downloaded, run:
+
+```sh
+python topics/qwen-forward-pass/walkthrough/capture_steps.py .local/qwen38/checkpoint
+module=$(python -c 'from transformers.models.qwen3_5 import modeling_qwen3_5 as m; print(m.__file__)')
+node topics/qwen-forward-pass/walkthrough/build.cjs "$module"
+```
+
+The Node step verifies the exact installed source against the release blob and checks each linked code expression. It writes the file-local examples and static reading edition. The [original LLM Visualization](../../tools/llm-viz/play/index.html) inspired the explorable matrix diagrams.
 
 ## Shared experiment
 
@@ -18,7 +32,7 @@ The 16-token prefill took 22.43 s on the M4 Max CPU. The single cached decode to
 
 The measured cache tensor payload grew by exactly 65,536 bytes. Each of 16 full-attention blocks appended one BF16 key and value across four KV heads with 256 features. That adds 4,096 bytes per such block. The shapes of the 48 recurrent states stayed fixed.
 
-The [CPU occupancy plot](index.html#cpu-occupancy) uses a separate warmed run. A sampler accumulated CPU time across process threads and subtracted its own CPU time. In a 54.66 ms prefill window, the runtime used an average of 7.41 cores. Across the full sampled decode the average was 1.86, with a peak of 6.70 during its final 19.68 ms window. The timing resolution identifies intervals containing concurrent work. It cannot identify a particular worker or assign its instructions to one operator. [Raw samples and block entries](assets/cpu-windows.json)
+The [CPU occupancy plot](profile.html#cpu-occupancy) uses a separate warmed run. A sampler accumulated CPU time across process threads and subtracted its own CPU time. In a 54.66 ms prefill window, the runtime used an average of 7.41 cores. Across the full sampled decode the average was 1.86, with a peak of 6.70 during its final 19.68 ms window. The timing resolution identifies intervals containing concurrent work. It cannot identify a particular worker or assign its instructions to one operator. [Raw samples and block entries](assets/cpu-windows.json)
 
 ## Reproduce the shared inputs
 

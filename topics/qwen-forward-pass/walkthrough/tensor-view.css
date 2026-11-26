@@ -1,0 +1,74 @@
+.qwen-tensor-view {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 390px;
+  background: #f7fafb;
+  color: #162e41;
+  cursor: grab;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.qwen-tensor-view[data-dragging] { cursor: grabbing; }
+.qwen-tensor-view > .qtv-canvas,
+.qwen-tensor-view > .qtv-labels {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.qwen-tensor-view > .qtv-canvas { display: block; }
+.qwen-tensor-view > .qtv-canvas[hidden] { display: none; }
+.qwen-tensor-view > .qtv-labels { pointer-events: none; }
+.qwen-tensor-view .qtv-label {
+  appearance: none;
+  box-sizing: border-box;
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: flex;
+  flex-flow: column;
+  align-items: center;
+  padding: 3px 6px 4px;
+  margin: 0;
+  width: max-content;
+  max-width: var(--qtv-label-width, 128px);
+  min-height: 28px;
+  background: rgba(247, 250, 251, .94);
+  color: #203747;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  line-height: 1.18;
+  letter-spacing: normal;
+  text-align: center;
+  text-transform: none;
+  cursor: pointer;
+  pointer-events: auto;
+  font: 650 12px/1.18 'Inter', system-ui, sans-serif;
+  box-shadow: none;
+  transform: translate(-50%, 0);
+  overflow-wrap: anywhere;
+}
+.qwen-tensor-view .qtv-label:hover { background: #fff; border-color: #9caebb; }
+.qwen-tensor-view .qtv-label[aria-pressed="true"] {
+  background: #fff;
+  border-color: #466578;
+  color: #112f42;
+  z-index: 1;
+}
+.qwen-tensor-view .qtv-label:focus-visible {
+  outline: 2px solid #084e83;
+  outline-offset: 2px;
+  z-index: 2;
+}
+.qwen-tensor-view .qtv-shape {
+  font: 500 10px/1.25 'IBM Plex Mono', ui-monospace, monospace;
+  color: #3e5768;
+  margin-top: 2px;
+}
+@media (max-width: 580px) {
+  .qwen-tensor-view { min-height: 490px; }
+  .qwen-tensor-view .qtv-label { padding: 3px 4px; font-size: 11px; }
+  .qwen-tensor-view .qtv-shape { font-size: 9px; }
+}

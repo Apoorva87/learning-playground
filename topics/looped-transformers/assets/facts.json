@@ -1989,16 +1989,6 @@
    "expected": 1000000.0
   }
  },
- "mla.c_norm4": {
-  "claim": "The norm of the latent for ' is'",
-  "value": 1.83238,
-  "source": {
-   "kind": "json",
-   "file": "assets/walkthrough/walkthrough-mla.json",
-   "path": "latent.c_kv_norms.4",
-   "expected": 1.83238
-  }
- },
  "mla.bytes_mla": {
   "claim": "MLA cache bytes per token per layer",
   "value": 1152,
@@ -2031,12 +2021,12 @@
  },
  "mla.diff": {
   "claim": "Largest difference between explicit and absorbed scores",
-  "value": 2.1208811329387345e-07,
+  "value": 2.630587283558583e-07,
   "source": {
    "kind": "json",
    "file": "assets/walkthrough/walkthrough-mla.json",
    "path": "absorbed.max_abs_diff",
-   "expected": 2.1208811329387345e-07
+   "expected": 2.630587283558583e-07
   }
  },
  "mla.scale": {
@@ -2047,26 +2037,6 @@
    "file": "assets/walkthrough/walkthrough-mla.json",
    "path": "config.softmax_scale",
    "expected": 0.1147213867929261
-  }
- },
- "mla.tok0": {
-  "claim": "DeepSeek token ID of 'The'",
-  "value": 549,
-  "source": {
-   "kind": "json",
-   "file": "assets/walkthrough/walkthrough-mla.json",
-   "path": "tokens.0.id",
-   "expected": 549
-  }
- },
- "mla.tok3": {
-  "claim": "DeepSeek token ID of ' France'",
-  "value": 7239,
-  "source": {
-   "kind": "json",
-   "file": "assets/walkthrough/walkthrough-mla.json",
-   "path": "tokens.3.id",
-   "expected": 7239
   }
  },
  "ds.hidden": {
@@ -2161,6 +2131,46 @@
    "kind": "url",
    "url": "https://arxiv.org/abs/2405.04434",
    "section": "Abstract"
+  }
+ },
+ "mla.c_norm5": {
+  "claim": "The norm of the latent for ' is' (token 5 after the start token)",
+  "value": 1.83238,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-mla.json",
+   "path": "latent.c_kv_norms.5",
+   "expected": 1.83238
+  }
+ },
+ "mla.bos": {
+  "claim": "The start-of-sequence token ID is the first of six tokens",
+  "value": 100000,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-mla.json",
+   "path": "tokens.0.id",
+   "expected": 100000
+  }
+ },
+ "mla.tok1": {
+  "claim": "DeepSeek token ID of 'The'",
+  "value": 549,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-mla.json",
+   "path": "tokens.1.id",
+   "expected": 549
+  }
+ },
+ "mla.tok4": {
+  "claim": "DeepSeek token ID of ' France'",
+  "value": 7239,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-mla.json",
+   "path": "tokens.4.id",
+   "expected": 7239
   }
  }
 }

@@ -20,13 +20,18 @@
 <section class="beat" id="b-walk-mla" data-beat="walk-mla"><h2>walk-mla</h2><p>Scene walk-mla.</p></section>
 <section class="beat" id="b-walk-mla-absorb" data-beat="walk-mla-absorb"><h2>walk-mla-absorb</h2><p>Scene walk-mla-absorb.</p></section>
 <section class="beat" id="b-walk-cachesize" data-beat="walk-cachesize"><h2>walk-cachesize</h2><p>Scene walk-cachesize.</p></section>
+<section class="beat" id="b-walk-var-attention" data-beat="walk-var-attention"><h2>walk-var-attention</h2><p>Scene walk-var-attention.</p></section>
+<section class="beat" id="b-walk-var-position" data-beat="walk-var-position"><h2>walk-var-position</h2><p>Scene walk-var-position.</p></section>
+<section class="beat" id="b-walk-var-norm" data-beat="walk-var-norm"><h2>walk-var-norm</h2><p>Scene walk-var-norm.</p></section>
+<section class="beat" id="b-walk-var-ffn" data-beat="walk-var-ffn"><h2>walk-var-ffn</h2><p>Scene walk-var-ffn.</p></section>
+<section class="beat" id="b-walk-var-embed" data-beat="walk-var-embed"><h2>walk-var-embed</h2><p>Scene walk-var-embed.</p></section>
 </article>
 <aside id="stage"><div class="stage-box"><canvas id="scene"></canvas><div id="labels"></div><div class="stage-title" id="beat-title"></div></div>
 <div class="controls" id="controls"><fieldset><label><input type="radio" id="mode-scroll" checked> Scroll</label><label><input type="radio" id="mode-step"> Step</label><label><input type="radio" id="mode-play"> Play</label></fieldset><button id="prev">Prev</button><button id="next">Next</button><select id="speed"><option value="1">1</option></select></div></aside></div>
-<script src="../../engine/state.js"></script><script src="../../engine/layout.js"></script><script src="../../engine/micro.js"></script><script src="../../engine/micro-walk.js"></script><script src="../../engine/gl.js"></script><script src="../../engine/canvas2d.js"></script><script src="../../engine/scene.js"></script><script src="../../engine/terms.js"></script><script src="../../engine/drivers.js"></script><script src="../../engine/boot.js"></script>
+<script src="../../engine/state.js"></script><script src="../../engine/layout.js"></script><script src="../../engine/micro.js"></script><script src="../../walkthrough/variants.js"></script><script src="../../engine/micro-walk.js"></script><script src="../../engine/micro-var.js"></script><script src="../../engine/gl.js"></script><script src="../../engine/canvas2d.js"></script><script src="../../engine/scene.js"></script><script src="../../engine/inspect.js"></script><script src="../../engine/terms.js"></script><script src="../../engine/drivers.js"></script><script src="../../engine/boot.js"></script>
 <script>
-const names = ['walk-tokens', 'walk-embed', 'walk-layer', 'walk-norm', 'walk-qkv', 'walk-gqa', 'walk-qknorm', 'walk-rope', 'walk-scores', 'walk-mix', 'walk-ffn', 'walk-stack', 'walk-head', 'walk-cache', 'walk-decode', 'walk-mla', 'walk-mla-absorb', 'walk-cachesize'];
+const names = ['walk-tokens', 'walk-embed', 'walk-layer', 'walk-norm', 'walk-qkv', 'walk-gqa', 'walk-qknorm', 'walk-rope', 'walk-scores', 'walk-mix', 'walk-ffn', 'walk-stack', 'walk-head', 'walk-cache', 'walk-decode', 'walk-mla', 'walk-mla-absorb', 'walk-cachesize', 'walk-var-attention', 'walk-var-position', 'walk-var-norm', 'walk-var-ffn', 'walk-var-embed'];
 const beats = names.map(n => ({ id: n, title: n, kind: 'interlude', scene: { level: 'micro', micro: n, fold: 0, pass: 0, camera: LoopLayout.microCamera(n), lit: [], flow: { kind: 'none' } }, terms: {} }));
 LoopArticle.start({ beats });
-Promise.all(['walkthrough-data', 'walkthrough-mla'].map(f => fetch('../../assets/walkthrough/' + f + '.json').then(r => r.json()))).then(([d, m]) => { LOOP.sceneApi.setData('walk', { d, m, token: 4, head: 0 }); LOOP.walkReady = true; });
+Promise.all(['walkthrough-data', 'walkthrough-mla'].map(f => fetch('../../assets/walkthrough/' + f + '.json').then(r => r.json()))).then(([d, m]) => { window.__walk = { d, m, token: 4, head: 0 }; LOOP.sceneApi.setData('walk', window.__walk); LOOP.walkReady = true; });
 </script></body></html>

@@ -2172,5 +2172,993 @@
    "path": "tokens.4.id",
    "expected": 7239
   }
+ },
+ "ev.vaswani.sin": {
+  "claim": "The original Transformer adds sine and cosine positions",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1706.03762",
+   "section": "3.5 Positional Encoding",
+   "quote": "we use sine and cosine functions of different frequencies"
+  }
+ },
+ "ev.vaswani.extrap": {
+  "claim": "It chose sinusoids because they may extrapolate to longer sequences",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1706.03762",
+   "section": "3.5 Positional Encoding",
+   "quote": "We chose the sinusoidal version because it may allow the model to extrapolate to sequence lengths longer"
+  }
+ },
+ "ev.vaswani.learned": {
+  "claim": "Learned positional embeddings gave nearly identical results",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1706.03762",
+   "section": "3.5 Positional Encoding",
+   "quote": "found that the two versions produced nearly identical results"
+  }
+ },
+ "ev.vaswani.postln": {
+  "claim": "Each sub-layer output is LayerNorm(x + Sublayer(x))",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1706.03762",
+   "section": "3.1 Encoder and Decoder Stacks",
+   "quote": "the output of each sub-layer is LayerNorm(x+Sublayer(x))"
+  }
+ },
+ "ev.vaswani.ffn": {
+  "claim": "The feed-forward network is two linear transformations with a ReLU",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1706.03762",
+   "section": "3.3 Position-wise Feed-Forward Networks",
+   "quote": "two linear transformations with a ReLU activation in between"
+  }
+ },
+ "ev.vaswani.dff": {
+  "claim": "d_model = 512 and d_ff = 2048",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1706.03762",
+   "section": "3.3 Position-wise Feed-Forward Networks",
+   "quote": "The dimensionality of input and output is d_model=512, and the inner-layer has dimensionality d_ff=2048."
+  }
+ },
+ "ev.vaswani.heads": {
+  "claim": "The base model uses 8 heads",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1706.03762",
+   "section": "3.2.2 Multi-Head Attention",
+   "quote": "we employ h=8 parallel attention layers, or heads"
+  }
+ },
+ "ev.vaswani.subspaces": {
+  "claim": "Heads attend to different representation subspaces",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1706.03762",
+   "section": "3.2.2 Multi-Head Attention",
+   "quote": "allows the model to jointly attend to information from different representation subspaces"
+  }
+ },
+ "ev.shaw": {
+  "claim": "Relative position representations in self-attention",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1803.02155",
+   "section": "Abstract",
+   "quote": "extending the self-attention mechanism to efficiently consider representations of the relative positions"
+  }
+ },
+ "ev.rope": {
+  "claim": "RoPE encodes absolute position with a rotation matrix",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2104.09864",
+   "section": "Abstract",
+   "quote": "encodes the absolute position with a rotation matrix"
+  }
+ },
+ "ev.rope.rel": {
+  "claim": "After rotation the score depends on the relative offset",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2104.09864",
+   "section": "3.2.2 General form (Eq. 16)",
+   "quote": "(R_{Θ,m} W_q x_m)^T (R_{Θ,n} W_k x_n) = x^T W_q R_{Θ,n-m} W_k x_n"
+  }
+ },
+ "ev.alibi": {
+  "claim": "ALiBi biases scores with a penalty proportional to distance",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2108.12409",
+   "section": "Abstract",
+   "quote": "biases query-key attention scores with a penalty that is proportional to their distance"
+  }
+ },
+ "ev.alibi.nopos": {
+  "claim": "ALiBi adds no positional embeddings",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2108.12409",
+   "section": "Abstract",
+   "quote": "ALiBi does not add positional embeddings to word embeddings;"
+  }
+ },
+ "ev.alibi.slope": {
+  "claim": "The slope is head-specific and fixed before training",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2108.12409",
+   "section": "3 Attention with Linear Biases",
+   "quote": "m is a head-specific slope fixed before training"
+  }
+ },
+ "ev.ln": {
+  "claim": "LayerNorm computes the mean and variance over a layer's summed inputs",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1607.06450",
+   "section": "Abstract",
+   "quote": "computing the mean and variance used for normalization from all of the summed inputs to the neurons in a layer"
+  }
+ },
+ "ev.xiong.post": {
+  "claim": "Post-LN: gradients near the output are large at initialisation",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2002.04745",
+   "section": "Abstract",
+   "quote": "the expected gradients of the parameters near the output layer are large"
+  }
+ },
+ "ev.xiong.warm": {
+  "claim": "Post-LN needs a warm-up stage",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2002.04745",
+   "section": "Abstract",
+   "quote": "The warm-up stage is practically helpful for avoiding this problem."
+  }
+ },
+ "ev.xiong.pre": {
+  "claim": "Pre-LN: gradients are well-behaved at initialisation",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2002.04745",
+   "section": "Abstract",
+   "quote": "the gradients are well-behaved at initialization"
+  }
+ },
+ "ev.xiong.nowarm": {
+  "claim": "Pre-LN may remove the warm-up stage",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2002.04745",
+   "section": "Abstract",
+   "quote": "remove the warm-up stage for the training of Pre-LN Transformers"
+  }
+ },
+ "ev.rmsnorm": {
+  "claim": "RMSNorm regularises summed inputs by their root mean square",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1910.07467",
+   "section": "Abstract",
+   "quote": "RMSNorm regularizes the summed inputs to a neuron in one layer according to root mean square (RMS)"
+  }
+ },
+ "ev.rmsnorm.simple": {
+  "claim": "RMSNorm is computationally simpler than LayerNorm",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1910.07467",
+   "section": "Abstract",
+   "quote": "RMSNorm is computationally simpler and thus more efficient than LayerNorm."
+  }
+ },
+ "ev.rmsnorm.hyp": {
+  "claim": "The authors hypothesise re-centering is dispensable",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1910.07467",
+   "section": "Abstract",
+   "quote": "we hypothesize that re-centering invariance in LayerNorm is dispensable"
+  }
+ },
+ "ev.llama.pre": {
+  "claim": "LLaMA normalises the input of each sub-layer",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2302.13971",
+   "section": "2.2 Architecture",
+   "quote": "we normalize the input of each transformer sub-layer, instead of normalizing the output."
+  }
+ },
+ "ev.llama.rms": {
+  "claim": "LLaMA uses RMSNorm",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2302.13971",
+   "section": "2.2 Architecture",
+   "quote": "We use the RMSNorm normalizing function, introduced by Zhang and Sennrich (2019)."
+  }
+ },
+ "ev.llama.swiglu": {
+  "claim": "LLaMA replaces ReLU with SwiGLU",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2302.13971",
+   "section": "2.2 Architecture",
+   "quote": "We replace the ReLU non-linearity by the SwiGLU activation function, introduced by Shazeer (2020)"
+  }
+ },
+ "ev.llama.dim": {
+  "claim": "LLaMA uses a hidden dimension of 2/3 of 4d",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2302.13971",
+   "section": "2.2 Architecture",
+   "quote": "We use a dimension of 2/3 4d instead of 4d as in PaLM."
+  }
+ },
+ "ev.llama.rope": {
+  "claim": "LLaMA uses rotary embeddings at each layer",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2302.13971",
+   "section": "2.2 Architecture",
+   "quote": "add rotary positional embeddings (RoPE), introduced by Su et al. (2021), at each layer of the network."
+  }
+ },
+ "ev.qknorm": {
+  "claim": "QKNorm modifies the attention mechanism with a normalisation",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2010.04245",
+   "section": "Abstract",
+   "quote": "we propose QKNorm, a normalization technique that modifies the attention mechanism"
+  }
+ },
+ "ev.gelu": {
+  "claim": "The GELU activation function",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1606.08415",
+   "section": "Abstract",
+   "quote": "We propose the Gaussian Error Linear Unit (GELU), a high-performing neural network activation function."
+  }
+ },
+ "ev.dauphin": {
+  "claim": "A gating mechanism for language modelling",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1612.08083",
+   "section": "Abstract",
+   "quote": "We propose a novel simplified gating mechanism that outperforms Oord et al (2016)"
+  }
+ },
+ "ev.glu": {
+  "claim": "Some GLU variants beat ReLU and GELU",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2002.05202",
+   "section": "Abstract",
+   "quote": "some of them yield quality improvements over the typically-used ReLU or GELU activations."
+  }
+ },
+ "ev.glu.name": {
+  "claim": "Shazeer calls the Dauphin mechanism Gated Linear Units",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2002.05202",
+   "section": "Abstract (reference to Dauphin et al.)"
+  }
+ },
+ "ev.glu.swiglu": {
+  "claim": "SwiGLU is (Swish(xW) times xV) W2",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2002.05202",
+   "section": "2 (Eq. 6)",
+   "quote": "FFN_SwiGLU(x,W,V,W2)=(Swish_1(xW)⊗xV)W2"
+  }
+ },
+ "ev.glu.twothirds": {
+  "claim": "Hidden units are reduced by 2/3 to keep parameters and computation constant",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2002.05202",
+   "section": "2",
+   "quote": "To keep the number of parameters and the amount of computation constant, we reduce the number of hidden units"
+  }
+ },
+ "ev.moe": {
+  "claim": "Sparsely-gated mixture of experts adds capacity at little compute",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1701.06538",
+   "section": "Abstract",
+   "quote": "greater than 1000x improvements in model capacity with only minor losses in computational efficiency"
+  }
+ },
+ "ev.switch": {
+  "claim": "Switch Transformers simplify MoE routing",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2101.03961",
+   "section": "Abstract",
+   "quote": "We simplify the MoE routing algorithm"
+  }
+ },
+ "ev.mixtral.route": {
+  "claim": "Mixtral routes each token to two experts",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2401.04088",
+   "section": "Abstract",
+   "quote": "a router network selects two experts to process the current state"
+  }
+ },
+ "ev.mixtral.params": {
+  "claim": "Mixtral: 47B parameters accessible, 13B active",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2401.04088",
+   "section": "Abstract",
+   "quote": "each token has access to 47B parameters, but only uses 13B active parameters during inference"
+  }
+ },
+ "ev.press": {
+  "claim": "Weight tying reduces perplexity",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1608.05859",
+   "section": "Abstract",
+   "quote": "Our methods lead to a significant reduction in perplexity"
+  }
+ },
+ "ev.press.half": {
+  "claim": "Weight tying can shrink translation models to under half",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1608.05859",
+   "section": "Abstract",
+   "quote": "weight tying can reduce the size of neural translation models to less than half"
+  }
+ },
+ "ev.mqa": {
+  "claim": "Multi-query attention shares keys and values across heads",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1911.02150",
+   "section": "Abstract",
+   "quote": "the keys and values are shared across all of the different attention \"heads\""
+  }
+ },
+ "ev.mqa.bw": {
+  "claim": "Incremental decoding is slowed by the memory bandwidth of keys and values",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/1911.02150",
+   "section": "Abstract",
+   "quote": "due to the memory-bandwidth cost of repeatedly loading the large \"keys\" and \"values\" tensors."
+  }
+ },
+ "ev.gqa": {
+  "claim": "Grouped-query attention uses an intermediate number of key/value heads",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2305.13245",
+   "section": "Abstract",
+   "quote": "an intermediate (more than one, less than number of query heads) number of key-value heads"
+  }
+ },
+ "ev.gqa.quality": {
+  "claim": "GQA: quality close to multi-head, speed comparable to MQA",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2305.13245",
+   "section": "Abstract",
+   "quote": "quality close to multi-head attention with comparable speed to MQA"
+  }
+ },
+ "ev.gqa.pool": {
+  "claim": "Group heads are built by mean-pooling the original heads",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2305.13245",
+   "section": "2.2 Grouped-query attention",
+   "quote": "we construct each group key and value head by mean-pooling all the original heads within that group."
+  }
+ },
+ "ev.gqa.5pct": {
+  "claim": "Uptraining uses 5% of the original pre-training compute",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2305.13245",
+   "section": "Abstract",
+   "quote": "into models with MQA using 5% of original pre-training compute"
+  }
+ },
+ "ev.mistral": {
+  "claim": "Mistral 7B uses GQA for faster inference",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2310.06825",
+   "section": "Abstract",
+   "quote": "leverages grouped-query attention (GQA) for faster inference"
+  }
+ },
+ "ev.mistral.swa": {
+  "claim": "Mistral 7B uses sliding window attention",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2310.06825",
+   "section": "Abstract",
+   "quote": "sliding window attention (SWA) to effectively handle sequences of arbitrary length with a reduced inference cost"
+  }
+ },
+ "ev.longformer": {
+  "claim": "Longformer: local windowed plus global attention",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2004.05150",
+   "section": "Abstract",
+   "quote": "combines a local windowed attention with a task motivated global attention"
+  }
+ },
+ "ev.flash": {
+  "claim": "FlashAttention tiles to cut reads and writes to GPU memory",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2205.14135",
+   "section": "Abstract",
+   "quote": "uses tiling to reduce the number of memory reads/writes between GPU high bandwidth memory (HBM)"
+  }
+ },
+ "ev.mla": {
+  "claim": "MLA compresses the KV cache into a latent vector",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2405.04434",
+   "section": "Abstract",
+   "quote": "significantly compressing the Key-Value (KV) cache into a latent vector"
+  }
+ },
+ "ev.mla.93": {
+  "claim": "DeepSeek-V2 reduces the KV cache by 93.3% and raises throughput 5.76 times",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2405.04434",
+   "section": "Abstract",
+   "quote": "reduces the KV cache by 93.3%, and boosts the maximum generation throughput to 5.76 times"
+  }
+ },
+ "ev.mla.table": {
+  "claim": "MLA cache equals GQA with 2.25 groups",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2405.04434",
+   "section": "2.1.3 Table 1 caption",
+   "quote": "So, its KV cache is equal to GQA with only 2.25 groups, but its performance is stronger than MHA."
+  }
+ },
+ "ev.mla.mha": {
+  "claim": "MHA caches 2 n_h d_h l elements per token",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2405.04434",
+   "section": "2.1.1",
+   "quote": "MHA needs to cache 2n_h d_h l elements for each token."
+  }
+ },
+ "ev.alammar": {
+  "claim": "The Illustrated Transformer introduces the concepts one by one",
+  "source": {
+   "kind": "url",
+   "url": "https://jalammar.github.io/illustrated-transformer/",
+   "section": "Introduction",
+   "quote": "we will attempt to oversimplify things a bit and introduce the concepts one by one"
+  }
+ },
+ "v.mha.cache": {
+  "claim": "MHA cache bytes per token per layer",
+  "value": 8192,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "mha"
+   ],
+   "path": "cachePerTokenPerLayer",
+   "expected": 8192
+  }
+ },
+ "v.mha.token": {
+  "claim": "MHA cache bytes per token, all layers",
+  "value": 229376,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "mha"
+   ],
+   "path": "cachePerToken",
+   "expected": 229376
+  }
+ },
+ "v.mha.ctx": {
+  "claim": "MHA cache bytes at 32,768 tokens",
+  "value": 7516192768,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "mha"
+   ],
+   "path": "cacheAtContext",
+   "expected": 7516192768
+  }
+ },
+ "v.mha.kv": {
+  "claim": "MHA key and value projection weights per layer",
+  "value": 4194304,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "mha"
+   ],
+   "path": "kvProjParams",
+   "expected": 4194304
+  }
+ },
+ "v.mha.attn": {
+  "claim": "MHA attention block weights per layer",
+  "value": 8388608,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "mha"
+   ],
+   "path": "attnParams",
+   "expected": 8388608
+  }
+ },
+ "v.mha.prompt": {
+  "claim": "MHA cache bytes for the five-token prompt",
+  "value": 1146880,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "mha"
+   ],
+   "path": "cachePrompt",
+   "expected": 1146880
+  }
+ },
+ "v.gqa.cache": {
+  "claim": "GQA cache bytes per token per layer",
+  "value": 4096,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "gqa"
+   ],
+   "path": "cachePerTokenPerLayer",
+   "expected": 4096
+  }
+ },
+ "v.gqa.token": {
+  "claim": "GQA cache bytes per token, all layers",
+  "value": 114688,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "gqa"
+   ],
+   "path": "cachePerToken",
+   "expected": 114688
+  }
+ },
+ "v.gqa.ctx": {
+  "claim": "GQA cache bytes at 32,768 tokens",
+  "value": 3758096384,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "gqa"
+   ],
+   "path": "cacheAtContext",
+   "expected": 3758096384
+  }
+ },
+ "v.gqa.kv": {
+  "claim": "GQA key and value projection weights per layer",
+  "value": 2097152,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "gqa"
+   ],
+   "path": "kvProjParams",
+   "expected": 2097152
+  }
+ },
+ "v.gqa.attn": {
+  "claim": "GQA attention block weights per layer",
+  "value": 6291456,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "gqa"
+   ],
+   "path": "attnParams",
+   "expected": 6291456
+  }
+ },
+ "v.gqa.prompt": {
+  "claim": "GQA cache bytes for the five-token prompt",
+  "value": 573440,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "gqa"
+   ],
+   "path": "cachePrompt",
+   "expected": 573440
+  }
+ },
+ "v.mqa.cache": {
+  "claim": "MQA cache bytes per token per layer",
+  "value": 512,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "mqa"
+   ],
+   "path": "cachePerTokenPerLayer",
+   "expected": 512
+  }
+ },
+ "v.mqa.token": {
+  "claim": "MQA cache bytes per token, all layers",
+  "value": 14336,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "mqa"
+   ],
+   "path": "cachePerToken",
+   "expected": 14336
+  }
+ },
+ "v.mqa.ctx": {
+  "claim": "MQA cache bytes at 32,768 tokens",
+  "value": 469762048,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "mqa"
+   ],
+   "path": "cacheAtContext",
+   "expected": 469762048
+  }
+ },
+ "v.mqa.kv": {
+  "claim": "MQA key and value projection weights per layer",
+  "value": 262144,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "mqa"
+   ],
+   "path": "kvProjParams",
+   "expected": 262144
+  }
+ },
+ "v.mqa.attn": {
+  "claim": "MQA attention block weights per layer",
+  "value": 4456448,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "mqa"
+   ],
+   "path": "attnParams",
+   "expected": 4456448
+  }
+ },
+ "v.mqa.prompt": {
+  "claim": "MQA cache bytes for the five-token prompt",
+  "value": 71680,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "mqa"
+   ],
+   "path": "cachePrompt",
+   "expected": 71680
+  }
+ },
+ "v.gqa.kvflops": {
+  "claim": "GQA key/value projection operations for the five-token prompt",
+  "value": 587202560,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "gqa"
+   ],
+   "path": "kvProjFlopsPrompt",
+   "expected": 587202560
+  }
+ },
+ "v.mla.cache": {
+  "claim": "MLA bytes per token per layer (DeepSeek-V2-Lite sizes)",
+  "value": 1152,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "mla"
+   ],
+   "path": "cachePerTokenPerLayer",
+   "expected": 1152
+  }
+ },
+ "v.mla.mhaeq": {
+  "claim": "Full multi-head bytes per token per layer at DeepSeek-V2-Lite sizes",
+  "value": 10240,
+  "source": {
+   "kind": "variants",
+   "fn": "attention",
+   "args": [
+    "mla"
+   ],
+   "path": "mhaEquivalentPerTokenPerLayer",
+   "expected": 10240
+  }
+ },
+ "v.pos.learned": {
+  "claim": "Learned position table parameters (32,768 x 1024)",
+  "value": 33554432,
+  "source": {
+   "kind": "variants",
+   "fn": "position",
+   "args": [
+    "learned"
+   ],
+   "path": "params",
+   "expected": 33554432
+  }
+ },
+ "v.pos.rope": {
+  "claim": "RoPE multiply-adds per token per layer",
+  "value": 9216,
+  "source": {
+   "kind": "variants",
+   "fn": "position",
+   "args": [
+    "rope"
+   ],
+   "path": "opsPerTokenPerLayer",
+   "expected": 9216
+  }
+ },
+ "v.pos.alibi": {
+  "claim": "ALiBi bias additions per layer per decode step at 32,768 tokens",
+  "value": 524288,
+  "source": {
+   "kind": "variants",
+   "fn": "position",
+   "args": [
+    "alibi"
+   ],
+   "path": "opsPerTokenPerLayer",
+   "expected": 524288
+  }
+ },
+ "v.ln.ops": {
+  "claim": "LayerNorm operations per vector",
+  "value": 7168,
+  "source": {
+   "kind": "variants",
+   "fn": "norm",
+   "args": [
+    "layernorm"
+   ],
+   "path": "opsPerVector",
+   "expected": 7168
+  }
+ },
+ "v.rms.ops": {
+  "claim": "RMSNorm operations per vector",
+  "value": 4096,
+  "source": {
+   "kind": "variants",
+   "fn": "norm",
+   "args": [
+    "rmsnorm"
+   ],
+   "path": "opsPerVector",
+   "expected": 4096
+  }
+ },
+ "v.ln.params": {
+  "claim": "LayerNorm parameters per norm",
+  "value": 2048,
+  "source": {
+   "kind": "variants",
+   "fn": "norm",
+   "args": [
+    "layernorm"
+   ],
+   "path": "params",
+   "expected": 2048
+  }
+ },
+ "v.rms.params": {
+  "claim": "RMSNorm parameters per norm",
+  "value": 1024,
+  "source": {
+   "kind": "variants",
+   "fn": "norm",
+   "args": [
+    "rmsnorm"
+   ],
+   "path": "params",
+   "expected": 1024
+  }
+ },
+ "v.ln.layer": {
+  "claim": "LayerNorm operations per layer for five tokens",
+  "value": 71680,
+  "source": {
+   "kind": "variants",
+   "fn": "norm",
+   "args": [
+    "layernorm"
+   ],
+   "path": "opsPerLayerForTokens",
+   "expected": 71680
+  }
+ },
+ "v.rms.layer": {
+  "claim": "RMSNorm operations per layer for five tokens",
+  "value": 40960,
+  "source": {
+   "kind": "variants",
+   "fn": "norm",
+   "args": [
+    "rmsnorm"
+   ],
+   "path": "opsPerLayerForTokens",
+   "expected": 40960
+  }
+ },
+ "v.relu.params": {
+  "claim": "ReLU feed-forward parameters per layer (width 4d)",
+  "value": 8388608,
+  "source": {
+   "kind": "variants",
+   "fn": "ffn",
+   "args": [
+    "relu"
+   ],
+   "path": "params",
+   "expected": 8388608
+  }
+ },
+ "v.swiglu.params": {
+  "claim": "SwiGLU feed-forward parameters per layer (width 3072)",
+  "value": 9437184,
+  "source": {
+   "kind": "variants",
+   "fn": "ffn",
+   "args": [
+    "swiglu"
+   ],
+   "path": "params",
+   "expected": 9437184
+  }
+ },
+ "v.swiglu.width": {
+  "claim": "SwiGLU width at the 8/3 rule",
+  "value": 2730,
+  "source": {
+   "kind": "variants",
+   "fn": "ffn",
+   "args": [
+    "swiglu-matched"
+   ],
+   "path": "width",
+   "expected": 2730
+  }
+ },
+ "v.swiglu.matched": {
+  "claim": "SwiGLU parameters at the 8/3 rule",
+  "value": 8386560,
+  "source": {
+   "kind": "variants",
+   "fn": "ffn",
+   "args": [
+    "swiglu-matched"
+   ],
+   "path": "params",
+   "expected": 8386560
+  }
+ },
+ "v.moe.stored": {
+  "claim": "Mixture of experts stored parameters per layer (8 experts)",
+  "value": 75497472,
+  "source": {
+   "kind": "variants",
+   "fn": "ffn",
+   "args": [
+    "moe"
+   ],
+   "path": "storedParams",
+   "expected": 75497472
+  }
+ },
+ "v.moe.active": {
+  "claim": "Mixture of experts active parameters per token (2 experts)",
+  "value": 18874368,
+  "source": {
+   "kind": "variants",
+   "fn": "ffn",
+   "args": [
+    "moe"
+   ],
+   "path": "activeParams",
+   "expected": 18874368
+  }
+ },
+ "v.tied": {
+  "claim": "Tied embedding parameters",
+  "value": 155582464,
+  "source": {
+   "kind": "variants",
+   "fn": "embedding",
+   "args": [
+    "tied"
+   ],
+   "path": "params",
+   "expected": 155582464
+  }
+ },
+ "v.untied": {
+  "claim": "Untied embedding parameters (two tables)",
+  "value": 311164928,
+  "source": {
+   "kind": "variants",
+   "fn": "embedding",
+   "args": [
+    "untied"
+   ],
+   "path": "params",
+   "expected": 311164928
+  }
  }
 }

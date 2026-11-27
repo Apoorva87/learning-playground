@@ -17,9 +17,27 @@
     return pal;
   }
 
+  /* The smallest rectangle that contains the point (a cell beats the frame around it); a tie goes to the nearer object. */
+  function smallestAt(rects, px, py) {
+    let best = null, bestArea = Infinity;
+    for (const r of rects) {
+      if (px < r.x0 || px > r.x1 || py < r.y0 || py > r.y1) continue;
+      const a = (r.x1 - r.x0) * (r.y1 - r.y0);
+      if (a < bestArea - 1e-9 || (Math.abs(a - bestArea) <= 1e-9 && r.d0 < best.d0)) { best = r; bestArea = a; }
+    }
+    return best;
+  }
+  /* Reading order: top to bottom, then left to right; rectangles a few pixels apart vertically count as one row. */
+  function inReadingOrder(rects) {
+    const row = r => Math.round((r.y0 + r.y1) / 2 / 6);
+    return rects.slice().sort((a, b) => row(a) - row(b) || (a.x0 + a.x1) - (b.x0 + b.x1));
+  }
+
   function create({ canvas, labelLayer, beats, renderer = 'auto' }) {
     let sceneData = {}, canvasEl = canvas, impl = null, palette = null, state = null, frame = null, hover = new Set(), markerPos = null;
     const labelPool = [];
+    /* walk-var-* scenes read the chosen designs from sceneData.variant (kept apart from the recording, so loading it never resets a choice); other walk-* scenes read sceneData.walk. */
+    const dataFor = name => (/^walk-var-/.test(name) ? { variant: sceneData.variant || {} } : /^walk-/.test(name) ? sceneData.walk : undefined);
 
     function makeRenderer(kind) {
       let r = null;
@@ -52,7 +70,7 @@
       const any = lits.length > 0;
       const out = [];
       for (const layer of s.layers) {
-        const objs = layer.level === 'micro' ? Layout.microObjects(layer.micro, sceneData[layer.micro] || (/^walk-/.test(layer.micro) ? sceneData.walk : undefined)) : Layout.macroObjects(s.fold);
+        const objs = layer.level === 'micro' ? Layout.microObjects(layer.micro, sceneData[layer.micro] || dataFor(layer.micro)) : Layout.macroObjects(s.fold);
         for (const o of objs) {
           const l = litOf(o.id), factor = any ? DIM + (1 - DIM) * l : 0.9;
           let alpha = o.alpha * layer.alpha * factor;
@@ -137,28 +155,41 @@
       const [sx, sy] = Layout.project(frame.camera, frame.aspect, [o.x, o.y, o.z]);
       return [(sx * 0.5 + 0.5) * canvasEl.clientWidth, (0.5 - sy * 0.5) * canvasEl.clientHeight];
     }
+    /* The screen rectangle (CSS pixels, canvas-relative) an object covers. */
+    function screenRect(o) {
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (const p of Layout.cornersOf(o)) {
+        const [sx, sy] = Layout.project(frame.camera, frame.aspect, p), cx = (sx * 0.5 + 0.5) * canvasEl.clientWidth, cy = (0.5 - sy * 0.5) * canvasEl.clientHeight;
+        x0 = Math.min(x0, cx); x1 = Math.max(x1, cx); y0 = Math.min(y0, cy); y1 = Math.max(y1, cy);
+      }
+      return { id: o.id, x0, y0, x1, y1, d0: o.d0 };
+    }
     /* The id of the nearest visible object under a CSS-pixel point on the canvas. */
     function pick(px, py) {
       if (!frame) return null;
       let best = null;
       for (const o of frame.objects) {
         if (o.alpha < 0.12 || o.kind === 'marker') continue;
-        let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-        for (const p of Layout.cornersOf(o)) {
-          const [sx, sy] = Layout.project(frame.camera, frame.aspect, p), cx = (sx * 0.5 + 0.5) * canvasEl.clientWidth, cy = (0.5 - sy * 0.5) * canvasEl.clientHeight;
-          x0 = Math.min(x0, cx); x1 = Math.max(x1, cx); y0 = Math.min(y0, cy); y1 = Math.max(y1, cy);
-        }
-        if (px >= x0 && px <= x1 && py >= y0 && py <= y1 && (!best || o.d0 < best.d0)) best = o;
+        const r = screenRect(o);
+        if (px >= r.x0 && px <= r.x1 && py >= r.y0 && py <= r.y1 && (!best || o.d0 < best.d0)) best = o;
       }
       return best && best.id;
     }
+    /* Objects that carry hover and click detail, with their screen rectangles. Masked cells are faint but still teach something, so the floor is low. */
+    function infoRects(keyboard) {
+      if (!frame) return [];
+      return frame.objects.filter(o => o.info && o.alpha >= 0.01 && o.kind !== 'marker' && o.kind !== 'arrow' && !(keyboard && o.info.generic)).map(o => ({ ...screenRect(o), info: o.info }));
+    }
+    const hit = (px, py) => smallestAt(infoRects(false), px, py);
 
+    const frameListeners = [];
     function redraw() {
       if (!state) return;
       palette = readPalette(document.documentElement);
       frame = buildFrame();
       impl.draw(frame);
       placeLabels();
+      frameListeners.forEach(f => f());
     }
     function show(s) { state = s; redraw(); }
 
@@ -169,8 +200,11 @@
     fit();
 
     return {
-      show, redraw, screenOf, pick,
-      setData(name, value) { sceneData[name] = value; redraw(); }, canvas: () => canvasEl,
+      show, redraw, screenOf, pick, hit,
+      infoList: () => inReadingOrder(infoRects(true)),
+      rectOf: id => { const r = infoRects(false).find(x => x.id === id); return r || null; },
+      onFrame: f => { frameListeners.push(f); },
+      setData(name, value) { sceneData[name] = value; redraw(); }, getData: name => sceneData[name], canvas: () => canvasEl,
       highlight(ids) { hover = new Set(ids.flatMap(Layout.idsFor)); redraw(); },
       getState() {
         return {
@@ -190,5 +224,5 @@
       },
     };
   }
-  return { create };
+  return { create, smallestAt, inReadingOrder };
 });

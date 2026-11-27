@@ -40,6 +40,8 @@
     LOOP.drivers = window.LoopDrivers.create({ store, sections, beats, config, stage: document.getElementById('stage') });
     const terms = window.LoopTerms.bind({ root: document.getElementById('article'), beats, scene, store, canvas: scene.canvas });
     LOOP.terms = terms;
+    if (window.LoopVariantsUI && window.LoopVariants) LOOP.variants = window.LoopVariantsUI.bind({ scene, root: document.getElementById('article'), variants: window.LoopVariants });
+    if (window.LoopInspect) LOOP.inspect = window.LoopInspect.bind({ scene, store, stage: document.getElementById('stage') });
     if (window.LoopNarrator) LOOP.narrator = LOOP.drivers.narrator = window.LoopNarrator.create({ store, beats, sections, scene, drivers: LOOP.drivers, getTerms: () => terms, config });
     renderMath();
     if (window.LoopRecorded) window.LoopRecorded.bind(document.getElementById('article'));

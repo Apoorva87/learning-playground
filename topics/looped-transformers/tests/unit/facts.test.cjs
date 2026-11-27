@@ -53,3 +53,18 @@ test('links: a missing file and a missing anchor are reported', () => {
   const errs = checkLinks([path.join(dir, 'a.html')]).join('\n');
   assert.match(errs, /nope\.html/); assert.match(errs, /gone/); assert.match(errs, /absent/);
 });
+
+test('a variants source recomputes a number from the design model and compares it with the fact', () => {
+  const ok = { claim: 'c', source: { kind: 'variants', fn: 'attention', args: ['gqa'], path: 'cachePerTokenPerLayer', expected: 4096 } };
+  assert.deepEqual(run(sandbox(base), { f: ok }, ['f']).errors, []);
+  const bad = { claim: 'c', source: { kind: 'variants', fn: 'attention', args: ['gqa'], path: 'cachePerTokenPerLayer', expected: 8192 } };
+  assert.match(run(sandbox(base), { f: bad }, ['f']).errors.join('\n'), /4096.*8192|8192/);
+  const noFn = { claim: 'c', source: { kind: 'variants', fn: 'nope', args: [], path: 'x', expected: 1 } };
+  assert.match(run(sandbox(base), { f: noFn }, ['f']).errors.join('\n'), /nope/);
+});
+test('a url fact may carry the verbatim quote it rests on, and that quote must be short', () => {
+  const ok = { claim: 'c', source: { kind: 'url', url: 'https://arxiv.org/abs/1', section: 'Abstract', quote: 'a short quote' } };
+  assert.deepEqual(run(sandbox(base), { f: ok }, ['f']).errors, []);
+  const long = { claim: 'c', source: { kind: 'url', url: 'https://arxiv.org/abs/1', section: 'Abstract', quote: 'x'.repeat(200) } };
+  assert.match(run(sandbox(base), { f: long }, ['f']).errors.join('\n'), /quote/);
+});

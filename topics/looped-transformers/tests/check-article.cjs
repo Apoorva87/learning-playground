@@ -4,12 +4,13 @@
    show tensor shapes. Terms in the text must map to scene objects the layout can draw. */
 const fs = require('node:fs'), path = require('node:path'), vm = require('node:vm');
 const Layout = require(path.join(__dirname, '../engine/layout.js'));
-require(path.join(__dirname, '../engine/micro.js')); require(path.join(__dirname, '../engine/micro-walk.js'));            // registers the micro scenes so tensor ids can be checked
+require(path.join(__dirname, '../engine/micro.js')); require(path.join(__dirname, '../engine/micro-walk.js')); require(path.join(__dirname, '../engine/micro-var.js'));            // registers the micro scenes so tensor ids can be checked
 
 const SHAPE = /\[[^\]]*\d+[^\]]*\]|\[\s*T\s*,/;
 function validIds(micro) {
   const ids = new Set(Layout.macroObjects(0).map(o => o.id));
   for (const name of Object.keys(Layout.MICRO)) Layout.microObjects(name).forEach(o => ids.add(o.id));
+  for (const [name, [fam, list]] of Object.entries(Layout.VARIANT_SCENES || {})) for (const v of list) Layout.microObjects(name, { variant: { [fam]: v } }).forEach(o => ids.add(o.id));   // every design of a switchable scene
   const prefixes = new Set([...ids].flatMap(id => id.split('.').map((_, i, a) => a.slice(0, i + 1).join('.'))));   // 'tensor.h', 'bar.stable', 'pair' name everything beneath them
   return { has: id => ids.has(id) || prefixes.has(id) || /^hop\.\d+$/.test(id) || /^(L\d+|pass\.[123]|prelude|core|coda|full)$/.test(id) && Layout.idsFor(id).length > 0 };
 }

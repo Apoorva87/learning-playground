@@ -238,4 +238,107 @@
       box('cache.note', 'bytes of K and V per token per layer in BF16 (MHA, GQA, MQA use Qwen3-0.6B’s 128-wide heads; MLA is DeepSeek-V2-Lite’s)', 0, -3.0, 20, 0.7, 'neutral', 0.1),
     ];
   };
+
+  /* ---------- hover and click detail ----------
+     Each data-driven object gets info {title, lines}: the exact recorded value and the arithmetic behind it. */
+  const idx = id => { const m = /\.r(\d+)c(\d+)$/.exec(id); return m ? [+m[1], +m[2]] : null; };
+  const I = (title, ...lines) => ({ title, lines: lines.flat().filter(Boolean) });
+  const g = (v, n = 4) => String(Number(v.toPrecision(n)));
+  const pct = v => Number((v * 100).toPrecision(3)) + '%';
+  const dot = (a, b) => { let s = 0; for (let i = 0; i < a.length; i++) s += a[i] * b[i]; return s; };
+  const withInfo = (name, fn) => {
+    const base = MICRO[name];
+    MICRO[name] = data => {
+      const out = base(data), d = D(data);
+      if (d) for (const o of out) { const info = fn(o, o.id, idx(o.id), data, d); if (info) o.info = info; else if (!o.info && o.kind !== 'arrow' && o.label) o.info = { ...I(o.label.replace(/\s+/g, ' '), /\[/.test(o.label) ? 'A frame around one tensor; hover over its cells for exact values.' : 'A caption for this part of the picture; hover over the shapes for exact values.'), generic: true }; }
+      return out;
+    };
+  };
+  const tk = (d, i) => d.meta.tokens[i].text;
+  const q = (d, i) => `“${tk(d, i)}”`;
+
+  withInfo('walk-tokens', (o, id, rc, data, d) => { const m = /^(tok|id)\.(\d)$/.exec(id); if (!m) return null; const t = d.meta.tokens[+m[2]];
+    return I(`Token ${m[2]}: “${t.text}”`, `ID ${t.id}`, `position ${m[2]}`, t.text.startsWith(' ') ? 'the leading space is part of the token' : 'the first token has no leading space'); });
+  withInfo('walk-embed', (o, id, rc, data, d) => {
+    if (rc && id.startsWith('tensor.h0.')) return I(`h₀[${rc[0]}][${rc[1]}] = ${g(d.embed.h0[rc[0]][rc[1]], 3)}`, `token ${q(d, rc[0])} (ID ${d.meta.tokens[rc[0]].id}), feature ${rc[1]} of 1024 (first 16 shown)`, `this row's length ‖h₀[${rc[0]}]‖ = ${g(d.embed.row_norms[rc[0]], 3)}`);
+    if (rc && id.startsWith('tensor.ids.')) return I(`Token ID ${d.meta.tokens[rc[0]].id}`, `selects row ${d.meta.tokens[rc[0]].id} of the embedding table`);
+    if (id.startsWith('tensor.table.')) return I('Embedding table E', '151,936 rows × 1024 numbers = 155,582,464 parameters', 'only five rows are read for this sentence');
+    const m = /^rn\.(\d)$/.exec(id); return m ? I(`Row norm of ${q(d, +m[1])}`, `‖h₀‖ = ${g(d.embed.row_norms[+m[1]], 4)}`) : null; });
+  withInfo('walk-layer', (o, id) => ({ 'blk.x': I('Input x', 'shape [5, 1024]: five tokens, 1024 numbers each'), 'blk.norm1': I('RMSNorm before attention', '1024 learned gains', 'about 4 × 1024 operations per token'),
+    'blk.attn': I('Attention sublayer', '6,291,456 weights: W_Q, W_K, W_V, W_O', '62.9 million operations for 5 tokens, plus 0.2 million for scores and mixing'), 'blk.add1': I('Residual add', 'x + attention output: nothing is overwritten'),
+    'blk.norm2': I('RMSNorm before the feed-forward network', '1024 learned gains'), 'blk.ffn': I('SwiGLU feed-forward network', '9,437,184 weights: gate, up, down', '94.4 million operations for 5 tokens'),
+    'blk.add2': I('Residual add', 'h′ + feed-forward output'), 'blk.out': I('Layer output', 'same shape as the input: [5, 1024]') }[id] || null));
+  withInfo('walk-norm', (o, id, rc, data, d) => { const t = data.token === undefined ? 4 : data.token, L = d.layer0.norm1;
+    if (rc && id.startsWith('tensor.x.')) return I(`x[${rc[1]}] = ${g(d.embed.h0[t][rc[1]], 3)}`, `feature ${rc[1]} of the vector of ${q(d, t)}`);
+    if (rc && id.startsWith('tensor.gain.')) return I(`gain[${rc[1]}] = ${g(L.gain[rc[1]], 3)}`, 'a learned per-feature scale');
+    if (rc && id.startsWith('tensor.y.')) return I(`y[${rc[1]}] = ${g(L.out[t][rc[1]], 3)}`, `= x × inverse × gain = ${g(d.embed.h0[t][rc[1]], 3)} × ${g(L.inv_rms[t], 4)} × ${g(L.gain[rc[1]], 3)}`);
+    if (id === 'stat.ms') return I('Mean of squares', `(1/1024) Σ x² = ${g(L.mean_square[t], 4)}`); if (id === 'stat.inv') return I('Inverse root', `1 / √(${g(L.mean_square[t], 4)} + 10⁻⁶) = ${g(L.inv_rms[t], 4)}`); return null; });
+  withInfo('walk-qkv', (o, id, rc, data, d) => { if (!rc) return null; const [r, c] = rc, Q = d.layer0.qkv;
+    if (id.startsWith('tensor.q.')) return I(`query head ${r}, feature ${c} = ${g(Q.q_last_heads[r][c], 3)}`, `for the last token ${q(d, 4)}; 8 of 128 features shown`, `query head ${r} shares key/value head ${r >> 1}`);
+    if (id.startsWith('tensor.k.')) return I(`key head ${r}, feature ${c} = ${g(Q.k_last_heads[r][c], 3)}`, `serves query heads ${2 * r} and ${2 * r + 1}`);
+    if (id.startsWith('tensor.v.')) return I(`value head ${r}, feature ${c} = ${g(Q.v_last_heads[r][c], 3)}`, `serves query heads ${2 * r} and ${2 * r + 1}`);
+    return I(`normed input[${r}][${c}] = ${g(d.layer0.norm1.out[r][c], 3)}`, `token ${q(d, r)}`); });
+  withInfo('walk-gqa', (o, id, rc, data, d) => { let m;
+    if ((m = /^qh\.(\d+)$/.exec(id))) { const h = +m[1]; return I(`Query head ${h}`, `shares key/value head ${h >> 1} with query head ${h ^ 1}`, 'its own queries, shared keys and values'); }
+    if ((m = /^kvh\.(\d+)$/.exec(id))) { const k = +m[1]; return I(`Key/value head ${k}`, `serves query heads ${2 * k} and ${2 * k + 1}`, 'cached once: 2 × 128 × 2 bytes = 512 bytes per token per layer'); }
+    if ((m = /^link\.(\d+)\.(\d+)$/.exec(id))) return I(`Query head ${m[1]} reads key/value head ${m[2]}`, `floor(${m[1]} / 2) = ${m[2]}`); return null; });
+  withInfo('walk-qknorm', (o, id, rc, data, d) => { const Q = d.layer0.qkv, N = d.layer0.qknorm; let m;
+    if (rc && id.startsWith('tensor.before.')) return I(`q₀[${rc[0]}][${rc[1]}] = ${g(Q.q0[rc[0]][rc[1]], 3)} before the norm`, `token ${q(d, rc[0])}, feature ${rc[1]} of 128`);
+    if (rc && id.startsWith('tensor.gain.')) return I(`gain[${rc[1]}] = ${g(N.q_gain[rc[1]], 3)}`, 'learned per-feature scale of the query norm');
+    if (rc && id.startsWith('tensor.after.')) return I(`after the norm = ${g(N.q0_out[rc[0]][rc[1]], 3)}`, `= before × inverse rms × gain = ${g(Q.q0[rc[0]][rc[1]], 3)} × ${g(N.q0_inv_rms[rc[0]], 4)} × ${g(N.q_gain[rc[1]], 3)}`);
+    return (m = /^inv\.(\d)$/.exec(id)) ? I(`Inverse rms for ${q(d, +m[1])}`, `${g(N.q0_inv_rms[+m[1]], 4)}: the head is multiplied by this before the gain`) : null; });
+  withInfo('walk-rope', (o, id, rc, data, d) => { const Rp = d.layer0.rope, Q = d.layer0.qknorm; let m;
+    if ((m = /^freq\.(\d+)$/.exec(id))) { const f = Rp.inv_freq[+m[1]]; return I(`Pair ${m[1]}: ${g(f, 4)} rad per position`, `θ^(−2·${m[1]}/128) with θ = 10⁶`, `one full turn every ${g(2 * Math.PI / f, 3)} positions`); }
+    if (rc && id.startsWith('tensor.angles.')) return I(`Angle for position ${rc[0]}, pair ${rc[1]} = ${g(Rp.angles[rc[0]][rc[1]], 4)} rad`, `= ${rc[0]} × ${g(Rp.inv_freq[rc[1]], 4)}`, `token ${q(d, rc[0])}`);
+    if (rc && id.startsWith('tensor.before.')) return I(`q before RoPE[${rc[0]}][${rc[1]}] = ${g(Q.q0_out[rc[0]][rc[1]], 4)}`, `token ${q(d, rc[0])}; paired with feature ${rc[1] + 64} = ${g(Q.q0_out[rc[0]][rc[1] + 64], 4)}`);
+    if (rc && id.startsWith('tensor.after.')) { const [r, c] = rc, a = Rp.angles[r][c]; return I(`q after RoPE[${r}][${c}] = ${g(Rp.q0_out[r][c], 4)}`, `pair (${g(Q.q0_out[r][c], 4)}, ${g(Q.q0_out[r][c + 64], 4)}) turned by ${g(a, 4)} rad (angle = ${r} × ${g(Rp.inv_freq[c], 4)})`, `x′ = x cos φ − y sin φ = ${g(Q.q0_out[r][c], 4)}·${g(Math.cos(a), 4)} − ${g(Q.q0_out[r][c + 64], 4)}·${g(Math.sin(a), 4)} = ${g(Rp.q0_out[r][c], 4)}`, `its partner becomes ${g(Rp.q0_out[r][c + 64], 4)}`); }
+    return null; });
+  withInfo('walk-scores', (o, id, rc, data, d) => { const h = (data && data.head) || 0, S = d.layer0.scores.heads[h]; let m;
+    if (rc && id.startsWith('tensor.raw.')) { const [i, j] = rc; if (j > i) return I(`Masked: ${q(d, i)} cannot look at ${q(d, j)}`, 'a token may only attend to itself and earlier tokens: this score is set to −∞'); const qv = d.layer0.rope.q0_out[i], kv = d.layer0.rope.k0_out[j], dt = dot(qv, kv);
+      return I(`Score of ${q(d, i)} looking at ${q(d, j)} = ${g(S.raw[i][j], 3)}`, h === 0 ? [`query·key = ${g(dt, 4)} (128 features, after QK-norm and RoPE)`, `÷ √128 (11.31) = ${g(S.raw[i][j], 3)}`] : `recorded score for head ${h}`, `softmax weight ${pct(S.probs[i][j])}`); }
+    if (rc && id.startsWith('tensor.probs.')) { const [i, j] = rc; return j > i ? I(`Masked: ${q(d, i)} cannot look at ${q(d, j)}`, 'a later token: weight 0') : I(`Attention weight of ${q(d, i)} on ${q(d, j)}: ${pct(S.probs[i][j])}`, `softmax of the row of scores: e^${g(S.raw[i][j], 3)} / Σ e^score`, `row ${i} sums to 100% over ${i + 1} visible tokens`); }
+    return (m = /^(rowname|colname)\.(\d)$/.exec(id)) ? I(`${m[1] === 'rowname' ? 'Query' : 'Key'}: ${q(d, +m[2])}`, `position ${m[2]}`) : null; });
+  withInfo('walk-mix', (o, id, rc, data, d) => { if (!rc) return null; const [r, c] = rc, L0 = d.layer0;
+    if (id.startsWith('tensor.probs.')) return I(`Weight ${q(d, r)} → ${q(d, c)} = ${pct(L0.scores.heads[0].probs[r][c])}`, 'head 0 attention weight');
+    if (id.startsWith('tensor.v.')) return I(`value[${r}][${c}] = ${g(L0.qkv.v0[r][c], 3)}`, `token ${q(d, r)}, feature ${c} of 128 (key/value head 0)`);
+    if (id.startsWith('tensor.head0.')) return I(`head 0 output[${r}][${c}] = ${g(L0.attn_out.head0[r][c], 3)}`, `= Σ over visible tokens of weight × value, for token ${q(d, r)}`);
+    if (id.startsWith('tensor.concat.')) return I(`concatenated heads[${c}] = ${g(L0.attn_out.concat_last[c], 3)}`, 'last token, first 16 of 2048 numbers (16 heads × 128)');
+    if (id.startsWith('tensor.o.')) return I(`after W_O[${r}][${c}] = ${g(L0.attn_out.o_proj_out[r][c], 3)}`, `token ${q(d, r)}: 2048 numbers mapped back to 1024`);
+    return I(`x + attention[${r}][${c}] = ${g(L0.resid1.out[r][c], 3)}`, `= ${g(d.embed.h0[r][c], 3)} + ${g(L0.attn_out.o_proj_out[r][c], 3)}`, 'the residual keeps the original and adds the correction'); });
+  withInfo('walk-ffn', (o, id, rc, data, d) => { if (!rc) return null; const c = rc[1], F = d.layer0.ffn;
+    if (id.startsWith('tensor.x.')) return I(`normed input[${c}] = ${g(d.layer0.norm2.out[4][c], 3)}`, 'after the second RMSNorm, token “ is”');
+    if (id.startsWith('tensor.gate.')) return I(`gate[${c}] = ${g(F.gate_last[c], 3)}`, 'x · W_gate, one of 3072 values');
+    if (id.startsWith('tensor.up.')) return I(`up[${c}] = ${g(F.up_last[c], 3)}`, 'x · W_up, one of 3072 values');
+    if (id.startsWith('tensor.silu.')) return I(`SiLU(gate)[${c}] = ${g(F.silu_last[c], 3)}`, `= gate / (1 + e^−gate) = ${g(F.gate_last[c], 3)} / (1 + e^${g(-F.gate_last[c], 3)})`);
+    if (id.startsWith('tensor.prod.')) return I(`product[${c}] = ${g(F.prod_last[c], 3)}`, `= SiLU(gate) × up = ${g(F.silu_last[c], 3)} × ${g(F.up_last[c], 3)}`);
+    return I(`down[${c}] = ${g(F.down_last[c], 3)}`, 'prod · W_down: 3072 numbers narrowed to 1024'); });
+  withInfo('walk-stack', (o, id, rc, data, d) => { const m = /^layer\.(\d+)$/.exec(id); if (!m) return null; const l = +m[1], lens = d.stack.logit_lens[l];
+    return I(`After layer ${l}`, `hidden-state norm ‖h‖ = ${g(d.stack.layer_norms_last[l], 4)}`, `logit lens: the guess here is “${lens.text.trim() || 'a space'}” with probability ${pct(lens.prob)}`); });
+  withInfo('walk-head', (o, id, rc, data, d) => { const Hd = d.head; let m;
+    if ((m = /^bar\.(\d+)$/.exec(id))) { const t = Hd.logits.top20[+m[1]]; return I(`${t.text.trim() || 'blank'}  ${pct(t.prob)}`, `token ID ${t.id}`, `logit ${g(t.logit, 4)}`, `probability = e^${g(t.logit, 4)} / Σ over 151,936 tokens = ${pct(t.prob)}`, +m[1] === 0 ? 'the tallest bar: greedy decoding picks it' : `rank ${+m[1] + 1} of 151,936`); }
+    if (rc && id.startsWith('tensor.final.')) return I(`final normed vector[${rc[1]}] = ${g(Hd.final_norm_out_last[rc[1]], 3)}`, 'last token, first 16 of 1024');
+    if (rc && id.startsWith('tensor.logits.')) return I(`logit of token ${rc[1]} = ${g(Hd.logits.first16[rc[1]], 3)}`, 'the dot product of the final vector with that row of E');
+    return null; });
+  withInfo('walk-cache', (o, id, rc, data, d) => { let m;
+    if (rc && /^tensor\.[kv]\./.test(id)) { const kind = id.startsWith('tensor.k.') ? 'key' : 'value'; return I(`Layer 0 ${kind}, head ${rc[0]}, position ${rc[1]}`, `token ${q(d, rc[1])}`, '128 numbers × 2 bytes = 256 bytes', 'stored after QK-norm and RoPE for keys'); }
+    return (m = /^cache\.layer\.(\d+)$/.exec(id)) ? I(`Layer ${m[1]} cache`, '2 × 8 heads × 128 × 2 bytes = 4,096 bytes per token', `${(5 * 4096).toLocaleString('en-US')} bytes for the 5 tokens`) : null; });
+  withInfo('walk-decode', (o, id, rc, data, d) => { const De = d.decode; let m;
+    if (rc && id.startsWith('tensor.newq.')) return I(`new query, head ${rc[0]}, feature ${rc[1]} = ${g(De.q_heads_first8[rc[0]][rc[1]], 3)}`, 'token “ Paris” at position 5, after QK-norm and RoPE');
+    if (rc && id.startsWith('tensor.cachek.')) return I(`cached key, position ${rc[0]}, feature ${rc[1]} = ${g(De.cache_keys_head0_first4[rc[0]][rc[1]], 3)}`, 'head 0 of layer 0; positions 0–4 come from prefill, position 5 was just appended');
+    if (rc && id.startsWith('tensor.dprobs.')) return I(`head ${rc[0]} puts ${pct(De.probs[rc[0]][rc[1]])} on ${rc[1] < 5 ? q(d, rc[1]) : '“ Paris” (itself)'}`, `softmax over the 6 cached keys; the row sums to 100%`);
+    if ((m = /^dnext\.(\d)$/.exec(id))) { const t = De.logits_top10[+m[1]]; return I(`${t.text.trim() || 'blank'}  ${pct(t.prob)}`, `token ID ${t.id}`, `logit ${g(t.logit, 4)}`); }
+    return id === 'newrow' ? I('The new key', 'computed for position 5 and appended to the cache') : null; });
+  withInfo('walk-mla', (o, id, rc, data, d) => { const m = data.m; if (!m) return null; const tt = i => m.tokens[i].text.trim() || 'start';
+    if (rc && id.startsWith('tensor.ckv.')) return I(`latent c_KV[${rc[0]}][${rc[1]}] = ${g(m.latent.c_kv[rc[0]][rc[1]], 3)}`, `token ${tt(rc[0])}; 512 numbers are cached for it`);
+    if (rc && id.startsWith('tensor.krope.')) return I(`RoPE key[${rc[0]}][${rc[1]}] = ${g(m.latent.k_rope[rc[0]][rc[1]], 3)}`, `token ${tt(rc[0])}; 64 numbers, shared by all 16 heads`);
+    if (rc && id.startsWith('tensor.kv.')) return I('Rebuilt on demand', 'keys and values are expanded from the latent by one up-projection', 'they are not stored');
+    if (id === 'mla.cache') return I('Cache per token per layer', `(512 + 64) × 2 bytes = ${m.cache_bytes.mla_per_token_per_layer.toLocaleString('en-US')}`, `full multi-head keys and values: ${m.cache_bytes.mha_per_token_per_layer.toLocaleString('en-US')} (${g(m.cache_bytes.ratio, 3)}× larger)`); return null; });
+  withInfo('walk-mla-absorb', (o, id, rc, data, d) => { const m = data.m; if (!m) return null; const tt = i => m.tokens[i].text.trim() || 'start';
+    if (rc && id.startsWith('tensor.qabs.')) return I(`absorbed query[${rc[0]}][${rc[1]}] = ${g(m.query.q_absorbed_head0[rc[0]][rc[1]], 3)}`, 'q_nope · W_UK: the query already translated into latent space');
+    if (rc && id.startsWith('tensor.clat.')) return I(`cached latent[${rc[0]}][${rc[1]}] = ${g(m.latent.c_kv[rc[0]][rc[1]], 3)}`, `token ${tt(rc[0])}`);
+    if (rc && /^tensor\.(explicit|absorbed)\./.test(id)) { const [i, j] = rc; if (j > i) return I('Masked', 'a token cannot look at a later token'); const e = m.explicit.scores_head0[i][j], a = m.absorbed.scores_head0[i][j];
+      return I(`${id.includes('explicit') ? 'Explicit' : 'Absorbed'} score ${tt(i)} → ${tt(j)} = ${g(id.includes('explicit') ? e : a, 4)}`, `explicit ${g(e, 5)}, absorbed ${g(a, 5)}, difference ${(Math.abs(e - a)).toExponential(1)}`); } return null; });
+  withInfo('walk-cachesize', (o, id, rc, data, d) => { const ratio = { 'cache.mha': 1, 'cache.gqa': 2, 'cache.mqa': 16 }[id], bytes = { 'cache.mha': 8192, 'cache.gqa': 4096, 'cache.mqa': 512, 'cache.mla': 1152 }[id]; if (!bytes) return null;
+    if (id === 'cache.mla') return I('MLA latent', '1,152 bytes per token per layer (DeepSeek-V2-Lite’s own sizes)', 'vs 10,240 for full multi-head keys and values at its sizes: 8.9× smaller');
+    return I(id === 'cache.mha' ? 'Multi-head attention' : id === 'cache.gqa' ? 'Grouped-query attention' : 'Multi-query attention', `${bytes.toLocaleString('en-US')} B per token per layer`, id === 'cache.mha' ? '16 key/value heads: 2× GQA’s 4,096 bytes' : id === 'cache.gqa' ? 'Qwen3’s choice: 8 key/value heads, half of multi-head' : `${bytes === 512 ? 8 : ratio}× smaller than GQA`, `over 28 layers: ${(bytes * 28).toLocaleString('en-US')} B per token`); });
 });

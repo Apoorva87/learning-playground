@@ -122,6 +122,22 @@ test('Article B narrates too, with its equations in words', async () => {
   assert.ok(said.every(t => !/[\\${}]/.test(t)));
   await page.context().close();
 });
+test('the how-it-changed beats are read aloud with their equations in words and no TeX or table text', async () => {
+  const page = await go('transformer-walkthrough.html');
+  await page.click('#mode-step'); await page.check('#narrate');
+  for (const [id, title, eq] of [['evo-position', 'How position got in: add, learn, rotate', 'the score between a query at position m'], ['evo-attention', 'From MHA to MLA: shrinking attention’s memory', 'Cache per token per layer, in bytes']]) {
+    await page.evaluate(b => { const i = window.LOOP.beats.findIndex(x => x.id === b); window.LOOP.drivers.goTo(window.LOOP.beats[i - 1].id); }, id);
+    await page.waitForTimeout(150);
+    await page.evaluate(() => { window.__speech.spoken.length = 0; });
+    await page.click('#next');
+    await page.waitForFunction(e => window.__speech.spoken.some(x => x.text.includes(e)), eq, { timeout: 120000 });
+    const said = await spoken(page);
+    assert.equal(said[0], title); assert.ok(said.join(' ').includes(eq), id + ': the equation is read from its spoken text');
+    assert.ok(said.every(t => !/[\\${}_^]/.test(t)), id + ': no TeX reaches the voice: ' + said.filter(t => /[\\${}_^]/.test(t)).join(' || '));
+  }
+  assert.deepEqual(page.errors, []);
+  await page.context().close();
+});
 test('without speech support the controls say so and nothing breaks', async () => {
   const page = await go('why-loop.html', { init: () => { Object.defineProperty(window, 'speechSynthesis', { value: undefined, configurable: true }); } });
   assert.equal(await page.isDisabled('#narrate'), true); assert.equal(await page.isDisabled('#voice'), true);

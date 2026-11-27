@@ -5,6 +5,7 @@
      { kind:'json',   file, path, expected }          a committed data file, path like "a.b.0"
      { kind:'config', file, path, expected }          the model's config.json (skipped when absent)
      { kind:'source', file, line, quote }             a line in the Transformers source at the pinned commit
+     { kind:'variants', fn, args, path, expected }    a number recomputed by walkthrough/variants.js from Qwen3-0.6B's sizes
    Usage: node check-facts.cjs [--facts f] [--transformers dir] page.html... */
 const fs = require('node:fs'), path = require('node:path');
 const TOPIC = path.resolve(__dirname, '..'), REPO = path.resolve(TOPIC, '../..');
@@ -27,6 +28,12 @@ function checkFacts({ factsPath = path.join(TOPIC, 'assets/facts.json'), htmlFil
     if (s.kind === 'url') {
       if (!/^https?:\/\//.test(s.url || '')) errors.push(`${id}: url source needs a url`);
       if (!s.section) errors.push(`${id}: url source needs a section`);
+      if (s.quote !== undefined && (typeof s.quote !== 'string' || s.quote.length > 125)) errors.push(`${id}: url quote must be a string of at most 125 characters`);
+    } else if (s.kind === 'variants') {
+      const V = require('../walkthrough/variants.js');
+      if (typeof V[s.fn] !== 'function') { errors.push(`${id}: variants has no function ${s.fn}`); continue; }
+      let got; try { got = dig(V[s.fn](...(s.args || []), V.QWEN3), s.path); } catch (e) { errors.push(`${id}: ${s.fn}(${(s.args || []).join(', ')}) threw ${e.message}`); continue; }
+      if (!same(got, s.expected)) errors.push(`${id}: ${s.fn}(${(s.args || []).join(', ')}).${s.path} is ${JSON.stringify(got)}, the fact says ${JSON.stringify(s.expected)}`);
     } else if (s.kind === 'json' || s.kind === 'config') {
       const file = path.resolve(s.kind === 'config' ? REPO : root, s.file);
       if (!fs.existsSync(file)) { (s.kind === 'config' ? warnings : errors).push(`${id}: ${s.kind} file ${s.file} ${s.kind === 'config' ? 'not found, skipped' : 'is missing'}`); continue; }

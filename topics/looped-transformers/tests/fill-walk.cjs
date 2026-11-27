@@ -12,7 +12,7 @@ function format(v, mode = '4') {
   if (typeof v !== 'number') return String(v);
   if (mode === 'int') return Math.round(v).toLocaleString('en-US');
   if (mode === 'pct') return Number((v * 100).toPrecision(3)) + '%';
-  if (mode === 'sci') return v.toExponential(2).replace('e-', ' × 10⁻').replace('e+', ' × 10^').replace(/(\d)$/, '$1');
+  if (mode === 'sci') { const [m, e] = v.toExponential(2).split('e'); return `${m} × 10${e.replace(/^\+/, '').replace(/[-0-9]/g, c => '⁻⁰¹²³⁴⁵⁶⁷⁸⁹'['-0123456789'.indexOf(c)])}`; }
   return String(Number(v.toPrecision(+mode)));
 }
 function resolve(spec, mode) {

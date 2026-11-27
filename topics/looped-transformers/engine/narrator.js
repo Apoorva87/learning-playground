@@ -16,7 +16,8 @@
     const ui = { on: $('narrate'), voice: $('voice'), rate: $('rate'), pause: $('narrate-pause'), note: $('voice-note') };
     const synth = window.speechSynthesis, supported = !!(synth && window.SpeechSynthesisUtterance);
     const n = { enabled: false, speaking: false, supported };
-    let token = 0, idleTimer = 0, speakingBeat = -1, highlighted = false, paused = false;
+    let token = 0, idleTimer = 0, speakingBeat = -1, highlighted = false, paused = false, settle = null;
+    const live = new Set();                                    // Chrome can drop an utterance's events if nothing refers to it
     const ARRIVE = window.LoopState.ARRIVE;
 
     /* ---------- the script of a beat: sentences, each with its DOM range and the terms it names ---------- */
@@ -108,8 +109,9 @@
       speakingBeat = i; n.speaking = true; paused = false; refreshButton();
       const set = frac => { if (drive && alive()) store.set({ beat: i, progress: ARRIVE + (1 - ARRIVE) * Math.min(frac, 1) }, 'narrate'); };
       return new Promise(resolve => {
+        settle = resolve;
         let k = 0, done = 0;
-        const finish = ok => { if (my === token) { n.speaking = false; speakingBeat = -1; clearHighlights(); refreshButton(); } resolve(ok); };
+        const finish = ok => { if (my === token) { settle = null; n.speaking = false; speakingBeat = -1; clearHighlights(); refreshButton(); } resolve(ok); };
         const next = () => {
           if (my !== token || !alive()) return finish(false);
           if (k >= script.length) { set(1); return finish(true); }
@@ -118,16 +120,18 @@
           u.rate = parseFloat(ui.rate.value) || 1;
           u.onstart = () => { if (my !== token) return; mark(s); if (drive) follow(s); set(before / total); };
           u.onboundary = e => { if (my === token && typeof e.charIndex === 'number') set((before + e.charIndex) / total); };
-          u.onend = () => { done += s.text.length; if (my === token) next(); };
-          u.onerror = () => { if (my === token) finish(false); };
-          synth.speak(u);
+          u.onend = () => { live.delete(u); done += s.text.length; if (my === token) next(); };
+          u.onerror = () => { live.delete(u); if (my === token) finish(false); };
+          live.add(u); synth.speak(u);
         };
         next();
       });
     }
     function stop(keepIdle) {
       token++; clearTimeout(idleTimer);
-      if (supported && (n.speaking || synth.speaking)) synth.cancel();
+      if (settle) { settle(false); settle = null; }                // whoever is waiting for this beat to finish is released
+      if (supported && (n.speaking || synth.speaking)) { if (paused || synth.paused) synth.resume(); synth.cancel(); }   // a paused engine would stay paused after cancel
+      live.clear();
       n.speaking = false; speakingBeat = -1; paused = false; clearHighlights(); refreshButton();
     }
     n.speakBeat = speakBeat; n.stop = () => stop();

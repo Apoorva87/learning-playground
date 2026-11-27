@@ -73,8 +73,12 @@ def main():
     tok = AutoTokenizer.from_pretrained(REPO)
     ids = tok(SENTENCE, return_tensors="pt").input_ids
     ids_list = ids[0].tolist()
-    if tok.bos_token_id is not None and ids_list[0] == tok.bos_token_id:
-        pass                                                                         # the model adds BOS; we keep it, like the model would
+    # DeepSeek-V2-Lite's tokenizer_config sets add_bos_token, but Transformers 5 loads the tokenizer without it,
+    # so add the start-of-sequence token by hand: the model is always run with it in front.
+    bos = tok.bos_token_id
+    assert bos is not None and bos == 100000, bos
+    if ids_list[0] != bos:
+        ids_list = [bos] + ids_list
     texts = [tok.decode([i]) for i in ids_list]
     T = len(ids_list)
     print("tokens:", list(zip(ids_list, texts)))
@@ -140,7 +144,7 @@ def main():
     mha_bytes = H * (NOPE + ROPE + VD) * 2
     data = {
         "meta": {"model": REPO, "revision": sha, "transformers_commit": TRANSFORMERS_COMMIT, "layer": 0, "sentence": SENTENCE, "dtype": "bfloat16 weights, float32 compute",
-                 "note": "Only the embedding rows of these tokens and the layer-0 attention weights were read from the checkpoint, by range requests. DeepSeek's tokenizer splits the sentence differently from Qwen's.",
+                 "note": "Only the embedding rows of these tokens and the layer-0 attention weights were read from the checkpoint, by range requests. The model's start-of-sequence token is placed in front of the same five word pieces, so there are six tokens.",
                  "head_shown": hd},
         "tokens": [{"id": i, "text": t} for i, t in zip(ids_list, texts)],
         "config": {"hidden": cfg.hidden_size, "heads": H, "kv_lora_rank": KR, "q_lora_rank": cfg.q_lora_rank, "qk_nope": NOPE, "qk_rope": ROPE, "v_head": VD,

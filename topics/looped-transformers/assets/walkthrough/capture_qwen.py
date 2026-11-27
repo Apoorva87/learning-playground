@@ -108,7 +108,7 @@ def main():
     h1 = resid1 + down
 
     hf_h1 = outputs[0][0].double().numpy()
-    assert np.allclose(h1, hf_h1, rtol=1e-3, atol=1e-3), np.abs(h1 - hf_h1).max()
+    assert np.allclose(h1, hf_h1, rtol=1e-4, atol=1e-4), np.abs(h1 - hf_h1).max()
     assert np.allclose(probs, hf_probs0, atol=1e-4), np.abs(probs - hf_probs0).max()
     k_cached = cache.layers[0].keys[0].double().numpy()                            # [8, T, 128], after QK-norm and RoPE
     assert np.allclose(k_cached.transpose(1, 0, 2), kr, atol=1e-3)
@@ -178,7 +178,7 @@ def main():
         "meta": {"model": "Qwen/Qwen3-0.6B-Base", "revision": HfApi().model_info("Qwen/Qwen3-0.6B-Base").sha, "transformers_commit": TRANSFORMERS_COMMIT,
                  "transformers_version": transformers.__version__, "torch": torch.__version__, "dtype": "float32", "sentence": SENTENCE,
                  "tokens": [{"id": int(i), "text": t} for i, t in zip(ids[0].tolist(), token_texts)], "positions": list(range(T)),
-                 "note": "Layer 0 is recomputed in float64 numpy from the model weights and checked against the model (tolerance 1e-3). Numbers are rounded to 6 significant digits."},
+                 "note": "Layer 0 is recomputed in float64 numpy from the model weights and checked against the model (tolerance 1e-4). Numbers are rounded to 6 significant digits."},
         "config": {"hidden": D, "layers": cfg.num_hidden_layers, "heads": H, "kv_heads": KV, "head_dim": HD, "ffn": FF, "vocab": cfg.vocab_size,
                    "rope_theta": ROPE_THETA, "eps": EPS, "tied": bool(cfg.tie_word_embeddings), "q_dim": H * HD, "kv_dim": KV * HD},
         "embed": {"h0": r(h0), "row_norms": r(np.linalg.norm(h0, axis=1))},

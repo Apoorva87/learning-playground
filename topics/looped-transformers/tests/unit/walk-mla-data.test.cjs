@@ -10,7 +10,9 @@ const T = M.tokens.length;
 test('meta, config and tokens', () => {
   assert.equal(M.meta.sentence, 'The capital of France is'); assert.match(M.meta.revision, /^[0-9a-f]{40}$/);
   assert.deepEqual([M.config.hidden, M.config.heads, M.config.kv_lora_rank, M.config.qk_nope, M.config.qk_rope, M.config.v_head], [2048, 16, 512, 128, 64, 128]);
-  assert.equal(M.config.q_lora_rank, null); assert.ok(T >= 5 && T <= 8, 'tokens: ' + T);
+  assert.equal(M.config.q_lora_rank, null);
+  assert.deepEqual(M.tokens.map(t => t.id), [100000, 549, 6077, 280, 7239, 317], 'the start-of-sequence token, then the five word pieces');
+  assert.equal(T, 6);
 });
 test('the latent cache has the right shapes', () => {
   assert.deepEqual(shape(M.latent.c_kv), [T, 512]); assert.deepEqual(shape(M.latent.k_rope), [T, 64]);

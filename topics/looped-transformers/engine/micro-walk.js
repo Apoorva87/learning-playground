@@ -9,6 +9,7 @@
   'use strict';
   const { grid, arrow, vline, box, maxAbs } = Layout.microKit, MICRO = Layout.MICRO;
   const fmt = (v, d = 3) => (v === undefined ? '…' : Math.abs(v) >= 1000 ? Math.round(v).toLocaleString('en-US') : +v.toPrecision(d) + '');
+  const shown = lens => (lens ? lens.text.trim() || 'a space' : '…');
   const tokText = (d, i) => (d ? d.meta.tokens[i].text.trim() || '·' : 'tok ' + i);
   const T = d => (d ? d.meta.tokens.length : 5);
   const norm = rows => { const m = Math.max(1e-12, ...rows.flat().map(Math.abs)); return rows.map(r => r.map(v => v / m)); };   // signed values scaled to the largest
@@ -158,7 +159,7 @@
     const d = D(data), S = d && d.stack, out = [], maxN = S ? Math.max(...S.layer_norms_last) : 1;
     for (let l = 0; l < 28; l++) {
       const hgt = 0.3 + 4.2 * (S ? S.layer_norms_last[l] / maxN : 0.3), lens = S && S.logit_lens[l], good = lens && /Paris/.test(lens.text);
-      out.push(cell(`layer.${l}`, (l - 13.5) * 0.75, hgt / 2 - 2.5, 0.6, hgt, good ? 'hot' : 'core', 0.9, l === 0 ? `layer 0 guesses “${lens ? lens.text.trim() : '…'}”` : l === 14 ? `layer 14: “${lens ? lens.text.trim() : '…'}”` : l === 27 ? `layer 27: “${lens ? lens.text.trim() : '…'}” ${lens ? fmt(lens.prob * 100, 2) + '%' : ''}` : undefined));
+      out.push(cell(`layer.${l}`, (l - 13.5) * 0.75, hgt / 2 - 2.5, 0.6, hgt, good ? 'hot' : 'core', 0.9, l === 0 ? `layer 0 guesses “${shown(lens)}”` : l === 14 ? `layer 14: “${shown(lens)}”` : l === 27 ? `layer 27: “${shown(lens)}” ${lens ? fmt(lens.prob * 100, 2) + '%' : ''}` : undefined));
     }
     out.push(box('stack.axis', 'height = norm of the last token’s hidden state after each layer; red = the layer’s own guess is “ Paris”', 0, -3.0, 21, 0.6, 'neutral', 0.1));
     return out;
@@ -191,7 +192,7 @@
     const d = D(data), De = d && d.decode, out = [];
     out.push(...grid('newq', 'new query, 16 heads × 8 of 128 dims  (position 5)', -6.2, 2.2, 8, 8, 'core', { pitch: 0.3, v: De ? vfn(norm(De.q_heads_first8.slice(0, 8))) : undefined }));
     out.push(...grid('cachek', 'K cache of layer 0, head 0, 6 positions  (5 old + 1 new)', 0, 2.8, 6, 4, 'prelude', { pitch: 0.4, v: De ? vfn(norm(De.cache_keys_head0_first4)) : undefined }));
-    out.push(cell('newrow', 0, 2.8 - 5 * 0.4 - 0.0, 1.8, 0.34, 'hot', 0.25, 'the new key, appended'));
+    out.push(cell('newrow', 0, 2.8 + (6 - 1) / 2 * 0.4 - 5 * 0.4, 1.8, 0.34, 'hot', 0.25, 'the new key, appended'));
     out.push(...grid('dprobs', 'attention of each of the 16 heads over the 6 keys  [16, 6]', 6.4, 2.2, 8, 6, 'hot', { pitch: 0.4, v: De ? vfn(De.probs.slice(0, 8)) : undefined }));
     out.push(arrow('op.read', 2.4, 3.4, 2.8));
     if (De) De.logits_top10.slice(0, 5).forEach((t, i) => out.push(cell(`dnext.${i}`, -6.0 + i * 3.0, -2.8, 2.7, 0.8, i === 0 ? 'hot' : 'tensor', 0.9, `${t.text.trim() || '·'}  ${fmt(t.prob * 100, 2)}%`)));
@@ -204,12 +205,12 @@
   MICRO['walk-mla'] = data => {
     const m = Mla(data), n = m ? m.tokens.length : 5, c = m ? m.cache_bytes : null;
     return [
-      ...grid('x', 'normed input  [5, 2048]', -9.4, 0, n, 16, 'tensor', { pitch: 0.2 }),
+      ...grid('x', `normed input  [${n}, 2048]`, -9.4, 0, n, 16, 'tensor', { pitch: 0.2 }),
       arrow('op.down', -7.4, -6.2, 0),
-      ...grid('ckv', 'latent c_KV = norm(x W_DKV)  [5, 512]  (this is cached)', -2.8, 2.0, n, 16, 'hot', { pitch: 0.3, v: m ? vfn(norm(first(m.latent.c_kv))) : undefined }),
-      ...grid('krope', 'RoPE key  [5, 64]  (also cached, shared by all heads)', -2.8, -1.6, n, 16, 'gate', { pitch: 0.3, v: m ? vfn(norm(first(m.latent.k_rope))) : undefined }),
+      ...grid('ckv', `latent c_KV = norm(x W_DKV)  [${n}, 512]  (this is cached)`, -2.8, 2.0, n, 16, 'hot', { pitch: 0.3, v: m ? vfn(norm(first(m.latent.c_kv))) : undefined }),
+      ...grid('krope', `RoPE key  [${n}, 64]  (also cached, shared by all heads)`, -2.8, -1.6, n, 16, 'gate', { pitch: 0.3, v: m ? vfn(norm(first(m.latent.k_rope))) : undefined }),
       arrow('op.up', 1.2, 2.4, 2.0),
-      ...grid('kv', 'keys and values rebuilt per head  [5, 16, 128] each', 6.4, 2.0, n, 16, 'prelude', { pitch: 0.3, alpha: () => 0.35 }),
+      ...grid('kv', `keys and values rebuilt per head  [${n}, 16, 128] each`, 6.4, 2.0, n, 16, 'prelude', { pitch: 0.3, alpha: () => 0.35 }),
       box('mla.cache', c ? `cached per token and layer: (512 + 64) × 2 B = ${c.mla_per_token_per_layer.toLocaleString('en-US')} B, against ${c.mha_per_token_per_layer.toLocaleString('en-US')} B for full multi-head keys and values` : 'cached per token', 0, -4.6, 18, 0.9, 'neutral', 0.12),
     ];
   };
@@ -219,10 +220,10 @@
     const m = Mla(data), n = m ? m.tokens.length : 5, mask = (r, c) => c > r, h = 0.5;
     const sc = mat => (r, c) => (mask(r, c) ? 0 : mat[r][c] / 12);
     return [
-      ...grid('qabs', 'q_nope · W_UK  [5, 512]  (query, absorbed)', -8.0, 3.2, n, 16, 'core', { pitch: 0.26, v: m ? vfn(norm(first(m.query.q_absorbed_head0))) : undefined }),
-      ...grid('clat', 'cached latent c_KV  [5, 512]', 0.2, 3.2, n, 16, 'hot', { pitch: 0.26, v: m ? vfn(norm(first(m.latent.c_kv))) : undefined }),
-      ...grid('explicit', m ? 'explicit: rebuild each key, then q·k  [5, 5]' : 'explicit  [5, 5]', -4.6, -1.8, n, n, 'prelude', { pitch: h, alpha: (r, c) => (mask(r, c) ? 0.08 : 0.9), v: m ? sc(m.explicit.scores_head0) : undefined }),
-      ...grid('absorbed', m ? `absorbed: q·W_UK against the latent  [5, 5]   (largest difference ${m.absorbed.max_abs_diff.toExponential(1)})` : 'absorbed  [5, 5]', 3.4, -1.8, n, n, 'gate', { pitch: h, alpha: (r, c) => (mask(r, c) ? 0.08 : 0.9), v: m ? sc(m.absorbed.scores_head0) : undefined }),
+      ...grid('qabs', `q_nope · W_UK  [${n}, 512]  (query, absorbed)`, -8.0, 3.2, n, 16, 'core', { pitch: 0.26, v: m ? vfn(norm(first(m.query.q_absorbed_head0))) : undefined }),
+      ...grid('clat', `cached latent c_KV  [${n}, 512]`, 0.2, 3.2, n, 16, 'hot', { pitch: 0.26, v: m ? vfn(norm(first(m.latent.c_kv))) : undefined }),
+      ...grid('explicit', m ? `explicit: rebuild each key, then q·k  [${n}, ${n}]` : 'explicit', -4.6, -1.8, n, n, 'prelude', { pitch: h, alpha: (r, c) => (mask(r, c) ? 0.08 : 0.9), v: m ? sc(m.explicit.scores_head0) : undefined }),
+      ...grid('absorbed', m ? `absorbed: q·W_UK against the latent  [${n}, ${n}]   (largest difference ${m.absorbed.max_abs_diff.toExponential(1)})` : 'absorbed', 3.4, -1.8, n, n, 'gate', { pitch: h, alpha: (r, c) => (mask(r, c) ? 0.08 : 0.9), v: m ? sc(m.absorbed.scores_head0) : undefined }),
       arrow('op.same', -1.6, 0.6, -1.8),
     ];
   };

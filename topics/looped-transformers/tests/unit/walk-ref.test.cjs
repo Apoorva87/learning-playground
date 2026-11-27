@@ -51,5 +51,5 @@ test('MLA: explicit and absorbed scores both reproduce the recording', () => {
   const absorbed = M.query.q_absorbed_head0.map((qa, i) => M.latent.c_kv.map((c, j) => (R.dot(qa, c) + R.dot(M.query.q_pe_head0[i], M.latent.k_rope[j])) * sc));
   const low = m => m.map((row, i) => row.map((v, j) => (j <= i ? v : 0)));
   close(low(explicit), M.explicit.scores_head0, 1e-4, 'explicit'); close(low(absorbed), M.absorbed.scores_head0, 1e-4, 'absorbed'); close(low(explicit), low(absorbed), 1e-4, 'explicit = absorbed');
-  assert.equal(Tm, 5);
+  assert.equal(Tm, 6);
 });

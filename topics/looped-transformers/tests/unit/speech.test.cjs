@@ -15,6 +15,11 @@ test('texToSpeech: symbols and shapes become words', () => {
   assert.equal(say('x^2'), 'x to the 2');
   assert.match(say('W_{\\text{down}}'), /^W sub down$/);
 });
+test('texToSpeech: thousands separators and the transpose sign', () => {
+  assert.equal(say('155{,}582{,}464'), '155582464');
+  assert.match(say('z E^{\\top}'), /^z E transpose$/);
+  assert.equal(say('E^\\top'), 'E transpose');
+});
 test('texToSpeech: never leaves backslashes, braces or dollar signs', () => {
   for (const t of ['\\operatorname{softmax}_i\\!\\big(\\mathrm{src}_i \\cdot p_{t-1}\\big)', '\\Big(\\tfrac{1}{30}\\,W\\Big)', '\\text{for } t = 2, 3', '\\rho(A) &lt; 1', '\\mathcal{E} = \\operatorname{top\\text{-}8}(s)'])
     assert.doesNotMatch(say(t), /[\\{}$]/, say(t));

@@ -22,7 +22,7 @@ async function open(env, rel, { width = 1400, height = 900, scheme = 'light', re
   await page.goto(env.base.url + '/' + rel, { waitUntil: 'commit' });
   await page.waitForFunction(() => window.LOOP && window.LOOP.ready, null, { timeout: 15000 });
   // Let fonts and KaTeX finish: they change section heights, and tests compare scroll positions.
-  await page.evaluate(() => document.fonts.ready);
+  await page.evaluate(async () => { await Promise.all([...document.fonts].map(f => f.load().catch(() => {}))); await document.fonts.ready; });   // KaTeX fonts load on demand and would shift the layout later
   await page.waitForFunction(() => typeof window.renderMathInElement !== 'function' || !document.querySelector('.math') || document.querySelector('.math .katex'), null, { timeout: 15000 });
   await page.waitForTimeout(60);
   return page;

@@ -49,3 +49,13 @@ test('Article B deep link opens the recorded run with its tables', { skip }, asy
   assert.deepEqual(page.errors.filter(e => !/favicon/.test(e)), []);
   await page.context().close();
 });
+
+test('landing -> Article C loads its recorded data under the repository prefix', { skip }, async () => {
+  const page = await fresh();
+  await page.goto(`${server.url}/topics/looped-transformers/index.html`);
+  await page.click('a.card[href="transformer-walkthrough.html"]');
+  await page.waitForFunction(() => window.LOOP && window.LOOP.walkReady, null, { timeout: 30000 });
+  assert.ok((await page.$$eval('[data-walk]', e => e.length)) > 20);
+  assert.deepEqual(page.errors.filter(e => !/favicon/.test(e)), []);
+  await page.context().close();
+});

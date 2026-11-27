@@ -14,6 +14,7 @@
   /* A best-effort reading of a short TeX fragment. Display equations carry hand-written text instead. */
   function texToSpeech(tex) {
     let s = String(tex);
+    s = s.replace(/\{,\}/g, '').replace(/\^\{\\top\}|\^\\top(?![a-zA-Z])/g, ' transpose ');         // 155{,}582{,}464 is one number; E^{\top} is E transpose
     s = s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, ' ');
     s = s.replace(/\\mathbb\{R\}\^\{\[([^\]]*)\]\}/g, (_, d) => ' R to the shape ' + d.replace(/\\[,;! ]/g, ' ').split(',').map(x => x.trim()).filter(Boolean).join(' by ') + ' ');
     s = s.replace(/\\(?:text|mathrm|operatorname|mathcal|mathbb|mathbf|textbf)\{([^{}]*)\}/g, ' $1 ');

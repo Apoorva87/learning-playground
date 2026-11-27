@@ -130,3 +130,24 @@ test('without speech support the controls say so and nothing breaks', async () =
   assert.deepEqual(page.errors, []);
   await page.context().close();
 });
+
+test('unchecking Narrate during Play lets Play carry on without the voice', async () => {
+  const page = await go();
+  await page.check('#narrate'); await page.click('#mode-play');
+  await page.waitForFunction(() => window.__speech.spoken.length >= 1);
+  await page.uncheck('#narrate');
+  assert.equal(await page.evaluate(() => window.LOOP.state().mode), 'play');
+  await page.waitForFunction(() => window.LOOP.state().beat >= 1, null, { timeout: 8000 });
+  assert.equal(await page.evaluate(() => window.speechSynthesis.speaking), false);
+  await page.context().close();
+});
+test('pausing and then pressing Next still reads the next beat', async () => {
+  const page = await go();
+  await page.click('#mode-step'); await page.check('#narrate'); await page.click('#next');
+  await page.waitForFunction(() => window.__speech.spoken.length >= 1);
+  await page.click('#narrate-pause'); assert.equal(await page.evaluate(() => window.__speech.paused), true);
+  await page.click('#next');
+  await page.waitForFunction(() => window.__speech.spoken.some(s => s.text === 'Two ways to add depth'), null, { timeout: 20000 });
+  assert.equal(await page.evaluate(() => window.__speech.paused), false);
+  await page.context().close();
+});

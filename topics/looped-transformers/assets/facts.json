@@ -1525,5 +1525,642 @@
    "path": "headline.forget_mean_mlp",
    "expected": -0.75
   }
+ },
+ "q3.rms_rsqrt": {
+  "claim": "RMSNorm multiplies by the reciprocal square root of the mean square plus epsilon",
+  "source": {
+   "kind": "source",
+   "file": "models/qwen3/modeling_qwen3.py",
+   "line": 63,
+   "quote": "hidden_states = hidden_states * torch.rsqrt(variance + self.variance_epsilon)"
+  }
+ },
+ "q3.rms_gain": {
+  "claim": "then by a learned gain",
+  "source": {
+   "kind": "source",
+   "file": "models/qwen3/modeling_qwen3.py",
+   "line": 64,
+   "quote": "return self.weight * hidden_states.to(input_dtype)"
+  }
+ },
+ "q3.gqa_groups": {
+  "claim": "The number of query heads per key/value head",
+  "source": {
+   "kind": "source",
+   "file": "models/qwen3/modeling_qwen3.py",
+   "line": 212,
+   "quote": "self.num_key_value_groups = config.num_attention_heads // config.num_key_value_heads"
+  }
+ },
+ "q3.qnorm": {
+  "claim": "Queries get an RMSNorm over each head before RoPE",
+  "source": {
+   "kind": "source",
+   "file": "models/qwen3/modeling_qwen3.py",
+   "line": 245,
+   "quote": "query_states = self.q_norm(self.q_proj(hidden_states).view(hidden_shape)).transpose(1, 2)"
+  }
+ },
+ "q3.knorm": {
+  "claim": "and so do keys",
+  "source": {
+   "kind": "source",
+   "file": "models/qwen3/modeling_qwen3.py",
+   "line": 246,
+   "quote": "key_states = self.k_norm(self.k_proj(hidden_states).view(hidden_shape)).transpose(1, 2)"
+  }
+ },
+ "q3.rope_apply": {
+  "claim": "RoPE is applied to the normed queries and keys",
+  "source": {
+   "kind": "source",
+   "file": "models/qwen3/modeling_qwen3.py",
+   "line": 250,
+   "quote": "query_states, key_states = apply_rotary_pos_emb(query_states, key_states, cos, sin)"
+  }
+ },
+ "q3.rotate_half": {
+  "claim": "RoPE pairs feature i with feature i + d/2 through rotate_half",
+  "source": {
+   "kind": "source",
+   "file": "models/qwen3/modeling_qwen3.py",
+   "line": 134,
+   "quote": "x1 = x[..., : x.shape[-1] // 2]"
+  }
+ },
+ "q3.scores": {
+  "claim": "Scores are query times key transposed, scaled",
+  "source": {
+   "kind": "source",
+   "file": "models/qwen3/modeling_qwen3.py",
+   "line": 190,
+   "quote": "attn_weights = torch.matmul(query, key_states.transpose(2, 3)) * scaling"
+  }
+ },
+ "q3.softmax": {
+  "claim": "then softmax over the keys",
+  "source": {
+   "kind": "source",
+   "file": "models/qwen3/modeling_qwen3.py",
+   "line": 194,
+   "quote": "attn_weights = nn.functional.softmax(attn_weights, dim=-1, dtype=torch.float32).to(query.dtype)"
+  }
+ },
+ "q3.mlp": {
+  "claim": "The feed-forward is down(SiLU(gate(x)) * up(x))",
+  "source": {
+   "kind": "source",
+   "file": "models/qwen3/modeling_qwen3.py",
+   "line": 82,
+   "quote": "down_proj = self.down_proj(self.act_fn(self.gate_proj(x)) * self.up_proj(x))"
+  }
+ },
+ "q3.resid_attn": {
+  "claim": "The attention output is added to the residual",
+  "source": {
+   "kind": "source",
+   "file": "models/qwen3/modeling_qwen3.py",
+   "line": 310,
+   "quote": "hidden_states = residual + hidden_states"
+  }
+ },
+ "q3.resid_mlp": {
+  "claim": "and so is the feed-forward output",
+  "source": {
+   "kind": "source",
+   "file": "models/qwen3/modeling_qwen3.py",
+   "line": 316,
+   "quote": "hidden_states = residual + hidden_states"
+  }
+ },
+ "q3.cache_update": {
+  "claim": "New keys and values are appended to the cache",
+  "source": {
+   "kind": "source",
+   "file": "models/qwen3/modeling_qwen3.py",
+   "line": 253,
+   "quote": "key_states, value_states = cache.update(key_states, value_states, self.layer_idx"
+  }
+ },
+ "ds.kv_a": {
+  "claim": "One down-projection makes the latent and the shared rope key",
+  "source": {
+   "kind": "source",
+   "file": "models/deepseek_v2/modeling_deepseek_v2.py",
+   "line": 370,
+   "quote": "compressed_kv = self.kv_a_proj_with_mqa(hidden_states)"
+  }
+ },
+ "ds.kv_a_norm": {
+  "claim": "The latent is normed",
+  "source": {
+   "kind": "source",
+   "file": "models/deepseek_v2/modeling_deepseek_v2.py",
+   "line": 373,
+   "quote": "k_nope = self.kv_a_layernorm(kv_nope).view(batch_size, 1, seq_length, self.kv_lora_rank)"
+  }
+ },
+ "ds.cache_latent": {
+  "claim": "The cache holds the compressed latent",
+  "source": {
+   "kind": "source",
+   "file": "models/deepseek_v2/modeling_deepseek_v2.py",
+   "line": 378,
+   "quote": "# Cache read / write is performed while the latent KV is still compressed"
+  }
+ },
+ "ds.expand": {
+  "claim": "Keys and values are rebuilt from the latent by kv_b_proj",
+  "source": {
+   "kind": "source",
+   "file": "models/deepseek_v2/modeling_deepseek_v2.py",
+   "line": 341,
+   "quote": "kv_nope = self.kv_b_proj(kv_nope).view(key_shape).transpose(1, 2)"
+  }
+ },
+ "q3.hidden": {
+  "claim": "Hidden size 1024",
+  "value": 1024,
+  "source": {
+   "kind": "config",
+   "file": ".local/walkthrough/qwen3/config.json",
+   "path": "hidden_size",
+   "expected": 1024
+  }
+ },
+ "q3.layers": {
+  "claim": "28 layers",
+  "value": 28,
+  "source": {
+   "kind": "config",
+   "file": ".local/walkthrough/qwen3/config.json",
+   "path": "num_hidden_layers",
+   "expected": 28
+  }
+ },
+ "q3.heads": {
+  "claim": "16 query heads",
+  "value": 16,
+  "source": {
+   "kind": "config",
+   "file": ".local/walkthrough/qwen3/config.json",
+   "path": "num_attention_heads",
+   "expected": 16
+  }
+ },
+ "q3.kv_heads": {
+  "claim": "8 key/value heads",
+  "value": 8,
+  "source": {
+   "kind": "config",
+   "file": ".local/walkthrough/qwen3/config.json",
+   "path": "num_key_value_heads",
+   "expected": 8
+  }
+ },
+ "q3.head_dim": {
+  "claim": "Head dimension 128",
+  "value": 128,
+  "source": {
+   "kind": "config",
+   "file": ".local/walkthrough/qwen3/config.json",
+   "path": "head_dim",
+   "expected": 128
+  }
+ },
+ "q3.ffn": {
+  "claim": "Feed-forward width 3072",
+  "value": 3072,
+  "source": {
+   "kind": "config",
+   "file": ".local/walkthrough/qwen3/config.json",
+   "path": "intermediate_size",
+   "expected": 3072
+  }
+ },
+ "q3.vocab": {
+  "claim": "Vocabulary 151,936",
+  "value": 151936,
+  "source": {
+   "kind": "config",
+   "file": ".local/walkthrough/qwen3/config.json",
+   "path": "vocab_size",
+   "expected": 151936
+  }
+ },
+ "q3.theta": {
+  "claim": "RoPE base 1,000,000",
+  "value": 1000000,
+  "source": {
+   "kind": "config",
+   "file": ".local/walkthrough/qwen3/config.json",
+   "path": "rope_theta",
+   "expected": 1000000
+  }
+ },
+ "q3.eps": {
+  "claim": "RMSNorm epsilon 1e-6",
+  "value": 1e-06,
+  "source": {
+   "kind": "config",
+   "file": ".local/walkthrough/qwen3/config.json",
+   "path": "rms_norm_eps",
+   "expected": 1e-06
+  }
+ },
+ "q3.tied": {
+  "claim": "Input and output embeddings are tied",
+  "value": true,
+  "source": {
+   "kind": "config",
+   "file": ".local/walkthrough/qwen3/config.json",
+   "path": "tie_word_embeddings",
+   "expected": true
+  }
+ },
+ "wk.id0": {
+  "claim": "Token 0 ('The') has this ID",
+  "value": 785,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "meta.tokens.0.id",
+   "expected": 785
+  }
+ },
+ "wk.id1": {
+  "claim": "Token 1 (' capital') has this ID",
+  "value": 6722,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "meta.tokens.1.id",
+   "expected": 6722
+  }
+ },
+ "wk.id2": {
+  "claim": "Token 2 (' of') has this ID",
+  "value": 315,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "meta.tokens.2.id",
+   "expected": 315
+  }
+ },
+ "wk.id3": {
+  "claim": "Token 3 (' France') has this ID",
+  "value": 9625,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "meta.tokens.3.id",
+   "expected": 9625
+  }
+ },
+ "wk.id4": {
+  "claim": "Token 4 (' is') has this ID",
+  "value": 374,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "meta.tokens.4.id",
+   "expected": 374
+  }
+ },
+ "wk.next_id": {
+  "claim": "The model's top next token has this ID",
+  "value": 12095,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "head.chosen.id",
+   "expected": 12095
+  }
+ },
+ "wk.next_prob": {
+  "claim": "and this probability",
+  "value": 0.34574588713491683,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "head.chosen.prob",
+   "expected": 0.34574588713491683
+  }
+ },
+ "wk.entropy": {
+  "claim": "The next-token entropy in nats",
+  "value": 3.3576452122758025,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "head.entropy_nats",
+   "expected": 3.3576452122758025
+  }
+ },
+ "wk.logit_max": {
+  "claim": "The largest logit",
+  "value": 21.039466857910156,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "head.logits.max",
+   "expected": 21.039466857910156
+  }
+ },
+ "wk.logit_min": {
+  "claim": "The smallest logit",
+  "value": -12.19538688659668,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "head.logits.min",
+   "expected": -12.19538688659668
+  }
+ },
+ "wk.france_norm": {
+  "claim": "The norm of the embedding of ' France'",
+  "value": 0.881391,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "embed.row_norms.3",
+   "expected": 0.881391
+  }
+ },
+ "wk.is_norm": {
+  "claim": "The norm of the embedding of ' is'",
+  "value": 0.750294,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "embed.row_norms.4",
+   "expected": 0.750294
+  }
+ },
+ "wk.ms_is": {
+  "claim": "Mean square of the embedding of ' is'",
+  "value": 0.000549747,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "layer0.norm1.mean_square.4",
+   "expected": 0.000549747
+  }
+ },
+ "wk.inv_is": {
+  "claim": "and its inverse root",
+  "value": 42.6112,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "layer0.norm1.inv_rms.4",
+   "expected": 42.6112
+  }
+ },
+ "wk.lens27": {
+  "claim": "The last layer's own guess probability",
+  "value": 0.3457689583301544,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "stack.logit_lens.27.prob",
+   "expected": 0.3457689583301544
+  }
+ },
+ "wk.top2_prob": {
+  "claim": "The second likeliest token's probability",
+  "value": 0.10976632232832821,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "head.logits.top20.1.prob",
+   "expected": 0.10976632232832821
+  }
+ },
+ "wk.dec_id": {
+  "claim": "Decode starts from the chosen token",
+  "value": 12095,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "decode.token.id",
+   "expected": 12095
+  }
+ },
+ "wk.dec_top_prob": {
+  "claim": "After ' Paris' the likeliest next token has this probability",
+  "value": 0.4290714876725851,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "decode.logits_top10.0.prob",
+   "expected": 0.4290714876725851
+  }
+ },
+ "wk.dec_logit": {
+  "claim": "and this logit",
+  "value": 22.735118865966797,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "decode.logits_top10.0.logit",
+   "expected": 22.735118865966797
+  }
+ },
+ "wk.q_inv_rms3": {
+  "claim": "Inverse rms of q head 0 for ' France'",
+  "value": 3.90525,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "layer0.qknorm.q0_inv_rms.3",
+   "expected": 3.90525
+  }
+ },
+ "wk.theta": {
+  "claim": "RoPE base",
+  "value": 1000000.0,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-data.json",
+   "path": "config.rope_theta",
+   "expected": 1000000.0
+  }
+ },
+ "mla.c_norm4": {
+  "claim": "The norm of the latent for ' is'",
+  "value": 1.83238,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-mla.json",
+   "path": "latent.c_kv_norms.4",
+   "expected": 1.83238
+  }
+ },
+ "mla.bytes_mla": {
+  "claim": "MLA cache bytes per token per layer",
+  "value": 1152,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-mla.json",
+   "path": "cache_bytes.mla_per_token_per_layer",
+   "expected": 1152
+  }
+ },
+ "mla.bytes_mha": {
+  "claim": "Full multi-head K and V bytes per token per layer",
+  "value": 10240,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-mla.json",
+   "path": "cache_bytes.mha_per_token_per_layer",
+   "expected": 10240
+  }
+ },
+ "mla.ratio": {
+  "claim": "The ratio",
+  "value": 8.88888888888889,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-mla.json",
+   "path": "cache_bytes.ratio",
+   "expected": 8.88888888888889
+  }
+ },
+ "mla.diff": {
+  "claim": "Largest difference between explicit and absorbed scores",
+  "value": 2.1208811329387345e-07,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-mla.json",
+   "path": "absorbed.max_abs_diff",
+   "expected": 2.1208811329387345e-07
+  }
+ },
+ "mla.scale": {
+  "claim": "MLA softmax scale",
+  "value": 0.1147213867929261,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-mla.json",
+   "path": "config.softmax_scale",
+   "expected": 0.1147213867929261
+  }
+ },
+ "mla.tok0": {
+  "claim": "DeepSeek token ID of 'The'",
+  "value": 549,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-mla.json",
+   "path": "tokens.0.id",
+   "expected": 549
+  }
+ },
+ "mla.tok3": {
+  "claim": "DeepSeek token ID of ' France'",
+  "value": 7239,
+  "source": {
+   "kind": "json",
+   "file": "assets/walkthrough/walkthrough-mla.json",
+   "path": "tokens.3.id",
+   "expected": 7239
+  }
+ },
+ "ds.hidden": {
+  "claim": "DeepSeek-V2-Lite hidden size 2048",
+  "value": 2048,
+  "source": {
+   "kind": "config",
+   "file": ".local/walkthrough/dsv2lite-config.json",
+   "path": "hidden_size",
+   "expected": 2048
+  }
+ },
+ "ds.heads": {
+  "claim": "16 heads",
+  "value": 16,
+  "source": {
+   "kind": "config",
+   "file": ".local/walkthrough/dsv2lite-config.json",
+   "path": "num_attention_heads",
+   "expected": 16
+  }
+ },
+ "ds.kv_rank": {
+  "claim": "kv_lora_rank 512",
+  "value": 512,
+  "source": {
+   "kind": "config",
+   "file": ".local/walkthrough/dsv2lite-config.json",
+   "path": "kv_lora_rank",
+   "expected": 512
+  }
+ },
+ "ds.nope": {
+  "claim": "qk_nope_head_dim 128",
+  "value": 128,
+  "source": {
+   "kind": "config",
+   "file": ".local/walkthrough/dsv2lite-config.json",
+   "path": "qk_nope_head_dim",
+   "expected": 128
+  }
+ },
+ "ds.rope": {
+  "claim": "qk_rope_head_dim 64",
+  "value": 64,
+  "source": {
+   "kind": "config",
+   "file": ".local/walkthrough/dsv2lite-config.json",
+   "path": "qk_rope_head_dim",
+   "expected": 64
+  }
+ },
+ "ds.vdim": {
+  "claim": "v_head_dim 128",
+  "value": 128,
+  "source": {
+   "kind": "config",
+   "file": ".local/walkthrough/dsv2lite-config.json",
+   "path": "v_head_dim",
+   "expected": 128
+  }
+ },
+ "ds.layers": {
+  "claim": "27 layers",
+  "value": 27,
+  "source": {
+   "kind": "config",
+   "file": ".local/walkthrough/dsv2lite-config.json",
+   "path": "num_hidden_layers",
+   "expected": 27
+  }
+ },
+ "gqa.paper": {
+  "claim": "GQA is a generalization of multi-query attention which uses an intermediate number of key-value heads (Ainslie et al., 2023)",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2305.13245",
+   "section": "Abstract"
+  }
+ },
+ "ds.paper": {
+  "claim": "MLA guarantees efficient inference through significantly compressing the key-value cache into a latent vector (DeepSeek-V2, 2024)",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2405.04434",
+   "section": "Abstract"
+  }
+ },
+ "ds.paper_93": {
+  "claim": "DeepSeek-V2 reduces the KV cache by 93.3%",
+  "source": {
+   "kind": "url",
+   "url": "https://arxiv.org/abs/2405.04434",
+   "section": "Abstract"
+  }
  }
 }

@@ -4,7 +4,7 @@
    show tensor shapes. Terms in the text must map to scene objects the layout can draw. */
 const fs = require('node:fs'), path = require('node:path'), vm = require('node:vm');
 const Layout = require(path.join(__dirname, '../engine/layout.js'));
-require(path.join(__dirname, '../engine/micro.js'));            // registers the micro scenes so tensor ids can be checked
+require(path.join(__dirname, '../engine/micro.js')); require(path.join(__dirname, '../engine/micro-walk.js'));            // registers the micro scenes so tensor ids can be checked
 
 const SHAPE = /\[[^\]]*\d+[^\]]*\]|\[\s*T\s*,/;
 function validIds(micro) {
@@ -25,7 +25,7 @@ function blocks(html, cls) {
   return out;
 }
 function loadBeats(file, html) {
-  const m = /beats\/(beats-[ab])\.js/.exec(html); if (!m) throw new Error('no beats script in ' + file);
+  const m = /beats\/(beats-[abc])\.js/.exec(html); if (!m) throw new Error('no beats script in ' + file);
   const w = {}; vm.runInNewContext(fs.readFileSync(path.join(path.dirname(file), 'beats', m[1] + '.js'), 'utf8'), { window: w, LoopLayout: Layout });
   return Object.values(w)[0];
 }

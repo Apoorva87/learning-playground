@@ -52,7 +52,7 @@
       const any = lits.length > 0;
       const out = [];
       for (const layer of s.layers) {
-        const objs = layer.level === 'micro' ? Layout.microObjects(layer.micro, sceneData[layer.micro]) : Layout.macroObjects(s.fold);
+        const objs = layer.level === 'micro' ? Layout.microObjects(layer.micro, sceneData[layer.micro] || (/^walk-/.test(layer.micro) ? sceneData.walk : undefined)) : Layout.macroObjects(s.fold);
         for (const o of objs) {
           const l = litOf(o.id), factor = any ? DIM + (1 - DIM) * l : 0.9;
           let alpha = o.alpha * layer.alpha * factor;
@@ -83,6 +83,12 @@
       if (solid.length) {
         const k = Layout.fitCamera(solid, a, c).dist / Layout.fitCamera(solid, REF_ASPECT, c).dist;
         c.dist *= Math.min(Math.max(k, 0.6), 8);
+        // Whatever the beat asked for, never crop: if the solid objects' bounding box would leave the frame, back off.
+        const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+        for (const o of solid) for (const p of Layout.cornersOf(o)) for (let i = 0; i < 3; i++) { lo[i] = Math.min(lo[i], p[i]); hi[i] = Math.max(hi[i], p[i]); }
+        let worst = 0;
+        for (const x of [lo[0], hi[0]]) for (const y of [lo[1], hi[1]]) for (const z of [lo[2], hi[2]]) { const [sx, sy] = Layout.project(c, a, [x, y, z]); worst = Math.max(worst, Math.abs(sx), Math.abs(sy)); }
+        if (worst > 0.97) c.dist *= worst / 0.97;
       }
       return c;
     }

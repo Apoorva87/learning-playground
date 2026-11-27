@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>One sentence through a modern transformer</title>
+<meta name="description" content="Follow one sentence through a real modern transformer, stage by stage: RMSNorm, grouped-query attention, QK-norm, RoPE, SwiGLU, the head, the KV cache and one decode step, with recorded numbers, then multi-head latent attention.">
+<link rel="icon" href="data:,"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous"><link rel="stylesheet" href="loop.css">
+</head><body>
+<nav class="top"><a href="../../index.html">← Learning playground</a><a href="index.html">Looped transformers</a><a href="why-loop.html">Article A: Why loop a transformer?</a><a href="inside-inkling.html">Article B: Inside Inkling 2 Mini</a></nav>
+<div class="layout">
+<article id="article">
+  <h1>One sentence through a modern transformer</h1>
+  <p class="byline">Article C · the plain machinery with real numbers · then <a href="why-loop.html">Article A</a> (looping) and <a href="inside-inkling.html">Article B</a> (a real looped model)</p>
+  <p class="howto">We follow one small sentence, <b>“The capital of France is”</b>, through a real model, <a href="https://huggingface.co/Qwen/Qwen3-0.6B-Base">Qwen3-0.6B-Base</a>, and then let it write one more word. Every vector, weight matrix and probability in the scene comes from a recorded run, and the small steps are recomputed in code and checked against it. The model has the features of recent designs: grouped-query attention (GQA), query-key normalisation, rotary positions (RoPE), RMSNorm and a gated feed-forward layer. Near the end, a real model with multi-head latent attention (MLA) shows how the cache can shrink further. Controls work as in the other articles: <b>Scroll</b>, <b>Step</b> or <b>Play</b>, and 🔊 <b>Narrate</b> reads it aloud.</p>
+
+  <section class="beat" id="b-map" data-beat="map">
+    <h2>The journey</h2>
+    <div class="story">
+      <p>A language model does one thing: given some text, it scores every possible next token. Writing a sentence is doing that again and again. Here the text is five tokens and the model is <span data-fact="q3.layers">28</span> identical-looking layers deep, each working on vectors of <span data-fact="q3.hidden">1024</span> numbers. The journey has two passes. <b>Prefill</b> reads the whole prompt at once and builds a memory, the KV cache. <b>Decode</b> then adds one token at a time, reading that memory instead of recomputing it.</p>
+      <p>The scene shows one decoder layer, the block that repeats. Over the next beats we open it: the normalisation, the attention with its <span data-fact="q3.heads">16</span> query heads sharing <span data-fact="q3.kv_heads">8</span> key/value heads, and the gated feed-forward network. Then we leave the stack, turn the last vector into a score for each of the <span data-fact="q3.vocab">151,936</span> tokens in the vocabulary, pick one, and write it down.</p>
+    </div>
+    <div class="intuition">
+      <p>An assembly line for meaning. The sentence enters as five separate tokens. Layer after layer, each token's vector absorbs information from the earlier tokens and refines itself, and at the end only the last token's vector is asked to say what comes next.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="The whole model is a function from five token IDs to a score for every vocabulary token. The IDs become a five by 1024 table of vectors, twenty-eight layers keep that shape, and only the last row is turned into 151,936 scores.">$$\underbrace{\text{ids}}_{[5]} \;\to\; \underbrace{h_0}_{[5,\,1024]} \;\xrightarrow{\ 28\ \text{layers}\ }\; \underbrace{h_{28}}_{[5,\,1024]} \;\xrightarrow{\ \text{last row, norm, } E^{\top}\ }\; \underbrace{\text{logits}}_{[151936]} \;\to\; \text{token}$$</span></p>
+      <p>The model is Qwen3-0.6B-Base. We loaded it in 32-bit floats and recorded layer 0 by hand in 64-bit arithmetic, which matched the model's own output to better than one part in a hundred thousand. Its next-token choice is the whole point of the next hundred paragraphs: it picks one token with probability <span data-walk="d:head.chosen.prob" data-fmt="pct">34.6%</span>.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-tokens" data-beat="tokens">
+    <h2>Tokens</h2>
+    <div class="story">
+      <p>The model never sees letters. A tokenizer, trained once on text, cuts the sentence into pieces from a fixed vocabulary of <span data-fact="q3.vocab">151,936</span> entries and gives each piece an integer ID. Our sentence becomes five pieces: <b>The</b> (ID <span data-fact="wk.id0">785</span>), <b> capital</b> (<span data-fact="wk.id1">6722</span>), <b> of</b> (<span data-fact="wk.id2">315</span>), <b> France</b> (<span data-fact="wk.id3">9625</span>) and <b> is</b> (<span data-fact="wk.id4">374</span>). The space belongs to the token that follows it, so “ capital” and “capital” are different entries.</p>
+    </div>
+    <div class="intuition">
+      <p>A vocabulary is a numbered list of word-pieces, like a library catalogue. Common words get their own number, rare words are spelled out from smaller pieces, and the numbers carry no meaning of their own. They are just addresses.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="The input is just a list of five integers, shape five.">$$\text{ids} = [785,\ 6722,\ 315,\ 9625,\ 374] \in \mathbb{N}^{[5]}$$</span></p>
+      <p>Five integers, shape \([5]\). Everything that follows is arithmetic on these five numbers' vectors.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-embed" data-beat="embed">
+    <h2>From IDs to vectors</h2>
+    <div class="story">
+      <p>The first real computation is a lookup. The model owns an embedding table \(E\) with one row of <span data-fact="q3.hidden">1024</span> numbers for each of the <span data-fact="q3.vocab">151,936</span> tokens. Token 374 selects row 374, and so on. Stacking the five rows gives \(h_0\), a table of five vectors. Row norms are all below one: ‘ France’ has length <span data-walk="d:embed.row_norms.3" data-fmt="3">0.881</span> and ‘ is’ has <span data-walk="d:embed.row_norms.4" data-fmt="3">0.75</span>. The scene shows the first 16 of each row's 1024 numbers, red for positive and blue for negative, with brightness for size. The first three of ‘ is’ are <span data-walk="d:embed.h0.4.0" data-fmt="3">0.0183</span>, <span data-walk="d:embed.h0.4.1" data-fmt="3">0.0234</span> and <span data-walk="d:embed.h0.4.2" data-fmt="3">-0.0554</span>.</p>
+      <p>Two things are missing, on purpose. No position is added here: Qwen3 puts position into attention, as we will see in the rotary-position beat. And there is no norm on the embedding. The same table is reused at the end to score tokens, because the model <span data-fact="q3.tied">ties its input and output embeddings</span>.</p>
+    </div>
+    <div class="intuition">
+      <p>Each token becomes a point in a 1024-dimensional space, and training has pushed points that behave alike close together. At this stage the point only knows which token it is. It knows nothing about its neighbours yet, which is attention's job.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="The initial states are the rows of the embedding table picked by the token IDs. That is a five by 1024 table.">$$h_0 \;=\; E[\text{ids}] \in \mathbb{R}^{[5,\,1024]}, \qquad E \in \mathbb{R}^{[151936,\,1024]}$$</span></p>
+      <p>The table holds \(151936 \times 1024 = 155{,}582{,}464\) numbers, about a quarter of the model's 596 million parameters. Looking up a row costs no arithmetic, only memory reads: 5 rows of 1024 numbers.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-layer-overview" data-beat="layer-overview">
+    <h2>One layer, from above</h2>
+    <div class="story">
+      <p>Each of the 28 layers has the same shape of work, in two halves. First the tokens exchange information: normalise, attend, and add the result back. Then each token is processed alone: normalise, run a small two-way network, and add the result back. The additions are the <span class="term" data-term="residual">residual connections</span>. They mean a layer never replaces a token's vector. It only adds corrections to it, so the same vector travels the whole stack.</p>
+      <p>The code <span data-fact="q3.resid_attn">adds the attention result to the input</span> and then <span data-fact="q3.resid_mlp">adds the feed-forward result</span>. Both sublayers read a normalised copy, and the residual carries the original.</p>
+    </div>
+    <div class="intuition">
+      <p>A shared notebook passed down 28 desks. Each desk reads it, jots a correction in the margin, and passes it on without erasing anything. By the end the notebook holds the sum of everyone's notes.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="One layer: normalise the state, run attention, and add the result to the state. Then normalise again, run the feed-forward network, and add that too.">$$h' = h + \operatorname{Attn}\big(\operatorname{RMSNorm}(h)\big), \qquad h'' = h' + \operatorname{FFN}\big(\operatorname{RMSNorm}(h')\big), \qquad h,\,h',\,h'' \in \mathbb{R}^{[5,\,1024]}$$</span></p>
+      <p>The shape never changes: five rows of 1024 numbers in, five rows of 1024 out. Per layer, attention holds 6,291,456 weights and the feed-forward network 9,437,184, so 28 layers hold 440 million of the model's 596 million parameters.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-rmsnorm" data-beat="rmsnorm">
+    <h2>RMSNorm, with real numbers</h2>
+    <div class="story">
+      <p>Normalisation stops the numbers from drifting in size as they pass through hundreds of matrix multiplies. Qwen uses RMSNorm. For one token's vector it computes the mean of the squares of its 1024 numbers, takes the square root and divides by it, then multiplies each feature by a learned gain. In the code that is a <span data-fact="q3.rms_rsqrt">reciprocal square root of the mean square plus epsilon</span>, followed by <span data-fact="q3.rms_gain">a multiplication by a learned weight</span>.</p>
+      <p>Worked for the last token, ‘ is’: the mean of its squared numbers is <span data-walk="d:layer0.norm1.mean_square.4" data-fmt="4">0.0005497</span>, so \(1/\sqrt{\text{mean} + \epsilon}\) is <span data-walk="d:layer0.norm1.inv_rms.4" data-fmt="4">42.61</span>. Its first number, 0.0183, becomes \(0.0183 \times 42.61 = 0.780\) after rescaling, then \(0.780 \times 0.1377 = 0.1074\) after the learned gain. That is exactly the recorded output. After the norm the vector has unit root-mean-square, whatever size it came in.</p>
+    </div>
+    <div class="intuition">
+      <p>Setting every token's volume to the same level before it enters a matrix multiply, then letting a per-feature dial (the gain) turn some features up and others down. Unlike LayerNorm, there is no subtracting the mean and no bias: it only rescales.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="Each feature of the output is the input feature divided by the root of the mean of squares plus epsilon, times the learned gain for that feature.">$$y_i \;=\; \frac{x_i}{\sqrt{\tfrac{1}{1024}\sum_{j=1}^{1024} x_j^{2} + \epsilon}}\; g_i, \qquad x,\,y,\,g \in \mathbb{R}^{1024},\quad \epsilon = 10^{-6}$$</span></p>
+      <p>For all five tokens the input and output are \([5,\,1024]\). Cost: one pass over 1024 numbers to square and add, one to scale. It is cheap beside a matrix multiply, but it must read and write the whole activation, so it matters in memory traffic. Each layer applies it twice, and the final norm once more before the head.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-qkv" data-beat="qkv">
+    <h2>Queries, keys and values</h2>
+    <div class="story">
+      <p>Attention starts with three matrix multiplies of the normalised vectors. One makes <span class="term" data-term="q">queries</span> (what this token is looking for), one makes <span class="term" data-term="k">keys</span> (what each token advertises), and one makes <span class="term" data-term="v">values</span> (what it hands over when chosen). The query matrix maps 1024 numbers to 2048, which is <span data-fact="q3.heads">16</span> heads of <span data-fact="q3.head_dim">128</span>. The key and value matrices map 1024 numbers to 1024, which is only <span data-fact="q3.kv_heads">8</span> heads of 128. That asymmetry is grouped-query attention, in the next beat.</p>
+      <p>For the last token, query head 0 begins <span data-walk="d:layer0.qkv.q0.4.0" data-fmt="3">-0.0469</span>, <span data-walk="d:layer0.qkv.q0.4.1" data-fmt="3">0.136</span>, <span data-walk="d:layer0.qkv.q0.4.2" data-fmt="3">0.0572</span>. Each head works only on its own 128-wide slice.</p>
+    </div>
+    <div class="intuition">
+      <p>Every token writes a search request (the query), a label (the key) and a package (the value). A token scores its request against everyone's labels, and collects a blend of the packages of the best matches.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="Queries, keys and values are the normalised inputs times three learned matrices. Queries are five by 2048, split into sixteen heads of 128. Keys and values are five by 1024, split into eight heads of 128.">$$Q = X_n W_Q \in \mathbb{R}^{[5,\,2048]},\qquad K = X_n W_K \in \mathbb{R}^{[5,\,1024]},\qquad V = X_n W_V \in \mathbb{R}^{[5,\,1024]}$$</span></p>
+      <p>The weights are \(W_Q \in \mathbb{R}^{[1024,\,2048]}\) (2,097,152 numbers) and \(W_K, W_V \in \mathbb{R}^{[1024,\,1024]}\) (1,048,576 each). Together the three multiplies cost \(2 \times 5 \times 4{,}194{,}304 \approx 42\) million operations for the five tokens of one layer.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-gqa" data-beat="gqa">
+    <h2>Grouped-query attention</h2>
+    <div class="story">
+      <p>Classic multi-head attention gives every query head its own key and value head. Qwen3-0.6B does not: its 16 query heads are split into 8 pairs, and each pair shares one key head and one value head. The code <span data-fact="q3.gqa_groups">divides the query heads by the key/value heads</span> to get this group size of 2. Query heads 0 and 1 read key/value head 0, heads 2 and 3 read head 1, and so on.</p>
+      <p>The model loses a little flexibility. In return the <span class="term" data-term="kvh">key/value heads</span> are half as many, so everything that has to be stored for each earlier token, the KV cache, is half as big. During generation, reading that cache is a main cost, and this is why most recent models use it. The extremes of the idea are multi-query attention (every query head shares one key/value head) and plain multi-head attention (no sharing); GQA sits between them.</p>
+    </div>
+    <div class="intuition">
+      <p>Sixteen readers, eight libraries. Each pair of readers shares one library card, so the library keeps eight shelves instead of sixteen, and the readers can still ask different questions.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="Query head h uses key and value head h divided by two, rounded down. The cache therefore holds eight heads of keys and eight of values, not sixteen.">$$\operatorname{kv}(h) = \lfloor h / 2 \rfloor, \qquad h = 0,\dots,15; \qquad K_{\text{cache}},\,V_{\text{cache}} \in \mathbb{R}^{[8,\,T,\,128]}$$</span></p>
+      <p>Per token and layer the cache holds \(2 \times 8 \times 128 = 2048\) numbers, or 4,096 bytes in BF16. With 16 key/value heads it would be 8,192. We return to this in the cache beats.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-qknorm" data-beat="qknorm">
+    <h2>Normalising queries and keys</h2>
+    <div class="story">
+      <p>Qwen3 adds a small step that older models lack. After the projections, each query head and each key head is passed through its own RMSNorm over its 128 features, before position is applied. The code does it with <span data-fact="q3.qnorm">a norm on the reshaped queries</span> and <span data-fact="q3.knorm">the same for keys</span>.</p>
+      <p>The effect on our numbers is large. For ‘ is’, query head 0 started as <span data-walk="d:layer0.qkv.q0.4.0" data-fmt="3">-0.0469</span>, <span data-walk="d:layer0.qkv.q0.4.1" data-fmt="3">0.136</span>, <span data-walk="d:layer0.qkv.q0.4.2" data-fmt="3">0.0572</span>, and after the norm it is <span data-walk="d:layer0.qknorm.q0_out.4.0" data-fmt="3">-0.864</span>, <span data-walk="d:layer0.qknorm.q0_out.4.1" data-fmt="3">0.686</span>, <span data-walk="d:layer0.qknorm.q0_out.4.2" data-fmt="3">-0.171</span>. The head was multiplied by <span data-walk="d:layer0.qknorm.q0_inv_rms.4" data-fmt="4">4.066</span>, and for ‘ The’ by <span data-walk="d:layer0.qknorm.q0_inv_rms.0" data-fmt="4">5.811</span>.</p>
+    </div>
+    <div class="intuition">
+      <p>A volume limiter on the question and the label before they are compared. Scores are dot products, and dot products grow with the length of their vectors. Fixing the lengths first stops a single head from producing runaway scores. That is the usual reason given for the step, and it is a reading of the design, not something the code states.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="Each head's query is divided by the root of the mean of its 128 squared features and multiplied by a learned gain. The key gets the same treatment with its own gain.">$$\hat q = \frac{q}{\sqrt{\tfrac{1}{128}\sum_{j=1}^{128} q_j^{2} + \epsilon}}\odot g_q, \qquad \hat k = \frac{k}{\sqrt{\tfrac{1}{128}\sum_{j=1}^{128} k_j^{2} + \epsilon}}\odot g_k, \qquad q,\,k,\,g_q,\,g_k \in \mathbb{R}^{128}$$</span></p>
+      <p>The shapes are unchanged, \([5,\,16,\,128]\) for queries and \([5,\,8,\,128]\) for keys. The norm is applied to each of the 16 query heads and 8 key heads separately, using one shared 128-wide gain per kind.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-rope" data-beat="rope">
+    <h2>Rotary positions</h2>
+    <div class="story">
+      <p>So far nothing says where in the sentence a token sits. Qwen adds that information by <em>rotating</em> queries and keys. Take the 128 features of a head as 64 pairs, the pair \((x_i,\ x_{i+64})\) for \(i = 0 \ldots 63\) (the code pairs <span data-fact="q3.rotate_half">the first half with the second half</span>). Each pair is a point in a plane, and RoPE turns it through an angle equal to the token's position times a frequency that depends on the pair: <span data-fact="q3.theta">1,000,000</span> to the power \(-2i/128\). Pair 0 spins fastest, at one radian per position. Pair 63 turns at <span data-walk="d:layer0.rope.inv_freq.63" data-fmt="3">0.00000124</span> radians per position, so it barely moves over thousands of tokens.</p>
+      <p>A worked case. Token ‘ is’ sits at position 4, so pair 0 turns by \(4 \times 1.0 = 4\) radians. Its query pair is \((\)<span data-walk="d:layer0.qknorm.q0_out.4.0" data-fmt="4">-0.8644</span>, <span data-walk="d:layer0.qknorm.q0_out.4.64" data-fmt="4">-0.2421</span>\()\), and after the rotation it is <span data-walk="d:layer0.rope.q0_out.4.0" data-fmt="4">0.3818</span> and <span data-walk="d:layer0.rope.q0_out.4.64" data-fmt="4">0.8125</span>. Its length is unchanged. Only its direction moved. Keys are rotated the same way, and it is <span data-fact="q3.rope_apply">applied to the normalised queries and keys</span>.</p>
+    </div>
+    <div class="intuition">
+      <p>Many clock hands on every token, each turning at its own speed: seconds, minutes, hours and slower. Rotating by position stamps a time on the vector. When a query and a key are later compared, what survives is the <em>difference</em> of their stamps, so the score depends on how far apart two tokens are, not on where the sentence starts.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="Each pair of features is rotated by the angle position times theta to the minus 2 i over 128. The new first feature is x i cosine minus x i plus 64 sine, and the new second is x i plus 64 cosine plus x i sine.">$$\begin{aligned}\begin{pmatrix} x_i' \\ x_{i+64}' \end{pmatrix} &= \begin{pmatrix} \cos\phi & -\sin\phi \\ \sin\phi & \cos\phi \end{pmatrix}\begin{pmatrix} x_i \\ x_{i+64} \end{pmatrix} \\[6pt] \phi &= p\;\theta^{-2i/128},\qquad \theta = 10^6,\quad p = 0,\dots,4\end{aligned}$$</span></p>
+      <p>Queries \([5,\,16,\,128]\) and keys \([5,\,8,\,128]\) are rotated pair by pair. The rotation is applied to each of the 64 pairs of each head, \(x \in \mathbb{R}^{128}\) in, \(x' \in \mathbb{R}^{128}\) out. Check the example: \(-0.8644\cos 4 - (-0.2421)\sin 4 = 0.3818\), the recorded value.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-scores" data-beat="scores">
+    <h2>Scores, the mask and softmax</h2>
+    <div class="story">
+      <p>Now each token compares its query with every key. The score between token \(t\) and token \(u\) is their dot product, divided by \(\sqrt{128}\) so it stays in a sensible range. The code computes <span data-fact="q3.scores">the query times the transposed key, scaled</span>. A token may only look backwards, so every score for a later token is set to minus infinity, the <span class="term" data-term="mask">causal mask</span>. Then <span data-fact="q3.softmax">a softmax over the keys</span> turns each row into weights that are positive and sum to one.</p>
+      <p>The scene shows head 0 of our layer. The last row, for ‘ is’, has raw scores <span data-walk="d:layer0.scores.heads.0.raw.4.0" data-fmt="3">8.17</span> for ‘ The’, <span data-walk="d:layer0.scores.heads.0.raw.4.1" data-fmt="3">4.57</span> for ‘ capital’, <span data-walk="d:layer0.scores.heads.0.raw.4.2" data-fmt="3">8.06</span> for ‘ of’, <span data-walk="d:layer0.scores.heads.0.raw.4.3" data-fmt="3">5.3</span> for ‘ France’ and <span data-walk="d:layer0.scores.heads.0.raw.4.4" data-fmt="3">7.35</span> for itself. After the softmax these become <span data-walk="d:layer0.scores.heads.0.probs.4.0" data-fmt="pct">41.2%</span>, <span data-walk="d:layer0.scores.heads.0.probs.4.1" data-fmt="pct">1.13%</span>, <span data-walk="d:layer0.scores.heads.0.probs.4.2" data-fmt="pct">37%</span>, <span data-walk="d:layer0.scores.heads.0.probs.4.3" data-fmt="pct">2.35%</span> and <span data-walk="d:layer0.scores.heads.0.probs.4.4" data-fmt="pct">18.3%</span>. This head puts most of its attention on the first token and on ‘ of’. Other heads do something else: head 5 gives <span data-walk="d:layer0.scores.heads.5.probs.4.4" data-fmt="pct">83.9%</span> to the token itself.</p>
+    </div>
+    <div class="intuition">
+      <p>A budget of attention that sums to 100%. Softmax makes the best matches take most of it. Scores 8.17 and 8.06 are close, so those two tokens split the budget; a score of 4.57 is smaller by about 3.6 and gets almost nothing, because softmax works on exponentials. The mask is the rule that no one may read the future.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="The score from token t to token u is the dot product of the query and key over root 128. Scores to later tokens are minus infinity. Softmax along each row turns the scores into weights that sum to one.">$$\begin{aligned}s_{t,u} &= \frac{q_t \cdot k_u}{\sqrt{128}} \\ a_{t,u} &= \frac{e^{s_{t,u}}}{\sum_{u' \le t} e^{s_{t,u'}}} \ \ (u \le t), \qquad a_{t,u} = 0\ \ (u > t)\end{aligned}$$</span></p>
+      <p>Per head the score table is \([5,\,5]\); across the 16 heads it is \([16,\,5,\,5]\). Computing it costs \(2 \times 5 \times 5 \times 128 = 6{,}400\) operations per head, a rounding error beside the projections. It grows with the square of the prompt length, which is why long prompts are expensive.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-mix" data-beat="mix">
+    <h2>Mixing values, merging heads</h2>
+    <div class="story">
+      <p>The attention weights now pick what to read. Each token's new vector, per head, is the weighted sum of the value vectors of the tokens it attends to. The 16 head outputs, each 128 wide, are placed side by side into 2048 numbers per token, and one more learned matrix \(W_O\) maps 2048 back to 1024, so the result can be added to the residual. For ‘ is’ the first output feature is <span data-walk="d:layer0.attn_out.o_proj_out.4.0" data-fmt="3">-0.535</span>. Added to the token's own <span data-walk="d:embed.h0.4.0" data-fmt="3">0.0183</span> it gives <span data-walk="d:layer0.resid1.out.4.0" data-fmt="3">-0.517</span>. That is the end of the attention half of the layer.</p>
+    </div>
+    <div class="intuition">
+      <p>Each head hands the token a short briefing assembled from the packages of the tokens it paid attention to. The output matrix is the editor who merges 16 briefings into one note in the notebook's own format.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="Each head's output is its attention weights times its values. The sixteen outputs are joined into a five by 2048 table, multiplied by W O to get back to 1024 features, and added to the input.">$$O_h = A_h V_{\operatorname{kv}(h)} \in \mathbb{R}^{[5,\,128]},\qquad h' = h + \big[O_0 \,\|\, \cdots \,\|\, O_{15}\big]\, W_O,\qquad [\,\cdot\,] \in \mathbb{R}^{[5,\,2048]},\ W_O \in \mathbb{R}^{[2048,\,1024]}$$</span></p>
+      <p>The output matrix has 2,097,152 weights and costs \(2 \times 5 \times 2{,}097{,}152 \approx 21\) million operations. Weighted sums add only \(2 \times 5 \times 5 \times 128\) per head, again tiny. Note which key/value head each query head reads: \(V_{\operatorname{kv}(h)}\), the shared one.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-ffn" data-beat="ffn">
+    <h2>The feed-forward network</h2>
+    <div class="story">
+      <p>Attention moved information between tokens. The second half of the layer works on each token alone, with no exchange. It starts with a second RMSNorm (for ‘ is’ the mean of squares is <span data-walk="d:layer0.norm2.mean_square.4" data-fmt="3">0.0307</span>), then three matrices. The <span class="term" data-term="gate">gate</span> and <span class="term" data-term="up">up</span> projections each widen the vector from 1024 to <span data-fact="q3.ffn">3072</span>. The gate is passed through SiLU, a smooth curve that is near zero for negative inputs and near the identity for positive ones, and the result multiplies the up projection feature by feature. The <span class="term" data-term="down">down</span> projection narrows 3072 back to 1024. In the code it is a single line: <span data-fact="q3.mlp">down of SiLU of gate, times up</span>.</p>
+      <p>For ‘ is’, the first gate value is <span data-walk="d:layer0.ffn.gate_last.0" data-fmt="3">-2.31</span> and the first up value <span data-walk="d:layer0.ffn.up_last.0" data-fmt="3">1.34</span>. SiLU squashes the negative gate to <span data-walk="d:layer0.ffn.silu_last.0" data-fmt="3">-0.209</span>, and the product is <span data-walk="d:layer0.ffn.prod_last.0" data-fmt="3">-0.279</span>. After the down projection and the residual add, the layer's output for this feature is <span data-walk="d:layer0.out.h1.4.0" data-fmt="3">-0.853</span>.</p>
+    </div>
+    <div class="intuition">
+      <p>The gate decides, feature by feature, how much of each of 3072 candidate patterns to let through, and the up projection supplies the patterns. Many accounts say this is where much of a model's stored knowledge lives, which is an interpretation. The arithmetic itself is just gated, widened matrix multiplies.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="The feed-forward output is the down matrix applied to the product of S i L U of the gate projection and the up projection. S i L U of x is x over one plus e to the minus x.">$$\operatorname{FFN}(x) = \Big(\operatorname{SiLU}(x W_{\text{gate}}) \odot (x W_{\text{up}})\Big) W_{\text{down}},\qquad \operatorname{SiLU}(z) = \frac{z}{1 + e^{-z}}$$</span></p>
+      <p>Shapes: \(x \in \mathbb{R}^{[5,\,1024]}\), the two widened tensors \([5,\,3072]\), the output \([5,\,1024]\). The three matrices have \(3 \times 1024 \times 3072 = 9{,}437{,}184\) weights, 60% of a layer, and cost \(2 \times 5 \times 9{,}437{,}184 \approx 94\) million operations for the five tokens. This block, not attention, dominates the arithmetic of a short prompt.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-stack" data-beat="stack">
+    <h2>Twenty-eight layers</h2>
+    <div class="story">
+      <p>That was layer 0. The next 27 do the same work with their own weights. Because every layer only adds to the residual, we can peek at the vector between layers. Its length grows steadily, from <span data-walk="d:stack.hidden_norm_embedding_last" data-fmt="3">0.75</span> at the embedding to <span data-walk="d:stack.layer_norms_last.0" data-fmt="3">8.38</span> after layer 0 and <span data-walk="d:stack.layer_norms_last.26" data-fmt="4">575.1</span> after layer 26, as each layer's additions accumulate.</p>
+      <p>We can also ask a question at every layer: if the model had to answer <em>now</em>, what would it say? That is the <span class="term" data-term="lens">logit lens</span>: run the last token's vector through the final norm and the output head early. After layer 0 the best guess is ‘<span data-walk="d:stack.logit_lens.0.text"> often</span>’; by layer 6 it is ‘<span data-walk="d:stack.logit_lens.6.text"> a</span>’; around layer 18 it is a blank, ‘<span data-walk="d:stack.logit_lens.18.text">____</span>’, as a fill-in-the-blank would be; and from layer 24 it is ‘<span data-walk="d:stack.logit_lens.24.text"> Paris</span>’, with probability <span data-walk="d:stack.logit_lens.25.prob" data-fmt="pct">91.9%</span> after layer 25. The last layer then spreads the probability again, which is why the final answer is less sure than layer 25 was.</p>
+    </div>
+    <div class="intuition">
+      <p>A thought developing. Early layers produce generic guesses that fit any sentence, middle layers settle on the kind of answer, and late layers choose the specific one. Reading the intermediate vectors with the output head is a rough tool, not a literal window into the model's mind.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="After layer l the state is the state before it plus that layer's attention and feed-forward corrections. The state after all 28 layers is the embedding plus the sum of every correction.">$$h_{\ell+1} = h_\ell + \operatorname{Attn}_\ell(\cdot) + \operatorname{FFN}_\ell(\cdot) \quad\Longrightarrow\quad h_{28} = h_0 + \sum_{\ell=0}^{27}\big(\operatorname{Attn}_\ell + \operatorname{FFN}_\ell\big),\qquad h \in \mathbb{R}^{[5,\,1024]}$$</span></p>
+      <p>All 28 layers together: \(28 \times (62.9 + 94.4)\) million \(\approx 4.4\) billion operations for the five tokens, plus the 0.2 million of scores and mixing per layer.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-head" data-beat="head">
+    <h2>The last vector becomes 151,936 scores</h2>
+    <div class="story">
+      <p>Only the last token's vector is needed to predict what comes next, and it is the <em>last row</em> that leaves the stack: 1024 numbers. A final RMSNorm tidies it. Then the embedding table is used backwards: the vector is dotted with every one of the <span data-fact="q3.vocab">151,936</span> rows of \(E\), giving one raw score, a <em>logit</em>, per token. This reuses the same table as the input, because embeddings are <span data-fact="q3.tied">tied</span>. The scores range from <span data-walk="d:head.logits.min" data-fmt="3">-12.2</span> to <span data-walk="d:head.logits.max" data-fmt="3">21</span>.</p>
+      <p>Softmax turns the logits into probabilities. The tallest bar belongs to ‘<span data-walk="d:head.logits.top20.0.text"> Paris</span>’ with probability <span data-walk="d:head.chosen.prob" data-fmt="pct">34.6%</span>, followed by ‘<span data-walk="d:head.logits.top20.1.text"> ____</span>’ at <span data-walk="d:head.logits.top20.1.prob" data-fmt="pct">11%</span>. Blanks are strong runners-up, plausibly because a base model has seen fill-in-the-blank text; we did not test why. The entropy of the whole distribution is <span data-walk="d:head.entropy_nats" data-fmt="3">3.36</span> nats. A <em>temperature</em> reshapes it: at 0.5 the top token rises to <span data-walk="d:head.temperatures.0.top.0.prob" data-fmt="pct">82.3%</span>, at 2 it falls to <span data-walk="d:head.temperatures.2.top.0.prob" data-fmt="pct">2.05%</span>.</p>
+    </div>
+    <div class="intuition">
+      <p>Each vocabulary row is a prototype of one token, and the dot product asks how much the final vector looks like each prototype. The softmax is a vote in which the best resemblance wins most of the ballots, and temperature decides how decisive the vote is.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="The logits are the normalised last vector times the transpose of the embedding table. The probability of token i is e to the logit i over temperature, divided by the sum of that over all 151,936 tokens.">$$\begin{aligned}z &= \operatorname{RMSNorm}(h_{28}[\text{last}])\,E^{\top} \in \mathbb{R}^{151936} \\ p_i &= \frac{e^{z_i / \tau}}{\sum_{j=1}^{151936} e^{z_j / \tau}}\end{aligned}$$</span></p>
+      <p>Shapes: the last row \([1024]\), \(E^{\top}\) \([1024,\,151936]\), logits \([151936]\). The head costs \(2 \times 1024 \times 151{,}936 = 311{,}164{,}928\) operations for the one row we need, about 7% of the whole prefill. Computing it for all five rows would waste four fifths of it, so generation computes only the last.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-token-pick" data-beat="token-pick">
+    <h2>Picking a token, and reading it back</h2>
+    <div class="story">
+      <p>A distribution is not yet a word. A rule picks one token from it. <em>Greedy</em> takes the tallest bar: ID <span data-walk="d:head.chosen.id" data-fmt="int">12,095</span>. <em>Sampling</em> draws a token at random in proportion to its probability, so about one time in three it would pick ‘<span data-walk="d:head.logits.top20.0.text"> Paris</span>’, and otherwise often a blank or ‘<span data-walk="d:head.logits.top20.6.text"> called</span>’. Settings such as temperature, top-k and top-p only decide how much of the distribution's tail is allowed to compete.</p>
+      <p>The chosen ID is looked up in the vocabulary, the same list the tokenizer used at the start, and gives the text ‘<span data-walk="d:head.chosen.text"> Paris</span>’, space included. The model has written <b>The capital of France is Paris</b>. One token has been generated.</p>
+    </div>
+    <div class="intuition">
+      <p>The model does not write a sentence; it chooses one next piece and hands it back. To continue, that piece is appended to the input and the whole machine runs again, except that it now has a memory to lean on, which is the next part.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="Greedy decoding picks the token with the largest probability. Sampling draws a token with probability p i. In both cases the result is one integer, which the vocabulary turns back into text.">$$\text{greedy: } i^{\star} = \arg\max_i\, p_i,\qquad \text{sampling: } i \sim \operatorname{Categorical}(p),\qquad \text{text} = \operatorname{vocab}[i^{\star}]$$</span></p>
+      <p>Logits and probabilities are each \([151936]\), and the output of the whole forward pass is one integer, \(i^{\star} = \)<span data-walk="d:head.chosen.id" data-fmt="int">12,095</span>. Nothing else leaves the model.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-prefill-cost" data-beat="prefill-cost">
+    <h2>Prefill by the numbers</h2>
+    <div class="story">
+      <p>Here is the bill for reading the five-token prompt. The model has 596,049,920 weights, 155,582,464 of them the tied embedding table. For the five tokens, one layer's attention projections cost 62.9 million operations and its feed-forward network 94.4 million, the score and mixing steps 0.2 million. Over 28 layers that is 4.41 billion, and the head adds 0.31 billion for the last token: <b>about 4.7 billion operations</b>. Reading every weight once costs 1.19 billion bytes at 2 bytes each.</p>
+      <p>What that means: five tokens' worth of work uses each weight five times, so the arithmetic per byte moved is about 4. A long prompt of thousands of tokens uses each weight thousands of times, which is why prefill tends to be limited by compute, while the single-token decode that follows is not.</p>
+    </div>
+    <div class="intuition">
+      <p>Reading a long page aloud versus checking one word. Prefill amortises the cost of fetching the weights over every token of the prompt. Decode pays the full fetch for a single token.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="Prefill operations for five tokens: twenty-eight layers of attention projections, scores and the feed-forward network, plus the head for the last token. That is about 4.7 billion operations.">$$\text{FLOPs} \approx 28\Big(\underbrace{2\!\cdot\!5\!\cdot\!6.29\text{M}}_{\text{attention matrices}} + \underbrace{2\!\cdot\!5\!\cdot\!9.44\text{M}}_{\text{feed-forward}} + \underbrace{0.2\text{M}}_{\text{scores, mix}}\Big) + \underbrace{2\!\cdot\!1024\!\cdot\!151936}_{\text{head, last row}} \approx 4.7\times 10^{9}$$</span></p>
+      <p>Activations stay \([5,\,1024]\) between sublayers and \([5,\,3072]\) inside the feed-forward. All of these counts come from the config and are recomputed by our tests. The arithmetic intensity, operations per byte of weights read, is \(4.7\text{G} / 1.19\text{G} \approx 4\) for five tokens.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-kv-cache" data-beat="kv-cache">
+    <h2>What prefill leaves behind: the KV cache</h2>
+    <div class="story">
+      <p>During prefill, every layer computed keys and values for the five tokens. Those will be needed again at every later step, and they never change: a token's keys and values depend only on tokens before it, and the mask guarantees that. So instead of recomputing them, each layer <span data-fact="q3.cache_update">appends them to a cache</span>. What is stored is the keys <em>after</em> the normalisation and rotation (we checked that the model's own cached keys equal ours), and the values as projected.</p>
+      <p>The cache of one layer holds \(8 \times 5 \times 128\) keys and the same number of values: shape \([8,\,5,\,128]\) each. In BF16 that is 4,096 bytes per token per layer, and across 28 layers <b>114,688 bytes per token</b>, or 573,440 bytes for the five tokens. It is small now. It grows by one token's worth each step, and for a long conversation it becomes the largest thing in memory after the weights.</p>
+    </div>
+    <div class="intuition">
+      <p>A notebook of everything every earlier token ever offered to a question. Each new token writes one line in the notebook and reads all the others, instead of making the earlier tokens re-answer.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="The cache for one layer stores keys and values of shape 8 heads by tokens by 128. Bytes per token across the model are 28 layers times 2 for keys and values, times 8 heads, times 128, times 2 bytes, which is 114,688.">$$K_{\text{cache}},\,V_{\text{cache}} \in \mathbb{R}^{[8,\,T,\,128]},\qquad \text{bytes per token} = \underbrace{28}_{\text{layers}} \times \underbrace{2}_{K,V} \times \underbrace{8}_{\text{heads}} \times \underbrace{128}_{\text{dim}} \times \underbrace{2}_{\text{B}} = 114{,}688$$</span></p>
+      <p>The cache is per sequence, per layer and, with GQA, per <em>key/value</em> head, not per query head. That choice is what the GQA beat bought.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-decode" data-beat="decode">
+    <h2>Decode: one new token</h2>
+    <div class="story">
+      <p>Now the model has written ‘ Paris’ (ID <span data-walk="d:decode.token.id" data-fmt="int">12,095</span>) and we want the word after it. The input to the model is only that one token, at position <span data-walk="d:decode.position">5</span>. Its embedding is one row, so every vector in the layer is one row instead of five. In each layer the new token computes its own query, key and value. Its key and value are <em>appended</em> to the cache, which now holds six positions, and its query is scored against all six keys, the five old ones read from memory and the new one just made.</p>
+      <p>That read is the whole point of the cache. For our layer-0 head 0, the new token's attention is <span data-walk="d:decode.probs.0.0" data-fmt="pct">13.1%</span> on ‘ The’, <span data-walk="d:decode.probs.0.3" data-fmt="pct">66.7%</span> on ‘ France’, <span data-walk="d:decode.probs.0.4" data-fmt="pct">11.6%</span> on ‘ is’ and <span data-walk="d:decode.probs.0.5" data-fmt="pct">1.26%</span> on itself. It looks back at the country, as a model completing “Paris” ought to. Another head, head 5, puts <span data-walk="d:decode.probs.5.5" data-fmt="pct">100%</span> on the new token alone. The cache was <span data-fact="q3.cache_update">updated by the same line of code</span> as in prefill, only with one row.</p>
+      <p>After 28 layers and the head, the next-token distribution is: ‘<span data-walk="d:decode.logits_top10.0.text">.</span>’ at <span data-walk="d:decode.logits_top10.0.prob" data-fmt="pct">42.9%</span>, ‘<span data-walk="d:decode.logits_top10.1.text">,</span>’ at <span data-walk="d:decode.logits_top10.1.prob" data-fmt="pct">37.5%</span>, then ‘<span data-walk="d:decode.logits_top10.2.text"> and</span>’ at <span data-walk="d:decode.logits_top10.2.prob" data-fmt="pct">6.78%</span>. The sentence “The capital of France is Paris” can end in a full stop or a comma, and the model knows it.</p>
+    </div>
+    <div class="intuition">
+      <p>The new word walks into a room where everyone has already said their piece and written it on the board. It reads the board, adds its own line, and the room's verdict is a prediction of the next word. No one has to repeat themselves.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="At decode the new token's query has shape 16 by 128. The cached keys have shape 8 by 6 by 128, so each query head scores six keys with its shared key head and takes a softmax. The output is the weights times the six cached values.">$$\begin{aligned}&q_{\text{new}} \in \mathbb{R}^{[16,\,128]},\quad K_{\text{cache}} \in \mathbb{R}^{[8,\,6,\,128]} \\ &a_h = \operatorname{softmax}\!\Big(\tfrac{q_{\text{new},h}\,K_{\operatorname{kv}(h)}^{\top}}{\sqrt{128}}\Big) \in \mathbb{R}^{[6]},\qquad o_h = a_h V_{\operatorname{kv}(h)} \in \mathbb{R}^{128}\end{aligned}$$</span></p>
+      <p>We recompute head 0 in code from the recorded query and the six cached keys and obtain the same weights as the model. Position matters: the new key is rotated by position 5, the cached ones keep the rotations from prefill.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-decode-cost" data-beat="decode-cost">
+    <h2>Why decode is slow: reading the weights</h2>
+    <div class="story">
+      <p>One row through a layer is a matrix-vector product, not a matrix-matrix product. The arithmetic for one token is about <b>1.19 billion operations</b>, and to do it the processor must <em>read every weight once</em>: 596 million numbers at 2 bytes, <b>1.19 billion bytes</b>. That is about one operation per byte. A modern chip can do tens to hundreds of operations in the time it takes to fetch one byte, so decode waits on memory, and its speed is set by memory bandwidth, not arithmetic.</p>
+      <p>Added to that is the cache. At six tokens it is 688,128 bytes, nothing. But it grows by 114,688 bytes with every token: at 4,096 tokens the cache read is 470 million bytes, 40% of the weights, and at 32,768 tokens it is 3.76 billion bytes, three times the weights. The cache is what makes long conversations expensive, and shrinking it is the motivation for the next beats.</p>
+    </div>
+    <div class="intuition">
+      <p>Prefill reads the weights once and uses them for many tokens, like a printing press run. Decode starts the press for each single page. To be fast it would have to reread everything for one line, and the cost of reading dwarfs the cost of thinking.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="Tokens per second are at most memory bandwidth divided by the bytes read per token. The bytes are the weights, 1.19 billion, plus the cache, which is 114,688 bytes per cached token.">$$\text{tokens/s} \;\lesssim\; \frac{\text{bandwidth}}{\underbrace{1.19\times 10^{9}}_{\text{weights, BF16}} \;+\; \underbrace{114{,}688 \times T}_{\text{KV cache read}}}\qquad\Big(\text{e.g. } \tfrac{500\ \text{GB/s}}{1.19\ \text{GB}} \approx 420\text{ at small } T\Big)$$</span></p>
+      <p>With one token the activations are \([1,\,1024]\). The 500 GB/s is an illustrative figure, not a measurement of any machine in this study. The cache term is linear in context length \(T\), and the weights term is fixed. Everything in decode is a lookup in what prefill left behind.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-gqa-vs-mha" data-beat="gqa-vs-mha">
+    <h2>What grouped-query attention buys</h2>
+    <div class="story">
+      <p>The cache stores keys and values per <em>key/value head</em>, so the number of those heads sets its size. With one pair per query head (multi-head attention), the cache would hold 16 heads of 128, 8,192 bytes per token per layer. Qwen3's grouping to 8 halves it, 4,096. The extreme, one shared head for every query head (multi-query attention), would be 512. Grouped-query attention, introduced by Ainslie and colleagues in <a href="https://arxiv.org/abs/2305.13245">GQA: Training Generalized Multi-Query Transformer Models from Multi-Head Checkpoints</a>, is <span data-fact="gqa.paper">a generalisation of multi-query attention with an intermediate number of key-value heads</span>.</p>
+      <p>Across the model, at a 32,768-token context, that is 7.5 GB of cache for multi-head attention, 3.76 GB for GQA as built, and 0.47 GB for multi-query attention. The cost of sharing is expressiveness: fewer key/value heads means fewer distinct things each layer can look up, and designers choose the group size by balancing quality against memory.</p>
+    </div>
+    <div class="intuition">
+      <p>Hiring fewer librarians. Each librarian serves more readers, the building is smaller, and the question is whether readers still get what they need.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="Cache bytes per token per layer are two, for keys and values, times the number of key value heads, times 128, times two bytes. That is 8,192 for sixteen heads, 4,096 for eight, and 512 for one.">$$\text{bytes}/\text{token}/\text{layer} = 2 \times n_{kv} \times 128 \times 2 = \begin{cases} 8192 & n_{kv} = 16\ \text{(MHA)} \\ 4096 & n_{kv} = 8\ \text{(GQA, Qwen3)} \\ 512 & n_{kv} = 1\ \text{(MQA)} \end{cases}$$</span></p>
+      <p>The cache of one layer is \([n_{kv},\,T,\,128]\) for keys and for values. Multiply by 28 layers and by the context length for the whole cache: \(114{,}688 \times 32{,}768 = 3{,}758{,}096{,}384\) bytes for GQA.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-mla" data-beat="mla">
+    <h2>Multi-head latent attention</h2>
+    <div class="story">
+      <p>GQA shrinks the cache by sharing heads. <b>Multi-head latent attention</b>, MLA, takes a different route. The DeepSeek-V2 paper (<a href="https://arxiv.org/abs/2405.04434">arXiv 2405.04434</a>) states that <span data-fact="ds.paper">MLA compresses the key-value cache into a latent vector</span>. Instead of caching every head's key and value, a layer caches one small <em>latent</em> vector per token and rebuilds the keys and values from it when needed.</p>
+      <p>We ran the real attention of layer 0 of DeepSeek-V2-Lite on the same sentence. (Its tokenizer happens to cut the sentence into the same five pieces, with different IDs, such as <span data-walk="m:tokens.3.id" data-fmt="int">7,239</span> for ‘ France’.) Its hidden size is <span data-fact="ds.hidden">2048</span> and it has <span data-fact="ds.heads">16</span> heads. One matrix maps each token's 2048 numbers to <span data-fact="ds.kv_rank">512</span> + <span data-fact="ds.rope">64</span> = 576: <span data-fact="ds.kv_a">a down-projection</span> produces the 512-number latent, which is <span data-fact="ds.kv_a_norm">normalised</span> (the latent for ‘ is’ has length <span data-walk="m:latent.c_kv_norms.4" data-fmt="3">1.83</span>), and a separate 64-number key that carries position. Only these two are stored. In the model's code, <span data-fact="ds.cache_latent">the cache is read and written while the latent is still compressed</span>. When attention needs keys and values, <span data-fact="ds.expand">one up-projection</span> expands the latent: 512 numbers become, for each of the 16 heads, a 128-wide key and a 128-wide value.</p>
+      <p>The bytes tell the story. Per token and layer the cache holds \((512 + 64) \times 2 = \) <span data-walk="m:cache_bytes.mla_per_token_per_layer" data-fmt="int">1,152</span> bytes, where caching full multi-head keys and values would take <span data-walk="m:cache_bytes.mha_per_token_per_layer" data-fmt="int">10,240</span>: <b><span data-walk="m:cache_bytes.ratio" data-fmt="3">8.89</span> times smaller</b>. The paper reports that <span data-fact="ds.paper_93">DeepSeek-V2 reduces the KV cache by 93.3%</span>, a figure for the full model against the baseline the paper names.</p>
+    </div>
+    <div class="intuition">
+      <p>Instead of keeping a photocopy of every page for every reader, keep one compressed summary of the page, and let each reader rebuild their own copy from it on demand. The rebuild costs arithmetic, which a chip has plenty of, in exchange for memory traffic, which it lacks.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="The latent is the normalised down-projection of the input, 512 numbers per token. Each head's key and value are rebuilt from it with an up-projection matrix. A separate 64-number rotary key, shared by all heads, carries position.">$$\begin{aligned}c &= \operatorname{RMSNorm}(x\,W_{DKV}) \in \mathbb{R}^{[T,\,512]} \\ k^{\text{nope}}_h &= c\,W^{UK}_h,\quad v_h = c\,W^{UV}_h \in \mathbb{R}^{[T,\,128]} \\ k^{\text{rope}} &= \operatorname{RoPE}(x\,W_{KR}) \in \mathbb{R}^{[T,\,64]}\end{aligned}$$</span></p>
+      <p>The score for head \(h\) adds two parts: \(q_h^{\text{nope}} \cdot k_h^{\text{nope}} + q_h^{\text{rope}} \cdot k^{\text{rope}}\). The rotary part is kept <em>separate</em> and shared across heads (decoupled RoPE), and only it is rotated. The query is 192 wide per head, a 128-wide content part and a 64-wide position part. The cache is \([T,\,512]\) plus \([T,\,64]\), per layer, not \([T,\,16,\,256]\).</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-mla-absorb" data-beat="mla-absorb">
+    <h2>Never rebuilding the keys</h2>
+    <div class="story">
+      <p>Rebuilding every head's keys from the latent at every step would be wasteful. MLA has a trick for decode. The content score is a chain of two matrix products, \(q^{\text{nope}} \cdot (c\,W^{UK})\), and matrix products can be regrouped: \((q^{\text{nope}} W^{UKT}) \cdot c\). So multiply the <em>query</em> by the up-projection once, getting a 512-wide absorbed query, and score it directly against the cached latents. The keys are never materialised. As the DeepSeek paper explains, this is why the position-carrying part is kept separate: a rotation that depends on position would sit between the matrices and block the regrouping.</p>
+      <p>We checked it on the real layer. The scene shows the 5×5 scores computed both ways for head 0, and they agree: the largest difference is <span data-walk="m:absorbed.max_abs_diff" data-fmt="sci">2.12 × 10⁻7</span>, rounding error, and the attention weights match the model's own to the same precision. For ‘ is’ the weights over the five tokens are <span data-walk="m:explicit.probs_head0.4.0" data-fmt="pct">23.8%</span>, <span data-walk="m:explicit.probs_head0.4.1" data-fmt="pct">5.57%</span>, <span data-walk="m:explicit.probs_head0.4.2" data-fmt="pct">32.7%</span>, <span data-walk="m:explicit.probs_head0.4.3" data-fmt="pct">12.3%</span> and <span data-walk="m:explicit.probs_head0.4.4" data-fmt="pct">25.7%</span>.</p>
+    </div>
+    <div class="intuition">
+      <p>Translating a question into the answer's language once, instead of translating every answer into the question's language. With one question and thousands of cached answers, that is the cheaper side to translate.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="The score is the content part plus the position part. Regroup the content part by multiplying the query by the transpose of the key up-projection first. Then it is a dot product with the cached latent, 512 numbers, instead of with a rebuilt 128-number key.">$$\begin{aligned}s_{t,u} &= \Big(\underbrace{q^{\text{nope}}_t W^{UK\top}_h}_{\in\,\mathbb{R}^{512}}\Big)\!\cdot c_u \;+\; q^{\text{rope}}_t \!\cdot k^{\text{rope}}_u \\ o_h &= \Big(\sum_u a_{t,u}\, c_u\Big) W^{UV}_h\end{aligned}$$</span></p>
+      <p>The absorbed query and the cached latents are both \([5,\,512]\). The value side regroups the same way: take the attention-weighted sum of latents first (a 512-vector per head) and apply \(W^{UV}_h\) afterwards. Each score now costs a 512-wide dot product instead of a 128-wide one, more arithmetic per step but no rebuild and, more important, a cache read of 1,152 bytes per token instead of 10,240.</p>
+    </div>
+  </section>
+
+  <section class="beat" id="b-other-features" data-beat="other-features">
+    <h2>Other new features you will meet</h2>
+    <p>Qwen3-0.6B stops here. Newer models add more, and this article's pieces are the base they build on. <b>Sliding-window attention</b> limits each token to the last few thousand, so the cache stops growing for those layers. <b>Mixture of experts</b> replaces the single feed-forward network with many, of which a router picks a few per token, so a model can store far more than it computes with. <b>Attention residuals</b> replace the plain running sum with a learned mix over earlier blocks. All three are worked through, with the same real-number treatment, in <a href="inside-inkling.html#b-sliding-layer">the sliding-window layer</a>, <a href="inside-inkling.html#b-moe">the mixture of experts</a> and <a href="inside-inkling.html#b-attn-res">attention residuals</a> in Article B. And the idea of running the same layers more than once is the subject of <a href="why-loop.html">Article A</a>.</p>
+  </section>
+
+  <section class="beat" id="b-recap" data-beat="recap">
+    <h2>The whole picture</h2>
+    <div class="story">
+      <p>The five tokens became IDs, the IDs became vectors, and each of 28 layers added two corrections to every vector. The first came from attention: normalise, project to 16 queries and 8 shared keys and values, normalise the queries and keys, rotate them by position, score, mask, softmax, mix, merge the heads. The second came from the feed-forward network: normalise, widen to 3072 twice, gate with SiLU, narrow back. After the stack, the last vector was normalised and dotted with the 151,936 rows of the embedding table to give logits, softmax gave probabilities, and the vocabulary turned the winning ID into ‘ Paris’. The cache kept the keys and values, so the next token cost one row, not six.</p>
+    </div>
+    <div class="intuition">
+      <p>Everything in a transformer is the same four moves repeated: normalise, multiply by a learned matrix, mix with weights that depend on the data, and add the result back. What changes between designs is how many heads there are, how they share, and what is cached.</p>
+    </div>
+    <div class="math">
+      <p><span class="eq" data-speak="Every stage keeps the shape five by 1024 until the last row becomes 151,936 scores. The cache keeps eight heads by tokens by 128 for keys and for values, in each of 28 layers.">$$\underbrace{[5]}_{\text{ids}} \to \underbrace{[5,1024]}_{h_0} \to \underbrace{[5,2048],\,[5,1024]^2}_{Q,\,K,\,V} \to \underbrace{[16,5,5]}_{\text{weights}} \to \underbrace{[5,1024]}_{\text{attn out}} \to \underbrace{[5,3072]^2}_{\text{gate, up}} \to \underbrace{[5,1024]}_{h_{28}} \to \underbrace{[151936]}_{\text{logits}} \to \text{“ Paris”}$$</span></p>
+      <p>Cache: \([8,\,T,\,128]\) for keys and for values in each of 28 layers, 114,688 bytes per token. Next-token cost: about 1.19 billion operations and 1.19 billion bytes of weights read.</p>
+    </div>
+  </section>
+</article>
+<aside id="stage" aria-label="Scene that follows the text">
+  <div class="stage-box"><canvas id="scene" role="img" aria-label="3D scene of the transformer layers"></canvas><div id="labels" aria-hidden="true"></div><div class="stage-title" id="beat-title"></div></div>
+  <div class="controls" id="controls">
+    <fieldset id="mode"><legend class="sr">How the text and scene move</legend>
+      <label><input type="radio" name="mode" id="mode-scroll" value="scroll" checked> Scroll</label>
+      <label><input type="radio" name="mode" id="mode-step" value="step"> Step</label>
+      <label><input type="radio" name="mode" id="mode-play" value="play"> Play</label>
+    </fieldset>
+    <button id="prev" type="button" aria-label="Previous beat">← Prev</button><button id="next" type="button" aria-label="Next beat">Next →</button>
+    <label>Speed <select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+  </div>
+  <div class="controls voice" id="voice-controls">
+    <label class="narrate"><input type="checkbox" id="narrate"> 🔊 Narrate</label>
+    <label>Voice <select id="voice"><option value="">System default</option></select></label>
+    <label>Rate <select id="rate"><option value="0.8">0.8×</option><option value="1" selected>1×</option><option value="1.25">1.25×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></label>
+    <button id="narrate-pause" type="button">Read beat</button>
+    <span id="voice-note" class="note"></span>
+  </div>
+</aside>
+</div>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg" crossorigin="anonymous"></script><script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js" integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk" crossorigin="anonymous"></script>
+<script src="engine/state.js"></script><script src="engine/layout.js"></script><script src="engine/micro.js"></script><script src="engine/micro-walk.js"></script><script src="engine/gl.js"></script><script src="engine/canvas2d.js"></script><script src="engine/scene.js"></script><script src="engine/speech.js"></script><script src="engine/terms.js"></script><script src="engine/drivers.js"></script><script src="engine/narrator.js"></script><script src="engine/boot.js"></script><script src="beats/beats-c.js"></script>
+<script>LoopArticle.start({ beats: window.LOOP_BEATS_C });
+Promise.all(['walkthrough-data', 'walkthrough-mla'].map(f => fetch('assets/walkthrough/' + f + '.json').then(r => r.json()))).then(([d, m]) => { LOOP.sceneApi.setData('walk', { d, m, token: 4, head: 0 }); LOOP.walkReady = true; });</script>
+</body></html>

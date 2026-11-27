@@ -196,5 +196,6 @@
     arrow('op.cap', 16.1, 17.1, 0),
     ...grid('logits', 'tanh(x / 30) · 30  softcapped logits  [T, 200058]', 22.4, 0, 3, 16, 'hot'),
   ];
+  Layout.microKit = { grid, arrow, vline, box, maxAbs, NODES };                     // shared with micro-walk.js
 });
 

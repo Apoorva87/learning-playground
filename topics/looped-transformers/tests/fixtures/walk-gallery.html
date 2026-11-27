@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Walkthrough scene gallery</title>
+<link rel="icon" href="data:,"><link rel="stylesheet" href="../../loop.css"></head><body>
+<div class="layout"><article id="article">
+<section class="beat" id="b-walk-tokens" data-beat="walk-tokens"><h2>walk-tokens</h2><p>Scene walk-tokens.</p></section>
+<section class="beat" id="b-walk-embed" data-beat="walk-embed"><h2>walk-embed</h2><p>Scene walk-embed.</p></section>
+<section class="beat" id="b-walk-layer" data-beat="walk-layer"><h2>walk-layer</h2><p>Scene walk-layer.</p></section>
+<section class="beat" id="b-walk-norm" data-beat="walk-norm"><h2>walk-norm</h2><p>Scene walk-norm.</p></section>
+<section class="beat" id="b-walk-qkv" data-beat="walk-qkv"><h2>walk-qkv</h2><p>Scene walk-qkv.</p></section>
+<section class="beat" id="b-walk-gqa" data-beat="walk-gqa"><h2>walk-gqa</h2><p>Scene walk-gqa.</p></section>
+<section class="beat" id="b-walk-qknorm" data-beat="walk-qknorm"><h2>walk-qknorm</h2><p>Scene walk-qknorm.</p></section>
+<section class="beat" id="b-walk-rope" data-beat="walk-rope"><h2>walk-rope</h2><p>Scene walk-rope.</p></section>
+<section class="beat" id="b-walk-scores" data-beat="walk-scores"><h2>walk-scores</h2><p>Scene walk-scores.</p></section>
+<section class="beat" id="b-walk-mix" data-beat="walk-mix"><h2>walk-mix</h2><p>Scene walk-mix.</p></section>
+<section class="beat" id="b-walk-ffn" data-beat="walk-ffn"><h2>walk-ffn</h2><p>Scene walk-ffn.</p></section>
+<section class="beat" id="b-walk-stack" data-beat="walk-stack"><h2>walk-stack</h2><p>Scene walk-stack.</p></section>
+<section class="beat" id="b-walk-head" data-beat="walk-head"><h2>walk-head</h2><p>Scene walk-head.</p></section>
+<section class="beat" id="b-walk-cache" data-beat="walk-cache"><h2>walk-cache</h2><p>Scene walk-cache.</p></section>
+<section class="beat" id="b-walk-decode" data-beat="walk-decode"><h2>walk-decode</h2><p>Scene walk-decode.</p></section>
+<section class="beat" id="b-walk-mla" data-beat="walk-mla"><h2>walk-mla</h2><p>Scene walk-mla.</p></section>
+<section class="beat" id="b-walk-mla-absorb" data-beat="walk-mla-absorb"><h2>walk-mla-absorb</h2><p>Scene walk-mla-absorb.</p></section>
+<section class="beat" id="b-walk-cachesize" data-beat="walk-cachesize"><h2>walk-cachesize</h2><p>Scene walk-cachesize.</p></section>
+</article>
+<aside id="stage"><div class="stage-box"><canvas id="scene"></canvas><div id="labels"></div><div class="stage-title" id="beat-title"></div></div>
+<div class="controls" id="controls"><fieldset><label><input type="radio" id="mode-scroll" checked> Scroll</label><label><input type="radio" id="mode-step"> Step</label><label><input type="radio" id="mode-play"> Play</label></fieldset><button id="prev">Prev</button><button id="next">Next</button><select id="speed"><option value="1">1</option></select></div></aside></div>
+<script src="../../engine/state.js"></script><script src="../../engine/layout.js"></script><script src="../../engine/micro.js"></script><script src="../../engine/micro-walk.js"></script><script src="../../engine/gl.js"></script><script src="../../engine/canvas2d.js"></script><script src="../../engine/scene.js"></script><script src="../../engine/terms.js"></script><script src="../../engine/drivers.js"></script><script src="../../engine/boot.js"></script>
+<script>
+const names = ['walk-tokens', 'walk-embed', 'walk-layer', 'walk-norm', 'walk-qkv', 'walk-gqa', 'walk-qknorm', 'walk-rope', 'walk-scores', 'walk-mix', 'walk-ffn', 'walk-stack', 'walk-head', 'walk-cache', 'walk-decode', 'walk-mla', 'walk-mla-absorb', 'walk-cachesize'];
+const beats = names.map(n => ({ id: n, title: n, kind: 'interlude', scene: { level: 'micro', micro: n, fold: 0, pass: 0, camera: LoopLayout.microCamera(n), lit: [], flow: { kind: 'none' } }, terms: {} }));
+LoopArticle.start({ beats });
+Promise.all(['walkthrough-data', 'walkthrough-mla'].map(f => fetch('../../assets/walkthrough/' + f + '.json').then(r => r.json()))).then(([d, m]) => { LOOP.sceneApi.setData('walk', { d, m, token: 4, head: 0 }); LOOP.walkReady = true; });
+</script></body></html>

@@ -6,7 +6,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { launch, open, ROOT } = require('./helpers.cjs');
 
-const PAGES = (process.env.PAGES || 'why-loop.html,inside-inkling.html').split(',').filter(p => fs.existsSync(path.join(ROOT, p)));
+const PAGES = (process.env.PAGES || 'why-loop.html,inside-inkling.html,transformer-walkthrough.html').split(',').filter(p => fs.existsSync(path.join(ROOT, p)));
 let env;
 test.before(async () => { env = await launch(); });
 test.after(async () => { await env.close(); });

@@ -37,7 +37,7 @@ test('splitSentences: offsets cover the text contiguously', () => {
 });
 
 /* Authoring completeness: every display equation in both articles has a spoken version. */
-for (const page of ['why-loop.html', 'inside-inkling.html']) {
+for (const page of ['why-loop.html', 'inside-inkling.html', 'transformer-walkthrough.html']) {
   test(`${page}: every display equation is wrapped with a spoken version`, () => {
     const html = fs.readFileSync(path.join(__dirname, '../..', page), 'utf8');
     const display = [...html.matchAll(/\$\$[\s\S]*?\$\$/g)].length;

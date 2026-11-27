@@ -7,9 +7,15 @@
 <nav class="top"><a href="../../index.html">← Learning playground</a><a href="../README.md">All topics</a><a href="README.md">README and reproduction</a><a href="notes.md">Notes and feedback</a></nav>
 <main class="landing">
   <h1>Looped transformers, stage by stage</h1>
-  <p class="lead">What if a model could think longer by running the same layers again? <a href="https://huggingface.co/thinkingmachines/Inkling-2-Mini">Inkling 2 Mini</a> stores 24 layers and runs the middle 12 three times, so every token makes 48 layer visits. These two articles take that idea apart one stage at a time. Each stage has its story, its intuition and its math with real shapes, and a 3D scene beside the text that shows the same stage at the same moment.</p>
+  <p class="lead">What if a model could think longer by running the same layers again? <a href="https://huggingface.co/thinkingmachines/Inkling-2-Mini">Inkling 2 Mini</a> stores 24 layers and runs the middle 12 three times, so every token makes 48 layer visits. These three articles take it apart one stage at a time, starting from the plain machinery. Each stage has its story, its intuition and its math with real shapes, and a 3D scene beside the text that shows the same stage at the same moment.</p>
 
   <div class="cards">
+    <a class="card" href="transformer-walkthrough.html">
+      <span class="kicker">Article C · 24 beats · start here</span>
+      <b>One sentence through a modern transformer</b>
+      <span>Follow “The capital of France is” through a real small model, with recorded numbers at every step: RMSNorm, grouped-query attention, query-key normalisation, rotary positions, the SwiGLU feed-forward network, the 151,936 scores of the head, picking and looking up a token, the KV cache, and one decode step. Then multi-head latent attention, with real numbers from a real MLA layer.</span>
+      <span class="try">Try: open it, press <b>Play</b> with <b>Narrate</b> on, and watch the attention heat map fill in.</span>
+    </a>
     <a class="card" href="why-loop.html">
       <span class="kicker">Article A · 18 beats</span>
       <b>Why loop a transformer?</b>
